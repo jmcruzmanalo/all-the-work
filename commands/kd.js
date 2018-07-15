@@ -1,7 +1,5 @@
-const ftnAPI = require('../ftnAPI').ftnAPI;
-
 const setKD = async (message) => {
-  const KD = await getKD('ATW_Seensei');
+  
 };
 
 const getKD = async (ign) => {
@@ -15,7 +13,7 @@ const getKD = async (ign) => {
   }
 
   const stats = getStatsFromResponse(response);
-  console.log(stats);
+  return stats;
 };
 
 const getStatsFromResponse = (response) => {
@@ -29,5 +27,4 @@ const getStatsFromResponse = (response) => {
   return data;
 }
 
-module.exports.setKD = setKD;
-module.exports.getKD = getKD;
+module.exports = {setKD, getKD};
