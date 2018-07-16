@@ -7,16 +7,6 @@ const onReady = async () => {
   const guilds = bot.guilds;
   const guildsArray = guilds.array();
 
-  const mainGuild = guildsArray[0];
-  await addRole({
-    guildID: mainGuild.id, 
-    roleName: 'sample-role'
-  });
-  setTimeout(() => {
-    console.log(bot.guilds.array()[0].roles);
-  }, 10000);
-
-
   for (let x = 0; x < guildsArray.length; x++) {
     const guild = guildsArray[x];
     const rolesArray = guild.roles.array();

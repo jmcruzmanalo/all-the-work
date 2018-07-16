@@ -17,11 +17,11 @@ const ROLE_KD_RANGE = {
  * @param {Object} rolesRange key value pair of [string number]:[name of role] to be checked. These are constants
  * @returns {Promise<true|Array>} should return true if all the roles have been found or an array of roles that do not exist
  */
-const checkIfRolesExists = async ({guildID, rolesRange = ROLE_KD_RANGE, activeRoles}) => {
+const checkIfRolesExists = async ({ guildID, rolesRange = ROLE_KD_RANGE, activeRoles }) => {
   const roles = Object.values(rolesRange); // Roles to be searched
   if (!activeRoles) {
     activeRoles = await discordAPI.getRoles(guildID);
-  } 
+  }
 
   const missingRoles = roles.filter((role) => {
     let isFound = false;
@@ -40,17 +40,55 @@ const checkIfRolesExists = async ({guildID, rolesRange = ROLE_KD_RANGE, activeRo
 /**
  * Adds a role given guildID and roleName
  */
-const addRole = async ({guildID, roleName}) => {
+const addRole = async ({ guildID, roleName }) => {
   if (!guildID && !roleName) throw new Error(`Error - roles.js:addRole() - Please provide a guildID and roleName`);
+  /**
+   * TODO: The added role should be stored in a database so we can just remove by ID instead of querying the discord api. This will ensure that we don't accidentally remove a role which was renamed. Though in the end it's not support to be that way
+   */
   return await discordAPI.addRole(guildID, roleName);
 };
 
 /**
- * Removes a role based on a name. It'll also delete duplicates.
+ * Removes a role based on a name on a guild. It'll also delete duplicates.
  */
-const removeRole = async ({roleName}) => {
-  
+const removeRole = async ({ guildID, roleName }) => {
+
+  // get all the roles of a certain guild
+  const roles = await getRolesByName({ guildID, roleName });
+
+  // loop through all the roles and get the IDs of those that have the same name
+  const roleIDs = roles.map((role) => {
+    return role.id;
+  });
+
   // Should return a 204
+  const deletePromises = roleIDs.map((roleID) => {
+    return discordAPI.deleteRole(guildID, roleID);
+  });
+
+  try {
+    await Promise.all(deletePromises);
+    return true;
+  } catch (e) {
+    console.log(`Error - roles.js:removeRole() - One of the deleteRole requests failed`);
+    console.log(e);
+    return false;
+  }
+
+
+  // true if response is a 204
 };
 
-module.exports = {ROLE_KD_RANGE, checkIfRolesExists, addRole};
+
+/**
+ * Returns an array of roles with the same name in a guild.
+ */
+const getRolesByName = async ({ guildID, roleName }) => {
+  const roles = await discordAPI.getRoles(guildID);
+  const res = roles.filter((role) => {
+    return role.name === roleName
+  });
+  return res;
+}
+
+module.exports = { ROLE_KD_RANGE, checkIfRolesExists, getRolesByName, addRole, removeRole };
