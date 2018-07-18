@@ -16,7 +16,7 @@ const getStats = async (ign, options = {}) => {
     data = response.data;
   } catch (e) {
     console.log(e);
-    throw new Error(`Error - fortnite-api:getStats`);
+    throw new Error(`fortnite-api:getStats`);
   }
   return data;
 };

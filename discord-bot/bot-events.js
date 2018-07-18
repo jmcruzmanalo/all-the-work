@@ -1,7 +1,7 @@
 
-const {DEV_MODE} = require('../config');
+const { DEV_MODE } = require('../config');
 const { bot } = require('./bot-instance');
-const {checkIfRolesExists, addRole} = require('../commands/roles');
+const { addNeededRoles } = require('../commands/roles');
 
 const onReady = async () => {
   const guilds = bot.guilds;
@@ -10,10 +10,10 @@ const onReady = async () => {
   for (let x = 0; x < guildsArray.length; x++) {
     const guild = guildsArray[x];
     const rolesArray = guild.roles.array();
-    const missingRoles = await checkIfRolesExists({
-      guildID: guild.id,
-      activeRoles: rolesArray
-    });
+    addNeededRoles({guildID: guild.id, activeRoles: rolesArray})
+      .then(() => {
+        console.log(`Prepared roles for server: ${guild.id}`);
+      });
   }
 };
 

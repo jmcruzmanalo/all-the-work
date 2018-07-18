@@ -19,21 +19,26 @@ const getRoles = async (guildID) => {
   try {
     res = await instance.get(url);
   } catch (e) {
-    throw new Error(`Error - discord-api:getRoles() - ${e}`)
+    throw new Error(`discord-api:getRoles() - ${e}`)
   }
   return res.data;
 }
 
-const addRole = async (guildID, roleName, roleOptions = { mentionable: true }) => {
+const addRole = async (guildID, roleName, roleOptions = {}) => {
   const url = `/guilds/${guildID}/roles`;
   let res;
   try {
-    res = await instance.post(url, {
+    if (roleOptions.color) {
+      let x = roleOptions.color.replace('#', '');
+      roleOptions.color = parseInt(x, 16);
+    }
+    const requestOptions = {
       name: roleName,
       ...roleOptions
-    });
+    };
+    res = await instance.post(url, requestOptions);
   } catch (e) {
-    throw new Error(`Error - discord-api:addRole() - ${e}`);
+    throw new Error(`discord-api:addRole() - ${e}`);
   }
   return res.data;
 };
@@ -44,7 +49,7 @@ const deleteRole = async (guildID, roleID) => {
   try {
     res = await instance.delete(url);
   } catch (e) {
-    throw new Error(`Error - discord-api:deleteRole() - ${e}`);
+    throw new Error(`discord-api:deleteRole() - ${e}`);
   }
   return res.status;
 };
