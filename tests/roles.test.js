@@ -1,6 +1,7 @@
 
 const _ = require('lodash');
 const expect = require('expect');
+const testConfig = require('./test.config');
 const { bot } = require('../discord-bot/bot-instance');
 const { MainGuildID: guildID } = require('../config');
 const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles } = require('../commands/roles');
@@ -47,6 +48,7 @@ const TEST_ROLES = {
 };
 
 describe(`Roles file`, () => {
+  if (!testConfig['roles']) return;
 
   it(`should be able to get the roles by name`, async () => {
     const roles = await getRolesByName({ guildID, roleName: 'Owner' });

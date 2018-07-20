@@ -18,12 +18,13 @@ const onReady = async () => {
 };
 
 const onMessage = async (message) => {
-  // messgae.channel.name
+  // message.channel.name
   if (DEV_MODE && message.channel.name !== 'bot-development') {
     return;
   }
   const text = message.content;
   if (text.substring(0, 4) === '!atw') {
+    console.log(message);
     message.reply(':middle_finger:');
   }
 }

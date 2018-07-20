@@ -2,13 +2,13 @@
 // TODO: Figure out the best location to place this file
 
 const discordAPI = require('../api/discord-api');
-const {Role} = require('../database/models/role');;
+const { Role } = require('../database/models/role');;
 
 // These are how roles should be defined. Obviously this "Schema" can be saved later in a database to be dynamic
 const ROLES = {
   Senpapi: {
+    name: 'Senpapi',
     roleOptions: {
-      name: 'Senpapi',
       color: '#0f0e0e', // BLACK
       hoist: true,
       mentionable: true
@@ -20,8 +20,8 @@ const ROLES = {
     unique: true // Only one user
   },
   Kouhai: {
+    name: 'Kouhai',
     roleOptions: {
-      name: 'Kouhai',
       color: '#E91E63', // GREEN
       hoist: true,
       mentionable: true
@@ -32,8 +32,8 @@ const ROLES = {
     }
   },
   Heikin: {
+    name: 'Heikin', // Meaning average
     roleOptions: {
-      name: 'Heikin', // Meaning average
       color: '#F8D2F9', // PINK
       hoist: true,
       mentionable: true
@@ -44,8 +44,8 @@ const ROLES = {
     }
   },
   DooDoo: {
+    name: 'DooDoo',
     roleOptions: {
-      name: 'DooDoo',
       color: '#654321', // BROWN like shit
       hoist: true,
       mentionable: true
@@ -67,7 +67,7 @@ const addNeededRoles = async ({ guildID, rolesRange = ROLES }) => {
 
   // Add the roles based on the object
   const addPromises = missingRoles.map((missingRole) => {
-    return addRole({guildID, role: rolesRange[missingRole]});
+    return addRole({ guildID, role: rolesRange[missingRole] });
   });
 
   try {
@@ -82,11 +82,11 @@ const addNeededRoles = async ({ guildID, rolesRange = ROLES }) => {
 /**
  * Removes all the roles that were added by the bot
  */
-const removeAddedRoles = async ({ guildID, rolesRange = ROLES}) => {
+const removeAddedRoles = async ({ guildID, rolesRange = ROLES }) => {
   const rolesToBeRemoves = Object.keys(rolesRange);
 
   const removePromises = rolesToBeRemoves.map((roleName) => {
-    return removeRole({guildID, role: rolesRange[roleName]});
+    return removeRole({ guildID, role: rolesRange[roleName] });
   });
 
   try {
@@ -166,7 +166,7 @@ const removeRole = async ({ guildID, role }) => {
   } catch (e) {
     console.log(e);
     throw new Error(`roles.js:removeRole() - ${e}`);
-    
+
   }
 
 
@@ -184,4 +184,4 @@ const getRolesByName = async ({ guildID, roleName }) => {
   return res;
 }
 
-module.exports = { addNeededRoles, removeAddedRoles, checkIfRolesExists, getRolesByName, addRole, removeRole };
+module.exports = { ROLES, addNeededRoles, removeAddedRoles, checkIfRolesExists, getRolesByName, addRole, removeRole };

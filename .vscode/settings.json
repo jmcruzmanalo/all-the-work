@@ -1,9 +1,12 @@
 {
-  "spellright.language": "en",
-  "spellright.documentTypes": [
-    "markdown",
-    "latex",
-    "plaintext",
-    "javascript"
-  ]
+  "cSpell.words": [
+    "Fortnite",
+    "Heikin",
+    "Kouhai",
+    "Seensei",
+    "Senpapi"
+  ],
+  "files.exclude": {
+    "node_modules/": true
+  },
 }
