@@ -1,8 +1,8 @@
 
 const expect = require('expect');
 const testConfig = require('./test.config');
-const { getKDs, getDeservedRole } = require('../commands/kd');
-const { ROLES } = require('../commands/roles');
+const { getKDs, getDeservedRole } = require('../actions/kd');
+const { ROLES } = require('../actions/roles');
 
 
 describe(`KD.js`, () => {

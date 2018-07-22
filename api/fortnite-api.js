@@ -9,21 +9,27 @@ const instance = axios.create({
   }
 });
 
-const getStats = async (ign, options = {}) => {
-  const url = `/player/${ign}`;
-  let data;
+const doesUserExist = async ({ ign, platform = 'pc' }) => {
+  if (!ign) throw new Error(`fortnite-api.js:doesUserExist() - provide an IGN`);
+  const url = `/${platform}/${ign}`;
   try {
     let response = await instance.get(url);
-    data = response.data;
-  } catch (e) {
+    if (response.status === 200) {
+      if (response.data.hasOwnProperty('error')) {
+        return false;
+      }
+      return true;
+    } else {
+      throw new Error(`Unhandled response status`);
+    }
+  } catch(e) {
     console.log(e);
-    throw new Error(`fortnite-api:getStats`);
+    throw new Error(`fortnite-api.js:doesUserExist() - ${e}`);
   }
-  return data;
 };
 
-const getStatsBySeason = async ({ ign, platform = 'pc' }) => {
-  if (!ign) throw new Error(`fortnite-api.js:getStatsBySeason() - provide an IGN`)
+const getStats = async ({ ign, platform = 'pc' }) => {
+  if (!ign) throw new Error(`fortnite-api.js:getStats() - provide an IGN`)
   const url = `/${platform}/${ign}`;
   try {
     let response = await instance.get(url);
@@ -31,9 +37,8 @@ const getStatsBySeason = async ({ ign, platform = 'pc' }) => {
   }
   catch (e) {
     console.log(e);
-    throw new Error(`fortnite-api.js:getStatsBySeason - ${e}`);
+    throw new Error(`fortnite-api.js:getStats - ${e}`);
   }
-
 };
 
-module.exports = { instance, getStatsBySeason};
+module.exports = { instance, getStats, doesUserExist };

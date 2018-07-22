@@ -4,7 +4,7 @@ const expect = require('expect');
 const testConfig = require('./test.config');
 const { bot } = require('../discord-bot/bot-instance');
 const { MainGuildID: guildID } = require('../config');
-const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles } = require('../commands/roles');
+const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles } = require('../actions/roles');
 
 const TEST_ROLES = {
   Owner: {

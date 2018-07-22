@@ -1,7 +1,7 @@
 
 const clone = require('clone');
-const { getStatsBySeason } = require('../api/fortnite-api');
-const { ROLES } = require('../commands/roles');
+const { getStats } = require('../api/fortnite-api');
+const { ROLES } = require('../actions/roles');
 
 const CONST_PROPS = {
   C_SQUADS: 'curr_p9',
@@ -29,7 +29,7 @@ const setKD = async (message) => {
 const getKDs = async ({ ign }) => {
   if (!ign) throw new Error(`kd.js:getKDs() - no ign provided`);
   try {
-    const res = await getStatsBySeason({ ign });
+    const res = await getStats({ ign });
     const stats = res.stats;
     const solosStat = (stats.hasOwnProperty(CONST_PROPS.C_SOLOS))
       ? stats[CONST_PROPS.C_SOLOS].kd.valueDec : 'N/A';
@@ -57,11 +57,12 @@ const getKDs = async ({ ign }) => {
  */
 const getDeservedRole = async ({ ign, userKDs, basedOn }) => {
   if (!ign) throw new Error(`kd.js:getDeservedRole() - no ign provided`);
-  if (!userKDs) kds = await getKDs({ ign });
+  if (!userKDs) userKDs = await getKDs({ ign });
   if ((basedOn) && (basedOn !== CONST_PROPS.SOLOS || basedOn !== CONST_PROPS.DUOS || basedOn !== CONST_PROPS.SQUADS)) {
     throw new Error(`kd.js:getDeservedRole() - basedOn should be CONST_PROPS[SOLOS || DUOS || SQUADS]`)
   };
   if (!basedOn) basedOn = CONST_PROPS.SQUADS;
+
 
 
   let deservedRole = null;

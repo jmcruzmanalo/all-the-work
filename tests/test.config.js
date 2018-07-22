@@ -3,10 +3,10 @@
 const testConfig = {
   // TDD ?
   'discord-api': false,
-  'fortnite-api': false,
+  'fortnite-api': true,
 
   // BDD ?
-  'kd': true,
+  'kd': false,
   'roles': false
 };
 

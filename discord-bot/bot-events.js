@@ -1,9 +1,12 @@
 
 const { DEV_MODE } = require('../config');
 const { bot } = require('./bot-instance');
-const { addNeededRoles } = require('../commands/roles');
+const { addNeededRoles } = require('../actions/roles');
 
 const onReady = async () => {
+
+  console.log('Bot is ready, running needed checks.');
+
   const guilds = bot.guilds;
   const guildsArray = guilds.array();
 
@@ -21,11 +24,6 @@ const onMessage = async (message) => {
   // message.channel.name
   if (DEV_MODE && message.channel.name !== 'bot-development') {
     return;
-  }
-  const text = message.content;
-  if (text.substring(0, 4) === '!atw') {
-    console.log(message);
-    message.reply(':middle_finger:');
   }
 }
 
