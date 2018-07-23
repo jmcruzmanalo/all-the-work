@@ -2,9 +2,9 @@
 const _ = require('lodash');
 const expect = require('expect');
 const testConfig = require('./test.config');
-const { bot } = require('../discord-bot/bot-instance');
 const { MainGuildID: guildID } = require('../config');
 const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles } = require('../actions/roles');
+const { GuildRole } = require('../database/models/guildRoles');
 
 const TEST_ROLES = {
   Owner: {
@@ -92,6 +92,17 @@ describe(`Roles file`, () => {
         name: 'TestRole',
         hoist, mentionable
       });
+
+      const savedRole = await GuildRole.findOne({
+        guildID,
+        discordRoleObject: role
+      });
+
+      expect(savedRole).toMatchObject({
+        guildID,
+        discordRoleObject: role
+      });
+
     });
 
     it(`should remove the test role - removeRoleFromGuild`, async () => {

@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { Link } = require('../../../database/models/Link');
+const { UserLink } = require('../../../database/models/userLink');
 const { doesUserExist } = require('../../../api/fortnite-api');
 
 class LinkCommand extends Command {
@@ -21,12 +21,12 @@ class LinkCommand extends Command {
     const discordID = message.author.id;
 
     if (await doesUserExist({ign: epicIGN})) {
-      const link = new Link({
+      const userLink = new UserLink({
         guildID,
         epicIGN,
         discordID
       });
-      link.save();
+      userLink.save();
       message.reply(`Successfully linked your account`);
     } else {
       message.reply(`The user ${epicIGN} does not seem to exist.`);

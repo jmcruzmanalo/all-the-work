@@ -1,6 +1,6 @@
 const { Command } = require('discord.js-commando');
 const { getDeservedRole } = require('../../../actions/kd');
-const { Link } = require('../../../database/models/Link');
+const { UserLink } = require('../../../database/models/userLink');
 
 
 class DeservedRoleCommand extends Command {
@@ -17,7 +17,7 @@ class DeservedRoleCommand extends Command {
   async run(message, argsString, formPattern) {
     const discordID = message.author.id;
 
-    const doc = await Link.findOne({
+    const doc = await UserLink.findOne({
       discordID
     });
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const LinkSchema = new mongoose.Schema({
+const UserLinkSchema = new mongoose.Schema({
   guildID: {
     type: String,
     required: true,
@@ -15,6 +15,6 @@ const LinkSchema = new mongoose.Schema({
   }
 });
 
-const Link = mongoose.model('Link', LinkSchema);
+const UserLink = mongoose.model('Link', UserLinkSchema);
 
-module.exports = { Link };
+module.exports = { UserLink };

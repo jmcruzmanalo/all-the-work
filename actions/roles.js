@@ -2,7 +2,7 @@
 // TODO: Figure out the best location to place this file
 
 const discordAPI = require('../api/discord-api');
-const { Role } = require('../database/models/role');;
+const { GuildRole } = require('../database/models/guildRoles');
 
 // These are how roles should be defined. Obviously this "Schema" can be saved later in a database to be dynamic
 const ROLES = {
@@ -127,15 +127,31 @@ const checkIfRolesExists = async ({ guildID, rolesRange = ROLE_KD_RANGE, activeR
 };
 
 /**
- * Adds a role given guildID and roleName
+ * Adds a role given guildID and roleName.
+ * @returns DiscordRole Object
  */
 const addRole = async ({ guildID, role }) => {
   if (!guildID && !role) throw new Error(`roles.js:addRole() - Please provide a guildID and roleName`);
 
+  const addedRole = await discordAPI.addRole(guildID, role.name, { ...role.roleOptions });
+
+  const d = {
+    guildID,
+    discordRoleObject: addedRole,
+    roleOptions: role.roleOptions,
+    kdRange: role.kdRange,
+  }
+  if (role.unique) d.unique = role.unique;
+
+  const guildRole = new GuildRole(d);
+
   /**
-   * TODO: The added role should be stored in a database so we can just remove by ID instead of querying the discord api. This will ensure that we don't accidentally remove a role which was renamed. Though in the end it's not support to be that way
+   * TODO: Someday we might not need to wait for save() to finish. We'll check though once needed.
    */
-  return await discordAPI.addRole(guildID, role.name, { ...role.roleOptions });
+  await guildRole.save();
+
+
+  return addedRole;
 };
 
 /**
