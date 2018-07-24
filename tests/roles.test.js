@@ -2,9 +2,11 @@
 const _ = require('lodash');
 const expect = require('expect');
 const testConfig = require('./test.config');
-const { MainGuildID: guildID } = require('../config');
-const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles } = require('../actions/roles');
+const { MainGuildID: guildID, DeveloperDiscordID } = require('../config');
+const { checkIfRolesExists, getRolesByName, addRole, removeRole, addNeededRoles, removeAddedRoles, getGuildRolesInDatabase, setUserRolesInGuild } = require('../actions/roles');
+const { getUserRoles } = require('../api/discord-api');
 const { GuildRole } = require('../database/models/guildRoles');
+const { testDocRoles, sampleGuildID } = require('./seed/testDocRoles');
 
 const TEST_ROLES = {
   Owner: {
@@ -50,6 +52,10 @@ const TEST_ROLES = {
 describe(`Roles file`, () => {
   if (!testConfig['roles']) return;
 
+  before(async () => {
+    await GuildRole.remove({});
+  });
+
   it(`should be able to get the roles by name`, async () => {
     const roles = await getRolesByName({ guildID, roleName: 'Owner' });
     expect(roles.length).toBe(1);
@@ -59,6 +65,21 @@ describe(`Roles file`, () => {
   });
 
 
+  it(`should be able to get the roles by guild`, async () => {
+    // This add then removed the roles, should probably be check if the case needs to be implemented better
+    // This does not user the main guild since it'd be a pain to insert and remove legit guild roles, so instead we'll be using see data.
+
+
+    const guildRole1 = new GuildRole(testDocRoles[0]);
+    const guildRole2 = new GuildRole(testDocRoles[1]);
+
+    await Promise.all([guildRole1.save(), guildRole2.save()]);
+
+    const rolesFromDatabase = await getGuildRolesInDatabase({ guildID: sampleGuildID });
+
+    expect(rolesFromDatabase).toMatchObject([guildRole1.toObject(), guildRole2.toObject()]);
+  });
+
   it(`should check if the roles exist on a guild - checkIfRolesExists`, async () => {
     const expectedMissing = ['BOT1', 'BOT2'];
     const check = await checkIfRolesExists({
@@ -67,6 +88,8 @@ describe(`Roles file`, () => {
     expect(check.length).toBe(2);
     expect(check).toEqual(expect.arrayContaining(expectedMissing));
   });
+
+  
 
   describe(`Adding then removing a role`, () => {
     const testRole = {
@@ -80,6 +103,7 @@ describe(`Roles file`, () => {
         min: 0,
         max: 0.99
       },
+      position: 0,
       unique: true // Only one user
     };
     let r;
@@ -92,6 +116,7 @@ describe(`Roles file`, () => {
         name: 'TestRole',
         hoist, mentionable
       });
+      r = role;
 
       const savedRole = await GuildRole.findOne({
         guildID,
@@ -102,6 +127,14 @@ describe(`Roles file`, () => {
         guildID,
         discordRoleObject: role
       });
+
+    });
+
+    it(`should add the test role to ATW_Seensei`, async () => {
+      await setUserRolesInGuild({ guildID, roleID: r.id, userID: DeveloperDiscordID });
+      const currentUserRoles = await getUserRoles(guildID, DeveloperDiscordID);
+
+      expect(currentUserRoles).toContain(r.id);
 
     });
 

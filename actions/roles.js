@@ -4,7 +4,11 @@
 const discordAPI = require('../api/discord-api');
 const { GuildRole } = require('../database/models/guildRoles');
 
-// These are how roles should be defined. Obviously this "Schema" can be saved later in a database to be dynamic
+
+/**
+ * TODO: These roles should now be defined by the user (admin of the discord server)
+ * These are how roles should be defined. Obviously this "Schema" can be saved later in a database to be dynamic
+ */
 const ROLES = {
   Senpapi: {
     name: 'Senpapi',
@@ -17,6 +21,7 @@ const ROLES = {
       min: 4,
       max: 6.99
     },
+    position: 0,
     unique: true // Only one user
   },
   Kouhai: {
@@ -29,7 +34,8 @@ const ROLES = {
     kdRange: {
       min: 3,
       max: 3.99
-    }
+    },
+    position: 2
   },
   Heikin: {
     name: 'Heikin', // Meaning average
@@ -41,7 +47,8 @@ const ROLES = {
     kdRange: {
       min: 1,
       max: 2.99
-    }
+    },
+    position: 3
   },
   DooDoo: {
     name: 'DooDoo',
@@ -53,7 +60,8 @@ const ROLES = {
     kdRange: {
       min: 0,
       max: 0.99
-    }
+    },
+    position: 4
   }
 };
 
@@ -77,6 +85,14 @@ const addNeededRoles = async ({ guildID, rolesRange = ROLES }) => {
     console.log(e);
     throw new Error(`roles.js:addNeededRoles() - ${e}`);
   }
+};
+
+const sortNeededRoles = async ({guildID, rolesRange = ROLES}) => {
+  const rolesOrder = [];
+  // Get roles in database
+  const rolesInDatabase = GuildRole.find({
+    
+  });
 };
 
 /**
@@ -142,6 +158,7 @@ const addRole = async ({ guildID, role }) => {
     kdRange: role.kdRange,
   }
   if (role.unique) d.unique = role.unique;
+  if (role.position) d.position = role.position;
 
   const guildRole = new GuildRole(d);
 
@@ -173,7 +190,26 @@ const removeRole = async ({ guildID, role }) => {
 
   // Should return a 204
   const deletePromises = roleIDs.map((roleID) => {
-    return discordAPI.deleteRole(guildID, roleID);
+
+    // TODO: check if this is the best way to run findOneAndRemove
+    const dbRemovePromise = new Promise(async (resolve, reject) => {
+      const removedRole = await GuildRole.findOneAndRemove({
+        guildID,
+        'discordRoleObject.id': roleID
+      });
+      if (removedRole) {
+        resolve();
+      } else {
+        reject(`Role that should have been removed could not be found in the database.`);
+      }
+    });
+
+    const p = [
+      dbRemovePromise,
+      discordAPI.deleteRole(guildID, roleID)
+    ];
+
+    return Promise.all(p);
   });
 
   try {
@@ -200,4 +236,34 @@ const getRolesByName = async ({ guildID, roleName }) => {
   return res;
 }
 
-module.exports = { ROLES, addNeededRoles, removeAddedRoles, checkIfRolesExists, getRolesByName, addRole, removeRole };
+// TODO: Setup a mongoose query to get guild roles in the database
+const getGuildRolesInDatabase = async ({ guildID }) => {
+  if (!guildID) throw new Error(`roles.js:getGuildRolesInDatabase - no guildID provided`);
+  const rolesInServer = await GuildRole.find({
+    guildID
+  });
+
+
+  return rolesInServer.map((doc) => {
+    return doc.toObject();
+  });
+};
+
+const setUserRolesInGuild = async ({ guildID, roleID, userID }) => {
+  if (!guildID || !userID || !roleID) throw new Error(`roles.js:setUserRolesInGuild() - incomplete params`);
+
+  // TODO: When the bot sets a user's role it should also save it.
+  try {
+    return await discordAPI.setUserRole(guildID, roleID, userID);
+  } catch (e) {
+    console.log(e);
+    throw new Error(`roles.js:setUserRolesInGuild() - ${e}`);
+  }
+
+};
+
+
+module.exports = {
+  ROLES, addNeededRoles, removeAddedRoles, checkIfRolesExists,
+  getRolesByName, addRole, removeRole, setUserRolesInGuild, getGuildRolesInDatabase
+};

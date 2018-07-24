@@ -14,7 +14,7 @@ class LinkCommand extends Command {
   }
 
   async run(message, argsString, formPattern) {
-
+    message.channel.startTyping();
     const args = argsString.split(" ");
     const guildID = message.guild.id
     const epicIGN = args[0];
@@ -32,6 +32,7 @@ class LinkCommand extends Command {
       message.reply(`The user ${epicIGN} does not seem to exist.`);
       return;
     }
+    message.channel.stopTyping();
   }
 }
 

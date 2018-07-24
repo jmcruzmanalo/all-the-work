@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/ATW', { useNewUrlParser: true });
+let uri = (process.env.MONGODB_URI) ? process.env.MONGODB_URI : 'mongodb://localhost:27017/ATW';
+
+mongoose.connect(uri, { useNewUrlParser: true });
 module.exports = {mongoose};

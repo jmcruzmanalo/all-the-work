@@ -36,6 +36,9 @@ const GuildRolesSchema = new mongoose.Schema({
     type: KDRangeSchema,
       required: true
   },
+  position: {
+    type: Number
+  },
   unique: {
     type: Boolean
   }

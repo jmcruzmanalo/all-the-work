@@ -1,7 +1,8 @@
 
 const clone = require('clone');
 const { getStats } = require('../api/fortnite-api');
-const { ROLES } = require('../actions/roles');
+const { ROLES, getGuildRolesInDatabase } = require('../actions/roles');
+const { GuildRole } = require('../database/models/guildRoles');
 
 const CONST_PROPS = {
   C_SQUADS: 'curr_p9',
@@ -55,29 +56,27 @@ const getKDs = async ({ ign }) => {
 /**
  * Gets a users deserved role. basedOn should be CONST_PROPS[SOLOS || DUOS || SQUADS]
  */
-const getDeservedRole = async ({ ign, userKDs, basedOn }) => {
+const getDeservedRole = async ({ guildID, ign, userKDs, basedOn, roles }) => {
   if (!ign) throw new Error(`kd.js:getDeservedRole() - no ign provided`);
   if (!userKDs) userKDs = await getKDs({ ign });
   if ((basedOn) && (basedOn !== CONST_PROPS.SOLOS || basedOn !== CONST_PROPS.DUOS || basedOn !== CONST_PROPS.SQUADS)) {
     throw new Error(`kd.js:getDeservedRole() - basedOn should be CONST_PROPS[SOLOS || DUOS || SQUADS]`)
   };
   if (!basedOn) basedOn = CONST_PROPS.SQUADS;
+  // TODO: Setup get guild roles
+  if (!roles) roles = await getGuildRolesInDatabase({ guildID });
 
+  let deservedRole = [];
 
-
-  let deservedRole = null;
-  for (let roleName in ROLES) {
-    const role = ROLES[roleName];
-    const {min, max} = role.kdRange;
+  roles.forEach((role) => {
+    const { min, max } = role.kdRange;
     const userKD = userKDs[basedOn];
-
     if (userKD > min && userKD < max) {
-      deservedRole = clone(role, false);
-      break;
+      deservedRole.push(clone(role, false));
     }
-  }
+  });
 
-  return deservedRole;
+  return deservedRole
 };
 
 module.exports = { setKD, getKDs, getDeservedRole };

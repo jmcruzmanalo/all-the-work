@@ -8,7 +8,7 @@ const testConfig = {
   'fortnite-api': false,
 
   // BDD ?
-  'kd': false,
+  'kd': true,
   'roles': true
 };
 
