@@ -13,7 +13,8 @@ bot.registry
   .registerDefaultTypes()
   .registerGroups([
     ['kd', 'K/D Commands'],
-    ['users', 'User Commands']
+    ['users', 'User Commands'],
+    ['roles', 'Roles Commands']
   ])
   .registerDefaultGroups()
   .registerDefaultCommands()

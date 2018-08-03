@@ -4,13 +4,12 @@ const testConfig = require('./test.config');
 const { ObjectID } = require('mongodb');
 const { getKDs, getDeservedRole } = require('../actions/kd');
 const { ROLES } = require('../actions/roles');
-const { testDocRoles, sampleGuildID } = require('./seed/testDocRoles');
+const { RolesAsDatabaseResults, TestGuildID } = require('./seed/roles.seed');
 
 
 
 describe(`KD.js`, () => {
   if (!testConfig['kd']) return;
-
 
   describe(`Getting the KD of ATW_Seensei then checking what role he deserves`, () => {
 
@@ -18,24 +17,24 @@ describe(`KD.js`, () => {
     it(`should get the KD of ATW_Seensei`, async () => {
       const kds = await getKDs({ ign: 'ATW_Seensei' });
       expect(kds).toMatchObject({
-        solos: 'N/A',
-        duos: 2.25,
-        squads: 4.26
+        solos: 1.17,
+        duos: 2.38,
+        squads: 4.13
       });
       userKDs = kds;
     });
 
     it(`should check what role player deservers`, async () => {
       const role = await getDeservedRole({
-        guildID: sampleGuildID,
+        guildID: TestGuildID,
         ign: 'ATW_Seensei',
         userKDs,
-        roles: testDocRoles
+        roles: RolesAsDatabaseResults
       });
 
       expect(role.length).toBe(1);
 
-      expect(role[0]).toMatchObject(testDocRoles[0]);
+      expect(role[0]).toMatchObject(RolesAsDatabaseResults[0]);
     });
   });
 

@@ -4,8 +4,8 @@ const { mongoose } = require('../database/mongoose'); // This needs to be runnin
 
 const testConfig = {
   // TDD ?
-  'discord-api': false,
-  'fortnite-api': false,
+  'discord-api': true,
+  'fortnite-api': true,
 
   // BDD ?
   'kd': true,

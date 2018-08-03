@@ -6,18 +6,11 @@
 const mongoose = require('mongoose');
 
 
-const KDRangeSchema = new mongoose.Schema({
-  min: {
-    type: Number,
+const GuildRolesSchema = new mongoose.Schema({
+  name: {
+    type: String,
     required: true
   },
-  max: {
-    type: Number,
-    required: true
-  }
-});
-
-const GuildRolesSchema = new mongoose.Schema({
   guildID: {
     type: String,
     required: true
@@ -33,7 +26,7 @@ const GuildRolesSchema = new mongoose.Schema({
       required: true
   },
   kdRange: {
-    type: KDRangeSchema,
+    type: mongoose.Schema.Types.Mixed,
       required: true
   },
   position: {
@@ -46,6 +39,6 @@ const GuildRolesSchema = new mongoose.Schema({
 
 
 
-const GuildRole = mongoose.model('GuildRoles', GuildRolesSchema);
+const GuildRole = mongoose.model('GuildRole', GuildRolesSchema);
 
 module.exports = { GuildRole };

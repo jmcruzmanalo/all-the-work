@@ -17,22 +17,35 @@ class LinkCommand extends Command {
     message.channel.startTyping();
     const args = argsString.split(" ");
     const guildID = message.guild.id
-    const epicIGN = args[0];
     const discordID = message.author.id;
+    const epicIGN = args[0];
 
-    if (await doesUserExist({ign: epicIGN})) {
-      const userLink = new UserLink({
-        guildID,
-        epicIGN,
-        discordID
-      });
-      userLink.save();
-      message.reply(`Successfully linked your account`);
-    } else {
-      message.reply(`The user ${epicIGN} does not seem to exist.`);
-      return;
+    try {
+      if (!epicIGN) {
+        message.reply(`yafuq, provide your Epic IGN. \`!atw link your-ign-here\``);
+        return;
+      }
+
+      if (await doesUserExist({ ign: epicIGN })) {
+        await UserLink.updateOne({
+          guildID,
+          discordID
+        }, {
+            guildID,
+            discordID,
+            epicIGN
+          }, { upsert: true });
+        message.reply(`Successfully linked your ign (${epicIGN}) to your discord account.`);
+      } else {
+        message.reply(`The user \`${epicIGN}\` does not seem to exist in the Epic servers.`);
+        return;
+      }
+    } catch (e) {
+      console.log(e);
+      message.reply(`There was an error processing your request, let the DooDoo owner know. he fuq`);
+    } finally {
+      message.channel.stopTyping();
     }
-    message.channel.stopTyping();
   }
 }
 

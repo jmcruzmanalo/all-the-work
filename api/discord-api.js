@@ -1,6 +1,8 @@
 const axios = require('axios');
 const { BotToken } = require('../config');
 
+const request = require('request');
+
 const instance = axios.create({
   baseURL: 'https://discordapp.com/api',
   headers: {
@@ -78,7 +80,7 @@ const setUserRole = async (guildID, roleID, userID) => {
     } else {
       throw new Error(res.error);
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e);
     throw new Error(`discord-api.js:setUserRole() - ${e}`)
   }
@@ -96,6 +98,33 @@ const getUserRoles = async (guildID, userID) => {
   }
 };
 
+/**
+ * Applies the array to the guild's roles. Accepts an array of object with the roleID as id and position as a number.
+ */
+const applyGuildPositions = async (guildID, positions) => {
+  if (!guildID || !positions) throw new Error(`one of the params is missing`);
+  if (!Array.isArray(positions)) throw new Error(`positions param is not an array`);
+  let res;
+  try {
+
+    const url = `/guilds/415506140840067076/roles`;
+    res = await instance.patch(url, positions, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'DiscordBot',
+        'Authorization': 'Bot NDY1ODU3MDcxMDk1NzQyNDk1.DiTmuQ.kriHkhbB7uXxd8t_Prg_9oTZuv0'
+      }
+    });
+    if (res.status !== 200) {
+      throw new Error(`status ${res.status}`);
+    }
+    return res.data;
+  } catch (e) {
+    console.log(e);
+    throw new Error(`discord-api.js:applyGuildPositions() - ${e}`);
+  }
 
 
-module.exports = { getRoles, addRole, deleteRole, setUserRole, getUserRoles };
+};
+
+module.exports = { getRoles, addRole, deleteRole, setUserRole, getUserRoles, applyGuildPositions };

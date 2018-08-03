@@ -3,14 +3,14 @@
 
 const discordAPI = require('../api/discord-api');
 const { GuildRole } = require('../database/models/guildRoles');
-
+const arrayChunk = require('array.chunk');
 
 /**
  * TODO: These roles should now be defined by the user (admin of the discord server)
  * These are how roles should be defined. Obviously this "Schema" can be saved later in a database to be dynamic
  */
-const ROLES = {
-  Senpapi: {
+const ROLES = [
+  {
     name: 'Senpapi',
     roleOptions: {
       color: '#0f0e0e', // BLACK
@@ -21,10 +21,10 @@ const ROLES = {
       min: 4,
       max: 6.99
     },
-    position: 0,
+    position: 1,
     unique: true // Only one user
   },
-  Kouhai: {
+  {
     name: 'Kouhai',
     roleOptions: {
       color: '#E91E63', // GREEN
@@ -37,7 +37,7 @@ const ROLES = {
     },
     position: 2
   },
-  Heikin: {
+  {
     name: 'Heikin', // Meaning average
     roleOptions: {
       color: '#F8D2F9', // PINK
@@ -50,7 +50,7 @@ const ROLES = {
     },
     position: 3
   },
-  DooDoo: {
+  {
     name: 'DooDoo',
     roleOptions: {
       color: '#654321', // BROWN like shit
@@ -63,19 +63,23 @@ const ROLES = {
     },
     position: 4
   }
-};
+];
 
 /**
  * Adds all the roles that are missing and required by the bot
+ * @return Array of Discord Role Objects
  */
-const addNeededRoles = async ({ guildID, rolesRange = ROLES }) => {
-  const missingRoles = await checkIfRolesExists({ guildID, rolesRange });
+const addNeededRoles = async ({ guildID, rolesInput = ROLES }) => {
+  const missingRoles = await checkIfRolesExists({ guildID, roles: rolesInput });
 
   if (missingRoles.length === 0) return true;
 
   // Add the roles based on the object
   const addPromises = missingRoles.map((missingRole) => {
-    return addRole({ guildID, role: rolesRange[missingRole] });
+    const role = rolesInput.find((r) => {
+      return r.name === missingRole;
+    });
+    return addRole({ guildID, role });
   });
 
   try {
@@ -87,22 +91,77 @@ const addNeededRoles = async ({ guildID, rolesRange = ROLES }) => {
   }
 };
 
-const sortNeededRoles = async ({guildID, rolesRange = ROLES}) => {
-  const rolesOrder = [];
-  // Get roles in database
-  const rolesInDatabase = GuildRole.find({
-    
-  });
+/**
+ * Sorts all the roles of the guild by the inputted position
+ */
+const sortNeededRoles = async ({ guildID }) => {
+  try {
+    // Get roles in database
+    const rolesInDatabase = await GuildRole.find({
+      guildID
+    }).lean();
+
+    // Get roles in the server
+    const rolesInGuild = await discordAPI.getRoles(guildID);
+
+    // Sort the roles from the database
+    rolesInDatabase.sort((a, b) => {
+      return a.position - b.position
+    });
+
+    let highestRole = Math.max.apply(Math, rolesInGuild.map((role) => {
+      if (role.managed) {
+        return 0;
+      } else {
+        return role.position
+      }
+    }));
+
+
+    const positions = rolesInDatabase.map((role) => {
+      let t = highestRole - role.position + 1;
+      if (t % 2 === 0) {
+        t++;
+      }
+      return {
+        id: role.discordRoleObject.id,
+        position:  t
+      };
+    });
+
+    let nextPosition = 0;
+    // const chunkedPositions = arrayChunk(positions, 2);
+    for (let x = 0; x < positions.length; x++) {
+      const position = positions[x];
+      const newPositions = await discordAPI.applyGuildPositions(guildID, [position]);
+      const currentPosition = newPositions.find((p) => {
+        return p.id === position.id;
+      });
+      if (currentPosition.position < position.position ) {
+        await discordAPI.applyGuildPositions(guildID, [{
+          id: currentPosition.id,
+          position: position.position + 1
+        }]);
+      }
+
+    }
+
+    return true;
+  } catch (e) {
+    console.log(e);
+    throw new Error(`roles.js:sortNeededRoles() - ${e}`)
+  }
+
 };
 
 /**
  * Removes all the roles that were added by the bot
  */
-const removeAddedRoles = async ({ guildID, rolesRange = ROLES }) => {
-  const rolesToBeRemoves = Object.keys(rolesRange);
+const removeAddedRoles = async ({ guildID }) => {
 
-  const removePromises = rolesToBeRemoves.map((roleName) => {
-    return removeRole({ guildID, role: rolesRange[roleName] });
+  const roles = await getGuildRolesInDatabase({ guildID });
+  const removePromises = roles.map((role) => {
+    return removeRole({ guildID, role });
   });
 
   try {
@@ -118,21 +177,24 @@ const removeAddedRoles = async ({ guildID, rolesRange = ROLES }) => {
 /**
  * Checks if the roles exist, this returns an array of roles that did not exist
  * @param {String} guildID the guild ID to be searched
- * @param {Object} rolesRange key value pair of [string number]:[name of role] to be checked. These are constants
+ * @param {Array} roleNames An array of role names
  * @param {Array} activeRoles the roles that are already in the discord server, if undefined it'll `GET` them
  * @returns {Promise<true|Array>} should return true if all the roles have been found or an array of roles that do not exist
  */
-const checkIfRolesExists = async ({ guildID, rolesRange = ROLE_KD_RANGE, activeRoles }) => {
-  const roles = Object.keys(rolesRange); // Roles to be searched
+const checkIfRolesExists = async ({ guildID, roles, activeRoles }) => {
+  const roleNames = roles.map((role) => {
+    return role.name;
+  });
+
   if (!activeRoles) {
     activeRoles = await discordAPI.getRoles(guildID);
   }
 
-  const missingRoles = roles.filter((role) => {
+  const missingRoles = roleNames.filter((roleName) => {
     let isFound = false;
     for (let x = 0; x < activeRoles.length; x++) {
       const completeRole = activeRoles[x]; // a role object sent from the discord API
-      if (completeRole.name === role) {
+      if (completeRole.name === roleName) {
         isFound = true;
         break;
       }
@@ -141,6 +203,8 @@ const checkIfRolesExists = async ({ guildID, rolesRange = ROLE_KD_RANGE, activeR
   });
   return missingRoles;
 };
+
+
 
 /**
  * Adds a role given guildID and roleName.
@@ -152,6 +216,7 @@ const addRole = async ({ guildID, role }) => {
   const addedRole = await discordAPI.addRole(guildID, role.name, { ...role.roleOptions });
 
   const d = {
+    name: role.name,
     guildID,
     discordRoleObject: addedRole,
     roleOptions: role.roleOptions,
@@ -264,6 +329,6 @@ const setUserRolesInGuild = async ({ guildID, roleID, userID }) => {
 
 
 module.exports = {
-  ROLES, addNeededRoles, removeAddedRoles, checkIfRolesExists,
+  ROLES, addNeededRoles, removeAddedRoles, checkIfRolesExists, sortNeededRoles,
   getRolesByName, addRole, removeRole, setUserRolesInGuild, getGuildRolesInDatabase
 };

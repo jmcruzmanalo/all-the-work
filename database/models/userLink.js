@@ -15,6 +15,6 @@ const UserLinkSchema = new mongoose.Schema({
   }
 });
 
-const UserLink = mongoose.model('Link', UserLinkSchema);
+const UserLink = mongoose.model('UserLink', UserLinkSchema);
 
 module.exports = { UserLink };

@@ -14,10 +14,6 @@ const CONST_PROPS = {
   SQUADS: 'squads'
 };
 
-const setKD = async (message) => {
-
-};
-
 /**
  * Gets an object representing the users KD in solo, duos, and squads
  * The results seem to be:
@@ -79,4 +75,4 @@ const getDeservedRole = async ({ guildID, ign, userKDs, basedOn, roles }) => {
   return deservedRole
 };
 
-module.exports = { setKD, getKDs, getDeservedRole };
+module.exports = { getKDs, getDeservedRole };
