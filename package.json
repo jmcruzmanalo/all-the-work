@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "bot": "node discord-bot/bot.js",
+    "debug": "node discord-bot/bot.js",
     "test": "mocha tests/**/*.test.js --timeout 5000 --bail",
     "test-watch": "nodemon --exec npm test"
   },

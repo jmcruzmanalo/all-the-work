@@ -291,7 +291,7 @@ const removeRole = async ({ guildID, role }) => {
 };
 
 /**
- * Returns an array of roles with the same name in a guild.
+ * Returns an array of roles with the same name in a guild from the discord API.
  */
 const getRolesByName = async ({ guildID, roleName }) => {
   const roles = await discordAPI.getRoles(guildID);
@@ -326,6 +326,8 @@ const setUserRolesInGuild = async ({ guildID, roleID, userID }) => {
   }
 
 };
+
+
 
 
 module.exports = {

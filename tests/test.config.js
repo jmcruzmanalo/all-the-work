@@ -1,11 +1,11 @@
 // config.file = testShouldRun 
 
-const { mongoose } = require('../database/mongoose'); // This needs to be running
+require('../database/mongoose'); // This needs to be running
 
 const testConfig = {
   // TDD ?
-  'discord-api': true,
-  'fortnite-api': true,
+  'discord-api': false,
+  'fortnite-api': false,
 
   // BDD ?
   'kd': true,

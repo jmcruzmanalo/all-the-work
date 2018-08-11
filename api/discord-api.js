@@ -98,6 +98,25 @@ const getUserRoles = async (guildID, userID) => {
   }
 };
 
+const removeUserRole = async (guildID, roleID, userID) => {
+  console.log(guildID);
+  console.log(roleID);
+  console.log(userID);
+  if (!guildID || !roleID || !userID) throw new Error(`discord-api.js:removeUserRoles() - one of the params is missing`);
+
+  const url = `/guilds/${guildID}/members/${userID}/roles/${roleID}`;
+  let res;
+  try {
+    res = await instance.delete(url);
+    if (res.status === 204) return true;
+    throw new Error(res);    
+  } catch (e) {
+    console.log(e);
+    throw new Error(`discord-api.js:removeUserRoles() - ${e}`);
+  }
+
+};
+
 /**
  * Applies the array to the guild's roles. Accepts an array of object with the roleID as id and position as a number.
  */
@@ -127,4 +146,4 @@ const applyGuildPositions = async (guildID, positions) => {
 
 };
 
-module.exports = { getRoles, addRole, deleteRole, setUserRole, getUserRoles, applyGuildPositions };
+module.exports = { getRoles, addRole, deleteRole, setUserRole, getUserRoles, applyGuildPositions, removeUserRole };

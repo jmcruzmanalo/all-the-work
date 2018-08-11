@@ -65,9 +65,6 @@ describe(`Roles file`, () => {
       expect(rolesFromDatabase).toMatchObject([guildRole1.toObject(), guildRole2.toObject()]);
     });
 
-
-
-
     describe(`Adding then removing a role`, () => {
       const testRole = {
         name: 'TestRole',
