@@ -1,0 +1,1 @@
+export const getServerId = (state) => state.server.serverId;

@@ -9,7 +9,8 @@ const testConfig = {
 
   // BDD ?
   'kd': true,
-  'roles': true
+  'roles': false,
+  'members': false
 };
 
 module.exports = testConfig;

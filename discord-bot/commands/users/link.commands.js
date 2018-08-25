@@ -1,6 +1,7 @@
 const { Command } = require('discord.js-commando');
 const { UserLink } = require('../../../database/models/userLink');
 const { doesUserExist } = require('../../../api/fortnite-api');
+const { linkServerMemberToEpicIGN } = require('../../../actions/members');
 
 class LinkCommand extends Command {
   constructor(client) {
@@ -16,8 +17,8 @@ class LinkCommand extends Command {
   async run(message, argsString, formPattern) {
     message.channel.startTyping();
     const args = argsString.split(" ");
-    const guildID = message.guild.id
-    const discordID = message.author.id;
+    const serverId = message.guild.id
+    const userDiscordId = message.author.id;
     const epicIGN = args[0];
 
     try {
@@ -27,14 +28,7 @@ class LinkCommand extends Command {
       }
 
       if (await doesUserExist({ ign: epicIGN })) {
-        await UserLink.updateOne({
-          guildID,
-          discordID
-        }, {
-            guildID,
-            discordID,
-            epicIGN
-          }, { upsert: true });
+        await linkServerMemberToEpicIGN({ serverId, userDiscordId, epicIGN});
         message.reply(`Successfully linked your ign (${epicIGN}) to your discord account.`);
       } else {
         message.reply(`The user \`${epicIGN}\` does not seem to exist in the Epic servers.`);

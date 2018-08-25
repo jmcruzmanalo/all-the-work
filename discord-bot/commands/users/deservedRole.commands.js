@@ -31,7 +31,8 @@ class DeservedRoleCommand extends Command {
 
       const roles = await getDeservedRole({
         guildID,
-        ign: epicIGN
+        ign: epicIGN,
+        userDiscordId: discordID
       });
 
       const deservedRole = roles.deservedRoles;

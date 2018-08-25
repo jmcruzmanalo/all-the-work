@@ -1,13 +1,8 @@
 import { combineReducers } from 'redux';
+import serverReducer from './serverReducer';
+import { reducer as formsReducer } from 'redux-form';
 
 export default combineReducers({
-  sampleReducer: (state = null, action) => {
-    switch (action.type) {
-
-      case "TEST":
-        return action.payload || false;
-
-      default: return state;
-    }
-  }
+  server: serverReducer,
+  forms: formsReducer
 });

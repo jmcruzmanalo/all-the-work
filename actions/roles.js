@@ -308,7 +308,6 @@ const getGuildRolesInDatabase = async ({ guildID }) => {
     guildID
   });
 
-
   return rolesInServer.map((doc) => {
     return doc.toObject();
   });

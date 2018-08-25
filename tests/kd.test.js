@@ -2,7 +2,7 @@
 const expect = require('expect');
 const testConfig = require('./test.config');
 const { ObjectID } = require('mongodb');
-const { getKDs, getDeservedRole } = require('../actions/kd');
+const { getKDs, getTRN, getDeservedRole } = require('../actions/kd');
 const { ROLES } = require('../actions/roles');
 const { RolesAsDatabaseResults, TestGuildID } = require('./seed/roles.seed');
 const { setUserRole, removeUserRole } = require('../api/discord-api');
@@ -12,8 +12,6 @@ const { DeveloperDiscordID, MainGuildID } = require('../config')
 
 describe(`KD.js`, () => {
   if (!testConfig['kd']) return;
-
-
 
   describe(`Getting the KD of ATW_Seensei then checking what role he deserves`, () => {
 
@@ -29,7 +27,8 @@ describe(`KD.js`, () => {
       userKDs = kds;
     });
 
-    it(`should check what role player deservers and add it`, async () => {
+    // TODO: Fix this test. It's not a very clean one. It depends on previous runs.
+    it(`should check what role player deservers and add it based on KD`, async () => {
       const roles = await getDeservedRole({
         guildID: TestGuildID,
         ign: 'ATW_Seensei',
@@ -41,33 +40,18 @@ describe(`KD.js`, () => {
 
       expect(role.length).toBe(1);
 
-      expect(role[0]).toMatchObject(RolesAsDatabaseResults[0]);
+      expect(role[0]).toMatchObject(RolesAsDatabaseResults[1]);
 
       // Testing that we can remove a roles from getDeservedRole().invalidRoles
       const invalidRoles = roles.invalidRoles;
       expect(invalidRoles.length).toBe(2);
-     
-
     });
-
-    it(`should add a random role and remove it`, async () => {
-
-    });
-
   });
 
-
-  describe(`BEHAVIOR TESTS`, () => {
-    // TODO: Add proper tests on the deservedRole Command
-
-    // Setup sample KD range
-
-    // Get the users KD
-
-
-    // Add the users role based on KD
-
-    // 
+  describe(`Getting the TRN of ATW_Seensei then checking what role he deserves`, () => {
+    it(`should get the TRN of ATW_Seensei`, async () => {
+      const trn = await getTRN({ epicIGN: 'ATW_Seensei' });
+      expect(typeof trn).toBe('number')
+    });
   });
-
 });

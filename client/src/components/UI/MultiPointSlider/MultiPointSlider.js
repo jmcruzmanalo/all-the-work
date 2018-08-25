@@ -1,27 +1,34 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Slider, { Handles, Tracks, Ticks } from 'react-compound-slider';
 import Track from './Track';
 import Handle from './Handle';
 import Tick from './Tick';
 
 const domain = [0, 5000];
-const defaultValues = [1000, 2000, 3000, 4000, 5000];
 
-const MultiPointSlider = () => {
+const MultiPointSlider = (props) => {
+
+  const {
+    values,
+    input: { onChange } = {}
+  } = props;
+
+  const defaultValues = (values) ? values : [1000, 2000, 3000, 4000, 5000];
+
+  console.log(onChange);
+
   return (
-
     <Slider
       domain={domain}
-      step={100}
-      mode={2}
+      step={50}
+      mode={3}
       rootStyle={{
         position: "relative",
-        width: "100%"
+        width: "100%",
+        height: "45px"
       }}
       values={defaultValues}
-      onChange={(value) => {
-        console.log(value);
-      }}
+      onChange={(onChange) ? onChange : () => console.log('No onChange available')}
     >
 
       <Handles>
@@ -54,7 +61,7 @@ const MultiPointSlider = () => {
         )}
       </Tracks>
 
-      <Ticks count={20}>
+      <Ticks count={10}>
         {({ ticks }) => (
           <div className="slider-ticks">
             {ticks.map(tick => (

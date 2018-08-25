@@ -17,7 +17,7 @@ const NumberIndicator = styled.div`
   text-align: center;
 `;
 
-const Track = ({ tick, count }) => {
+const Ticks = ({ tick, count }) => {
   return (
     <div>
       <AlignmentIndicator
@@ -39,4 +39,4 @@ const Track = ({ tick, count }) => {
   );
 };
 
-export default Track;
+export default Ticks;

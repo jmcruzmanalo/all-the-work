@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "server-dev": "nodemon index.js",
     "bot": "node discord-bot/bot.js",
     "debug": "node discord-bot/bot.js",
     "test": "mocha tests/**/*.test.js --timeout 5000 --bail",
@@ -15,6 +16,7 @@
   "dependencies": {
     "array.chunk": "^1.1.0",
     "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
     "clone": "^2.1.1",
     "discord.js": "^11.3.2",
     "discord.js-commando": "^0.10.0",
@@ -26,7 +28,7 @@
   "devDependencies": {
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.2",
+    "nodemon": "^1.18.3",
     "request": "^2.87.0"
   }
 }

@@ -1,8 +1,12 @@
+import registerServiceWorker from './registerServiceWorker';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createStore, compose, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import { createStore, compose } from 'redux';
-import registerServiceWorker from './registerServiceWorker';
+import createSagaMiddleWare from 'redux-saga';
+import rootSaga from './sagas/sagas';
+
 
 import './index.css';
 
@@ -14,11 +18,16 @@ import App from './components/App';
 window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 const composeEnhancers = window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] || compose;
 
+
+const sagaMiddleWare = createSagaMiddleWare();
 const store = createStore(
   reducers,
   {},
-  composeEnhancers()
+  composeEnhancers(
+    applyMiddleware(sagaMiddleWare)
+  )
 );
+sagaMiddleWare.run(rootSaga);
 
 ReactDOM.render(
   <Provider store={store}>

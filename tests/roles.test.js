@@ -29,7 +29,6 @@ describe(`Roles file`, () => {
 
   // Separating unit tests from BDD tests
   describe(`UNIT TESTS`, () => {
-    return;
     before(clearAllRoles);
 
     it(`should check if the roles exist on a guild - checkIfRolesExists`, async () => {
