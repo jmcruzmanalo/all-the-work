@@ -4,6 +4,7 @@ import { Field, reduxForm } from 'redux-form';
 import { setActiveServer } from '../../actions/actions';
 import MultiPointSlider from '../UI/MultiPointSlider/MultiPointSlider';
 import Container from '../UI/Container';
+import ratingEditMultiPointSlider from './ratingEditMultiPointSlider';
 
 class ServerRatingEdit extends Component {
 
@@ -24,8 +25,8 @@ class ServerRatingEdit extends Component {
     return (
       <Container>
         <form onSubmit={this.props.handleSubmit(() => console.log('Form submitted'))}>
-          <p>Server I.D. -  {this.serverId}</p>
-          <Field name="trnRange" component={MultiPointSlider} />
+          <p style={{marginBottom: 50}}>Server I.D. -  {this.serverId}</p>
+          <Field name="trnRange" component={ratingEditMultiPointSlider(MultiPointSlider)} />
         </form>
       </Container>
     );

@@ -15,8 +15,6 @@ const MultiPointSlider = (props) => {
 
   const defaultValues = (values) ? values : [1000, 2000, 3000, 4000, 5000];
 
-  console.log(onChange);
-
   return (
     <Slider
       domain={domain}
@@ -28,7 +26,8 @@ const MultiPointSlider = (props) => {
         height: "45px"
       }}
       values={defaultValues}
-      onChange={(onChange) ? onChange : () => console.log('No onChange available')}
+      // onChange={(onChange) ? onChange : () => console.log('No onChange available')}
+      onChange={onChange}
     >
 
       <Handles>
