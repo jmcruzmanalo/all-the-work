@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-// TODO: Add max-width
 export default styled.div`
-  margin: 40px;
+  padding: 40px;
+  margin: auto;
+  max-width: 1200px;
 `;

@@ -9,7 +9,9 @@
     }
   },
   "dependencies": {
+    "@material-ui/core": "^1.5.1",
     "axios": "^0.18.0",
+    "fast-deep-equal": "^2.0.1",
     "react": "^16.4.2",
     "react-compound-slider": "^0.14.0",
     "react-dom": "^16.4.2",

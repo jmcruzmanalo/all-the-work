@@ -4,17 +4,8 @@ import Track from './Track';
 import Handle from './Handle';
 import Tick from './Tick';
 
-const domain = [0, 5000];
 
-const MultiPointSlider = (props) => {
-
-  const {
-    values,
-    input: { onChange } = {}
-  } = props;
-
-  const defaultValues = (values) ? values : [1000, 2000, 3000, 4000, 5000];
-
+const MultiPointSlider = ({ domain, values, onChange }) => {
   return (
     <Slider
       domain={domain}
@@ -25,9 +16,8 @@ const MultiPointSlider = (props) => {
         width: "100%",
         height: "45px"
       }}
-      values={defaultValues}
-      // onChange={(onChange) ? onChange : () => console.log('No onChange available')}
-      onChange={onChange}
+      values={(values) ? values : []}
+      onChange={(onChange) ? onChange : () => console.log('No onChange available')}
     >
 
       <Handles>

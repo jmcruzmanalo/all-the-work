@@ -2,13 +2,12 @@ import * as actionTypes from '../actions/actionTypes';
 
 // This is for `server` in redux
 // server = sampleState in redux
-const sampleState = {
-  serverId: 'serverId',
-  serverMembers: [],
-  serverRolesRating: {
-
-  }
-};
+// const sampleState = {
+//   serverId: 'serverId',
+//   serverMembers: [],
+//   serverRolesRating: {
+//   }
+// };
 
 export default (state = null, action) => {
   switch (action.type) {
@@ -24,7 +23,11 @@ export default (state = null, action) => {
         ...state,
         serverMembers: action.payload
       }
-
+      
+      case actionTypes.SET_SERVER_TRN_ROLES_RATING:
+      return {
+        ...state
+      }
 
     default: return state;
   }

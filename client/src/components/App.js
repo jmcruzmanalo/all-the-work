@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
-
 import Landing from './Landing';
 import ServerRatingEdit from './Server/ServerRatingEdit';
 

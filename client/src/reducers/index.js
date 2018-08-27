@@ -4,5 +4,5 @@ import { reducer as formsReducer } from 'redux-form';
 
 export default combineReducers({
   server: serverReducer,
-  forms: formsReducer
+  form: formsReducer
 });
