@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
-import styled from 'styled-components';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { Typography } from "@material-ui/core";
+import styled from "styled-components";
 
 const StyledHandle = styled.div`
   position: absolute;
@@ -30,16 +32,15 @@ const StyledHandleTooltip = styled.div`
 `;
 
 class Handle extends Component {
-
   state = {
     isActive: false
   };
 
   activate() {
     if (this.state.isActive) return;
-
     this.setState({ isActive: true });
   }
+
   deActivate() {
     if (!this.state.isActive) return;
     this.setState({ isActive: false });
@@ -67,15 +68,26 @@ class Handle extends Component {
       >
         <StyledHandleTooltip
           style={
-            (this.state.isActive) ?
-              { opacity: 1, transform: 'translateY(0)' } :
-              { opacity: 0, transform: 'translateY(50%)' }
-          } >
-          {value}
+            this.state.isActive
+              ? { opacity: 1, transform: "translateY(0)" }
+              : { opacity: 0, transform: "translateY(50%)" }
+          }
+        >
+          <Typography variant="caption">{value}</Typography>
         </StyledHandleTooltip>
       </StyledHandle>
     );
   }
 }
+
+Handle.propTypes = {
+  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  handle: PropTypes.shape({
+    id: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
+    percent: PropTypes.any.isRequired
+  }),
+  getHandleProps: PropTypes.func.isRequired
+};
 
 export default Handle;

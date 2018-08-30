@@ -1,5 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import PropTypes from "prop-types";
+import { Typography } from "@material-ui/core";
+import styled from "styled-components";
 
 const AlignmentIndicator = styled.div`
   position: absolute;
@@ -22,21 +24,25 @@ const Ticks = ({ tick, count }) => {
     <div>
       <AlignmentIndicator
         style={{
-          left: `${tick.percent}%`,
+          left: `${tick.percent}%`
         }}
       />
       <NumberIndicator
         style={{
           marginLeft: `${-(100 / count) / 2}%`,
           width: `${100 / count}%`,
-          left: `${tick.percent}%`,
+          left: `${tick.percent}%`
         }}
       >
-        {tick.value}
+        <Typography variant="caption">{tick.value}</Typography>
       </NumberIndicator>
-
     </div>
   );
+};
+
+Ticks.propTypes = {
+  tick: PropTypes.object.isRequired,
+  count: PropTypes.number.isRequired
 };
 
 export default Ticks;

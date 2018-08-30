@@ -1,7 +1,6 @@
 import registerServiceWorker from './registerServiceWorker';
 
 import React from 'react';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ReactDOM from 'react-dom';
 import { createStore, compose, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
@@ -11,11 +10,7 @@ import './index.css';
 import reducers from './reducers';
 import App from './components/App';
 
-const theme = createMuiTheme({
-  palette: {
-    type: 'dark'
-  }
-});
+
 
 
 // REDUX Dev tools
@@ -36,9 +31,7 @@ sagaMiddleWare.run(rootSaga);
 ReactDOM.render(
 
   <Provider store={store}>
-    <MuiThemeProvider theme={theme}>
-      <App />
-    </MuiThemeProvider>
+    <App />
   </Provider>
   ,
   document.getElementById('root')
