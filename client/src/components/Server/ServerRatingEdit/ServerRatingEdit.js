@@ -88,19 +88,28 @@ class ServerRatingEdit extends Component {
     });
   }
 
-  onDragRatingEnd(dragResult) {
+  onDragRatingEnd({ destination, source }) {
     this.setState({
       ...this.state,
       dragIsActive: false
     });
 
-    if (!dragResult.destination) return;
+    if (!destination) return;
 
-    const reorderedNames = Array.from(this.props.trnRangeNames).reverse();
-    const [removed] = reorderedNames.splice(dragResult.source.index, 1);
-    reorderedNames.splice(dragResult.destination.index, 0, removed);
-    reorderedNames.reverse();
-    this.props.change("trnRangeNames", reorderedNames);
+    if (destination.droppableId === "rating-list-delete-drop-area") {
+      const updatedRangeNames = Array.from(this.props.trnRangeNames).reverse();
+      const updatedRange = Array.from(this.props.trnRange).reverse();
+      updatedRangeNames.splice(source.index, 1);
+      updatedRange.splice(source.index, 1);
+      this.props.change("trnRangeNames", updatedRangeNames.reverse());
+      this.props.change("trnRange", updatedRange.reverse());
+    } else {
+      const reorderedNames = Array.from(this.props.trnRangeNames).reverse();
+      const [removed] = reorderedNames.splice(source.index, 1);
+      reorderedNames.splice(destination.index, 0, removed);
+      reorderedNames.reverse();
+      this.props.change("trnRangeNames", reorderedNames);
+    }
   }
 
   render() {

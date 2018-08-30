@@ -27,7 +27,7 @@ const FadingText = styled(Typography)`
   transition: 0.2s;
 `;
 
-const DeleteDrop = ({ onDrop, theme }) => {
+const DeleteDrop = ({ theme }) => {
   const renderDropArea = (
     { innerRef, droppableProps, placeholder },
     { isDraggingOver }
@@ -69,7 +69,6 @@ const DeleteDrop = ({ onDrop, theme }) => {
 };
 
 DeleteDrop.propTypes = {
-  onDrop: PropTypes.func.isRequired,
   innerRef: PropTypes.any,
   droppableProps: PropTypes.any,
   placeholder: PropTypes.any,
