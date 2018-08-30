@@ -25,30 +25,32 @@ const Grid100 = styled(Grid)`
 
 const FadingText = styled(Typography)`
   transition: 0.2s;
-  opacity: ${({ shouldFade }) => (shouldFade ? 0 : 1)};
 `;
 
-const DeleteDrop = ({ onDrop, dragIsActive, theme }) => {
+const DeleteDrop = ({ onDrop, theme }) => {
   const renderDropArea = (
     { innerRef, droppableProps, placeholder },
-    snapshot
+    { isDraggingOver }
   ) => {
     return (
       <RootRef rootRef={innerRef}>
         <DropArea
           {...droppableProps}
           style={{
-            backgroundColor: dragIsActive ? theme.palette.error.dark : ""
+            backgroundColor: isDraggingOver ? theme.palette.error.dark : ""
           }}
         >
           <Grid100 container alignItems={"center"} justify={"space-between"}>
             <Grid item>
-              <FadingText shouldFade={dragIsActive} color="textSecondary">
+              <FadingText
+                style={{ opacity: isDraggingOver ? 0 : 1 }}
+                color="textSecondary"
+              >
                 Drag here to delete
               </FadingText>
             </Grid>
             <Grid item>
-              <Icon color={dragIsActive ? "action" : "disabled"}>delete</Icon>
+              <Icon color={isDraggingOver ? "action" : "disabled"}>delete</Icon>
             </Grid>
           </Grid100>
           {placeholder}
@@ -71,7 +73,6 @@ DeleteDrop.propTypes = {
   innerRef: PropTypes.any,
   droppableProps: PropTypes.any,
   placeholder: PropTypes.any,
-  dragIsActive: PropTypes.bool.isRequired,
   theme: PropTypes.object.isRequired
 };
 
