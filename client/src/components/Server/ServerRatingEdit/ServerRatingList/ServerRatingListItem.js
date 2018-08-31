@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import {
   ListItem,
@@ -10,6 +11,12 @@ import {
   TextField
 } from '@material-ui/core';
 import { ServerRatingListContext } from './ServerRatingList';
+
+const StyledTextField = styled(TextField)`
+  && input {
+    padding: 0px;
+  }
+`;
 
 const ServerRatingListItem = ({ rangeName, index }) => {
   return (
@@ -23,7 +30,7 @@ const ServerRatingListItem = ({ rangeName, index }) => {
                   <Icon color="disabled">reorder</Icon>
                 </ListItemIcon>
                 <ListItemText>
-                  <TextField
+                  <StyledTextField
                     InputProps={{
                       disableUnderline: true
                     }}

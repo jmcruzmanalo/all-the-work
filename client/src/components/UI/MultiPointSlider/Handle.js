@@ -35,15 +35,19 @@ class Handle extends Component {
   state = {
     isActive: false
   };
+  timeout;
 
   activate() {
+    clearTimeout(this.timeout);
     if (this.state.isActive) return;
-    this.setState({ isActive: true });
+    this.setState({ isActive: true }, () => {});
   }
 
   deActivate() {
     if (!this.state.isActive) return;
-    this.setState({ isActive: false });
+    this.timeout = setTimeout(() => {
+      this.setState({ isActive: false });
+    }, 1000);
   }
 
   render() {
