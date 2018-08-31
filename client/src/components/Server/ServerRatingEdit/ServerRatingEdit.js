@@ -1,22 +1,24 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
   Field,
   reduxForm,
   formValueSelector,
   change,
   getFormSyncErrors
-} from "redux-form";
-import styled from "styled-components";
-import { Grid, Typography } from "@material-ui/core";
-import { setActiveServer } from "../../../actions/actions";
-import Container from "../../UI/Container";
-import TRNRatingSlider from "./TRNRatingSlider";
-import ServerRatingAdd from "./ServerRatingAdd";
-import { DragDropContext } from "react-beautiful-dnd";
-import ServerRatingList from "./ServerRatingList/ServerRatingList";
-import DeleteDrop from "./ServerRatingList/DeleteDrop";
+} from 'redux-form';
+import styled from 'styled-components';
+import { Grid, Typography } from '@material-ui/core';
+import { setActiveServer } from '../../../actions/actions';
+import Container from '../../UI/Container';
+import TRNRatingSlider from './TRNRatingSlider';
+import ServerRatingAdd from './ServerRatingAdd';
+import { DragDropContext } from 'react-beautiful-dnd';
+import ServerRatingList, {
+  ServerRatingListContext
+} from './ServerRatingList/ServerRatingList';
+import DeleteDrop from './ServerRatingList/DeleteDrop';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
@@ -38,7 +40,17 @@ class ServerRatingEdit extends Component {
     this.props.setActiveServer(this.serverId);
   }
 
-  addRating() {
+  renderTRNRatingEditSlider(props) {
+    return (
+      <TRNRatingSlider
+        {...props}
+        values={props.trnRange ? props.trnRange : []}
+        onChange={range => props.input.onChange(range)}
+      />
+    );
+  }
+
+  addRating = () => {
     // For now use the index to link the two arrays. Since there will need to be functionality to swap the names with a range.
 
     let shouldUpdate = true;
@@ -65,30 +77,20 @@ class ServerRatingEdit extends Component {
     }
 
     if (shouldUpdate) {
-      this.props.change("trnRangeNames", updatedNames);
-      this.props.change("trnRange", updatedRange);
-      this.props.change("newRatingName", "");
+      this.props.change('trnRangeNames', updatedNames);
+      this.props.change('trnRange', updatedRange);
+      this.props.change('newRatingName', '');
     }
-  }
+  };
 
-  renderTRNRatingEditSlider(props) {
-    return (
-      <TRNRatingSlider
-        {...props}
-        values={props.trnRange ? props.trnRange : []}
-        onChange={range => props.input.onChange(range)}
-      />
-    );
-  }
-
-  onDragRatingStart() {
+  onDragRatingStart = () => {
     this.setState({
       ...this.state,
       dragIsActive: true
     });
-  }
+  };
 
-  onDragRatingEnd({ destination, source }) {
+  onDragRatingEnd = ({ destination, source }) => {
     this.setState({
       ...this.state,
       dragIsActive: false
@@ -96,29 +98,37 @@ class ServerRatingEdit extends Component {
 
     if (!destination) return;
 
-    if (destination.droppableId === "rating-list-delete-drop-area") {
+    if (destination.droppableId === 'rating-list-delete-drop-area') {
       const updatedRangeNames = Array.from(this.props.trnRangeNames).reverse();
       const updatedRange = Array.from(this.props.trnRange).reverse();
       updatedRangeNames.splice(source.index, 1);
       updatedRange.splice(source.index, 1);
-      this.props.change("trnRangeNames", updatedRangeNames.reverse());
-      this.props.change("trnRange", updatedRange.reverse());
+      this.props.change('trnRangeNames', updatedRangeNames.reverse());
+      this.props.change('trnRange', updatedRange.reverse());
     } else {
       const reorderedNames = Array.from(this.props.trnRangeNames).reverse();
       const [removed] = reorderedNames.splice(source.index, 1);
       reorderedNames.splice(destination.index, 0, removed);
       reorderedNames.reverse();
-      this.props.change("trnRangeNames", reorderedNames);
+      this.props.change('trnRangeNames', reorderedNames);
     }
-  }
+  };
+
+  onRangeNameEdit = (value, index) => {
+    const updatedNames = Array.from(this.props.trnRangeNames).reverse();
+    updatedNames[index] = value;
+    updatedNames.reverse();
+    this.props.change('trnRangeNames', updatedNames);
+  };
 
   render() {
+    console.log('ServerRatingEdit re render');
     return (
       <Container>
         {/* Enter should not submit the form for now */}
         <form
           onSubmit={this.props.handleSubmit(() =>
-            console.log("Form submitted")
+            console.log('Form submitted')
           )}
         >
           <MarginedContainer>
@@ -133,13 +143,19 @@ class ServerRatingEdit extends Component {
           />
           <MarginedContainer>
             <DragDropContext
-              onDragStart={this.onDragRatingStart.bind(this)}
-              onDragEnd={this.onDragRatingEnd.bind(this)}
+              onDragStart={this.onDragRatingStart}
+              onDragEnd={this.onDragRatingEnd}
             >
-              <ServerRatingList
-                range={this.props.trnRange}
-                rangeNames={this.props.trnRangeNames}
-              />
+              <ServerRatingListContext.Provider
+                value={{
+                  onRangeNameEdit: this.onRangeNameEdit
+                }}
+              >
+                <ServerRatingList
+                  range={this.props.trnRange}
+                  rangeNames={this.props.trnRangeNames}
+                />
+              </ServerRatingListContext.Provider>
 
               <Grid
                 container
@@ -154,7 +170,7 @@ class ServerRatingEdit extends Component {
                     value={this.props.newRatingName}
                     component={ServerRatingAdd}
                     formErrors={this.props.formErrors}
-                    onAddClick={() => this.addRating()}
+                    onAddClick={this.addRating}
                   />
                 </Grid>
                 <Grid item xs={6}>
@@ -171,7 +187,7 @@ class ServerRatingEdit extends Component {
 
 ServerRatingEdit = reduxForm({
   validate,
-  form: "serverRatingEdit"
+  form: 'serverRatingEdit'
 })(ServerRatingEdit);
 
 ServerRatingEdit = connect(
@@ -197,14 +213,14 @@ ServerRatingEdit.propTypes = {
   setActiveServer: PropTypes.func
 };
 
-const selector = formValueSelector("serverRatingEdit");
-const errorSelector = getFormSyncErrors("serverRatingEdit");
+const selector = formValueSelector('serverRatingEdit');
+const errorSelector = getFormSyncErrors('serverRatingEdit');
 
 function mapStateToProps(state) {
   return {
-    trnRangeNames: selector(state, "trnRangeNames"),
-    trnRange: selector(state, "trnRange"),
-    newRatingName: selector(state, "newRatingName"),
+    trnRangeNames: selector(state, 'trnRangeNames'),
+    trnRange: selector(state, 'trnRange'),
+    newRatingName: selector(state, 'newRatingName'),
     formErrors: errorSelector(state)
   };
 }
@@ -220,7 +236,7 @@ function validate({ trnRange, trnRangeNames, newRatingName }) {
   const errors = {};
 
   if (Array.isArray(trnRangeNames) && trnRangeNames.includes(newRatingName)) {
-    errors["newRatingName"] = `This role already exists yafuq`;
+    errors['newRatingName'] = `This role already exists yafuq`;
   }
 
   if (
@@ -228,9 +244,9 @@ function validate({ trnRange, trnRangeNames, newRatingName }) {
     trnRange.length > 0 &&
     trnRange[0].max === 100
   ) {
-    errors["trnRange"] = `Move the latest range before adding another yafuq`;
+    errors['trnRange'] = `Move the latest range before adding another yafuq`;
     errors[
-      "newRatingName"
+      'newRatingName'
     ] = `Can't add another role because one is still set to 100`;
   }
 

@@ -1,35 +1,48 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Draggable } from "react-beautiful-dnd";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Draggable } from 'react-beautiful-dnd';
 import {
   ListItem,
   RootRef,
   Icon,
   ListItemIcon,
-  ListItemText
-} from "@material-ui/core";
+  ListItemText,
+  TextField
+} from '@material-ui/core';
+import { ServerRatingListContext } from './ServerRatingList';
 
 const ServerRatingListItem = ({ rangeName, index }) => {
   return (
-    <Draggable draggableId={`${rangeName}_id`} index={index}>
-      {({ innerRef, draggableProps, dragHandleProps }) => {
-        return (
-          <RootRef rootRef={innerRef}>
-            <ListItem
-              divider
-              disableGutters
-              style={{ ...draggableProps.style }}
-              {...draggableProps}
-              {...dragHandleProps}
-            >
-              <ListItemIcon>
-                <Icon color="disabled">reorder</Icon>
-              </ListItemIcon>
-              <ListItemText>{rangeName}</ListItemText>
-            </ListItem>
-          </RootRef>
-        );
-      }}
+    <Draggable draggableId={`${index}_id`} index={index}>
+      {({ innerRef, draggableProps, dragHandleProps }) => (
+        <ServerRatingListContext.Consumer>
+          {({ onRangeNameEdit }) => (
+            <RootRef rootRef={innerRef}>
+              <ListItem
+                divider
+                disableGutters
+                style={{ ...draggableProps.style }}
+                {...draggableProps}
+              >
+                <ListItemIcon {...dragHandleProps}>
+                  <Icon color="disabled">reorder</Icon>
+                </ListItemIcon>
+                <ListItemText>
+                  <TextField
+                    InputProps={{
+                      disableUnderline: true
+                    }}
+                    value={rangeName}
+                    onChange={event =>
+                      onRangeNameEdit(event.target.value, index)
+                    }
+                  />
+                </ListItemText>
+              </ListItem>
+            </RootRef>
+          )}
+        </ServerRatingListContext.Consumer>
+      )}
     </Draggable>
   );
 };

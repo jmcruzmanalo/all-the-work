@@ -1,8 +1,7 @@
-import React from "react";
-import styled from "styled-components";
-import PropTypes from "prop-types";
-import { Droppable } from "react-beautiful-dnd";
-import ServerRatingListItem from "./ServerRatingListItem";
+import React, { createContext } from 'react';
+import PropTypes from 'prop-types';
+import { Droppable } from 'react-beautiful-dnd';
+import ServerRatingListItem from './ServerRatingListItem';
 import {
   RootRef,
   List,
@@ -10,17 +9,18 @@ import {
   Grid,
   Typography,
   Paper,
-  withTheme,
   ListItemText
-} from "@material-ui/core";
-import Padded from "../../../UI/Padded";
+} from '@material-ui/core';
+import Padded from '../../../UI/Padded';
 
-const ServerRatingList = ({ rangeNames = [], range = [], theme }) => {
+export const ServerRatingListContext = createContext();
+
+const ServerRatingList = ({ rangeNames = [], range = [] }) => {
   const listRangeNames = [...rangeNames]
     .reverse()
     .map((name, index) => (
       <ServerRatingListItem
-        key={`${name}_${index}`}
+        key={`${index}-rating-list-item`}
         rangeName={name}
         index={index}
       />
@@ -69,7 +69,7 @@ const ServerRatingList = ({ rangeNames = [], range = [], theme }) => {
   };
 
   return (
-    <Droppable droppableId={"rating-list-droppable"}>{renderList}</Droppable>
+    <Droppable droppableId={'rating-list-droppable'}>{renderList}</Droppable>
   );
 };
 
@@ -78,8 +78,7 @@ ServerRatingList.propTypes = {
   rangeNames: PropTypes.array,
   innerRef: PropTypes.any,
   droppableProps: PropTypes.any,
-  placeholder: PropTypes.any,
-  theme: PropTypes.object.isRequired
+  placeholder: PropTypes.any
 };
 
-export default withTheme()(ServerRatingList);
+export default ServerRatingList;

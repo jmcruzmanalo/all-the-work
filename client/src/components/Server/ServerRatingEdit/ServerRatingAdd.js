@@ -1,14 +1,24 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Button, Input, InputLabel, FormControl, FormHelperText } from '@material-ui/core';
+import React, { Fragment } from "react";
+import PropTypes from "prop-types";
+import {
+  Button,
+  Input,
+  InputLabel,
+  FormControl,
+  FormHelperText
+} from "@material-ui/core";
 
-const ServerRatingAdd = (props) => {
+// TODO: Prevent Enter key from submitting the form here
+const ServerRatingAdd = props => {
   return (
     <Fragment>
       <FormControl error={!!props.meta.error && !!props.input.value}>
         <InputLabel>New Rating Name</InputLabel>
-        <Input autoComplete='off' {...props.input} />
-        {props.meta.error && props.input.value && (<FormHelperText>{props.meta.error}</FormHelperText>)}
+        <Input autoComplete="off" {...props.input} />
+        {props.meta.error &&
+          props.input.value && (
+            <FormHelperText>{props.meta.error}</FormHelperText>
+          )}
       </FormControl>
 
       <Button
@@ -22,12 +32,14 @@ const ServerRatingAdd = (props) => {
       </Button>
     </Fragment>
   );
-}
+};
 
 ServerRatingAdd.propTypes = {
   value: PropTypes.string,
   formErrors: PropTypes.any,
-  onAddClick: PropTypes.func
-}
+  onAddClick: PropTypes.func,
+  meta: PropTypes.object,
+  input: PropTypes.object
+};
 
 export default ServerRatingAdd;
