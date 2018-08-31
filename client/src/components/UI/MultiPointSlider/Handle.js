@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Typography } from "@material-ui/core";
-import styled from "styled-components";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import styled from 'styled-components';
 
 const StyledHandle = styled.div`
   position: absolute;
@@ -69,8 +69,8 @@ class Handle extends Component {
         <StyledHandleTooltip
           style={
             this.state.isActive
-              ? { opacity: 1, transform: "translateY(0)" }
-              : { opacity: 0, transform: "translateY(50%)" }
+              ? { opacity: 1, transform: 'translateY(0)' }
+              : { opacity: 0, transform: 'translateY(50%)' }
           }
         >
           <Typography variant="caption">{value}</Typography>

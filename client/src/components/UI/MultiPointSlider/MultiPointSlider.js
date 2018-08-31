@@ -1,27 +1,28 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Slider, { Handles, Tracks, Ticks } from "react-compound-slider";
-import Track from "./Track";
-import Handle from "./Handle";
-import Tick from "./Tick";
+import React from 'react';
+import PropTypes from 'prop-types';
+import Slider, { Handles, Tracks, Ticks } from 'react-compound-slider';
+import Track from './Track';
+import Handle from './Handle';
+import Tick from './Tick';
 
-const MultiPointSlider = ({ domain, values = [], onChange }) => {
+const MultiPointSlider = ({ domain, values = [], onChange, onUpdate }) => {
   return (
     <Slider
       domain={domain}
       step={50}
       mode={3}
       rootStyle={{
-        position: "relative",
-        width: "100%",
-        height: "45px",
-        paddingTop: "20px",
-        marginBottom: "35px"
+        position: 'relative',
+        width: '100%',
+        height: '45px',
+        paddingTop: '20px',
+        marginBottom: '35px'
       }}
       values={values}
       onChange={
-        onChange ? onChange : () => console.log("No onChange available")
+        onChange ? onChange : () => console.log('No onChange available')
       }
+      onUpdate={onUpdate}
     >
       <Handles>
         {({ handles, getHandleProps }) => (
@@ -65,12 +66,12 @@ const MultiPointSlider = ({ domain, values = [], onChange }) => {
 
       <div
         style={{
-          position: "absolute",
-          width: "100%",
+          position: 'absolute',
+          width: '100%',
           height: 8,
           borderRadius: 4,
-          cursor: "pointer",
-          backgroundColor: "rgb(100,100,100)"
+          cursor: 'pointer',
+          backgroundColor: 'rgb(100,100,100)'
         }}
       />
     </Slider>
@@ -80,7 +81,8 @@ const MultiPointSlider = ({ domain, values = [], onChange }) => {
 MultiPointSlider.propTypes = {
   domain: PropTypes.array,
   values: PropTypes.array,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func,
+  onUpdate: PropTypes.func
 };
 
 export default MultiPointSlider;
