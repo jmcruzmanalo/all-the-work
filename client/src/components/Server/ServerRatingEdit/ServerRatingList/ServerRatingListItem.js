@@ -18,12 +18,7 @@ const ServerRatingListItem = ({ rangeName, index }) => {
         <ServerRatingListContext.Consumer>
           {({ onRangeNameEdit }) => (
             <RootRef rootRef={innerRef}>
-              <ListItem
-                divider
-                disableGutters
-                style={{ ...draggableProps.style }}
-                {...draggableProps}
-              >
+              <ListItem divider disableGutters {...draggableProps}>
                 <ListItemIcon {...dragHandleProps}>
                   <Icon color="disabled">reorder</Icon>
                 </ListItemIcon>
