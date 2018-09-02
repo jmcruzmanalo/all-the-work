@@ -1,12 +1,12 @@
-import React, { Fragment } from "react";
-import PropTypes from "prop-types";
+import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import {
   Button,
   Input,
   InputLabel,
   FormControl,
   FormHelperText
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 // TODO: Prevent Enter key from submitting the form here
 const ServerRatingAdd = props => {
@@ -14,7 +14,16 @@ const ServerRatingAdd = props => {
     <Fragment>
       <FormControl error={!!props.meta.error && !!props.input.value}>
         <InputLabel>New Rating Name</InputLabel>
-        <Input autoComplete="off" {...props.input} />
+        <Input
+          autoComplete="off"
+          {...props.input}
+          onKeyDown={event => {
+            if (event.keyCode === 13) {
+              event.preventDefault();
+              props.onAddClick();
+            }
+          }}
+        />
         {props.meta.error &&
           props.input.value && (
             <FormHelperText>{props.meta.error}</FormHelperText>

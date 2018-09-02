@@ -122,7 +122,6 @@ class ServerRatingEdit extends Component {
   };
 
   render() {
-    console.log('ServerRatingEdit re render');
     return (
       <Container>
         {/* Enter should not submit the form for now */}
