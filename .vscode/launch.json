@@ -16,7 +16,7 @@
       "name": "Node: Nodemon",
       "processId": "${command:PickProcess}",
       "restart": true,
-      "protocol": "inspector",
+      "protocol": "inspector"
     },
     {
       "type": "node",
@@ -42,6 +42,17 @@
       "request": "launch",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceRoot}/src"
+    },
+    {
+      "name": "Debug CRA Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/client/node_modules/.bin/react-scripts",
+      "args": ["test", "--runInBand", "--no-cache", "--env=jsdom"],
+      "cwd": "${workspaceRoot}/client",
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }

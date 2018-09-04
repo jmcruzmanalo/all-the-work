@@ -10,30 +10,23 @@ import './index.css';
 import reducers from './reducers';
 import App from './components/App';
 
-
-
-
 // REDUX Dev tools
 window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
-const composeEnhancers = window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] || compose;
-
+const composeEnhancers =
+  window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] || compose;
 
 const sagaMiddleWare = createSagaMiddleWare();
 const store = createStore(
   reducers,
   {},
-  composeEnhancers(
-    applyMiddleware(sagaMiddleWare)
-  )
+  composeEnhancers(applyMiddleware(sagaMiddleWare))
 );
 sagaMiddleWare.run(rootSaga);
 
 ReactDOM.render(
-
   <Provider store={store}>
     <App />
-  </Provider>
-  ,
+  </Provider>,
   document.getElementById('root')
 );
 

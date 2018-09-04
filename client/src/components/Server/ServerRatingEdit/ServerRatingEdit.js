@@ -9,8 +9,12 @@ import {
   getFormSyncErrors
 } from 'redux-form';
 import styled from 'styled-components';
-import { Grid, Typography } from '@material-ui/core';
-import { setActiveServer } from '../../../actions/actions';
+import qs from 'query-string';
+import { Grid, Typography, Button, Icon } from '@material-ui/core';
+import {
+  setActiveServer,
+  submitServerRatingEdit
+} from '../../../actions/actions';
 import Container from '../../UI/Container';
 import TRNRatingSlider from './TRNRatingSlider';
 import ServerRatingAdd from './ServerRatingAdd';
@@ -19,6 +23,7 @@ import ServerRatingList, {
   ServerRatingListContext
 } from './ServerRatingList/ServerRatingList';
 import DeleteDrop from './ServerRatingList/DeleteDrop';
+import ErrorMessage from '../../UI/ErrorMessage';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
@@ -27,17 +32,22 @@ const MarginedContainer = styled.div`
 
 class ServerRatingEdit extends Component {
   state = {
-    dragIsActive: false
+    dragIsActive: false,
+    serverId: null,
+    requesterDiscordId: null
   };
 
   constructor(props) {
     super(props);
-    this.serverId = props.match.params.serverId;
+    this.state.serverId = props.match.params.serverId;
+
+    const parsedQueryString = qs.parse(props.location.search);
+    this.state.requesterDiscordId = parsedQueryString.requesterDiscordId;
   }
 
   // TODO: This might need to be moved to componentWillReceiveProps
   componentDidMount() {
-    this.props.setActiveServer(this.serverId);
+    this.props.setActiveServer(this.state.serverId);
   }
 
   renderTRNRatingEditSlider(props) {
@@ -122,19 +132,21 @@ class ServerRatingEdit extends Component {
   };
 
   render() {
-    return (
-      <Container>
-        {/* Enter should not submit the form for now */}
+    let output;
+    if (!this.state.serverId) {
+      output = <ErrorMessage>No Server ID defined</ErrorMessage>;
+    } else if (!this.state.requesterDiscordId) {
+      output = (
+        <ErrorMessage>Dafuq, no requester discord ID wdym!!</ErrorMessage>
+      );
+    } else {
+      output = (
         <form
-          onSubmit={this.props.handleSubmit(() =>
-            console.log('Form submitted')
-          )}
+          onSubmit={this.props.handleSubmit(() => {
+            console.log(this.props.submitServerRatingEdit);
+            this.props.submitServerRatingEdit();
+          })}
         >
-          <MarginedContainer>
-            <Typography variant="title">
-              Server I.D. - {this.serverId}
-            </Typography>
-          </MarginedContainer>
           <Field
             name="trnRange"
             component={this.renderTRNRatingEditSlider}
@@ -178,21 +190,25 @@ class ServerRatingEdit extends Component {
               </Grid>
             </DragDropContext>
           </MarginedContainer>
+          <Button type="submit" variant="contained" color="primary">
+            Save
+          </Button>
         </form>
+      );
+    }
+
+    return (
+      <Container>
+        <MarginedContainer>
+          <Typography variant="title">
+            Server I.D. - {this.state.serverId}
+          </Typography>
+        </MarginedContainer>
+        {output}
       </Container>
     );
   }
 }
-
-ServerRatingEdit = reduxForm({
-  validate,
-  form: 'serverRatingEdit'
-})(ServerRatingEdit);
-
-ServerRatingEdit = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ServerRatingEdit);
 
 ServerRatingEdit.propTypes = {
   match: PropTypes.shape({
@@ -200,6 +216,7 @@ ServerRatingEdit.propTypes = {
       serverId: PropTypes.string.isRequired
     })
   }),
+  location: PropTypes.any,
   handleSubmit: PropTypes.func,
   trnRangeNames: PropTypes.array,
   trnRange: PropTypes.array,
@@ -209,7 +226,8 @@ ServerRatingEdit.propTypes = {
     newRatingName: PropTypes.string
   }),
   change: PropTypes.func,
-  setActiveServer: PropTypes.func
+  setActiveServer: PropTypes.func,
+  submitServerRatingEdit: PropTypes.func
 };
 
 const selector = formValueSelector('serverRatingEdit');
@@ -224,12 +242,11 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps() {
-  return {
-    setActiveServer,
-    change
-  };
-}
+const mapDispatchToProps = {
+  setActiveServer,
+  submitServerRatingEdit,
+  change
+};
 
 function validate({ trnRange, trnRangeNames, newRatingName }) {
   const errors = {};
@@ -251,5 +268,15 @@ function validate({ trnRange, trnRangeNames, newRatingName }) {
 
   return errors;
 }
+
+ServerRatingEdit = reduxForm({
+  validate,
+  form: 'serverRatingEdit'
+})(ServerRatingEdit);
+
+ServerRatingEdit = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ServerRatingEdit);
 
 export default ServerRatingEdit;

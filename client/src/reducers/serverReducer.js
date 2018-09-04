@@ -11,24 +11,25 @@ import * as actionTypes from '../actions/actionTypes';
 
 export default (state = null, action) => {
   switch (action.type) {
-
     case actionTypes.SET_ACTIVE_SERVER:
-    return {
-      ...state,
-      serverId: action.payload
-    }
+      console.log('Inside Set Active Server');
+      return {
+        ...state,
+        serverId: action.payload
+      };
 
-    case 'FETCH_SERVER_MEMBERS_DONE':
+    case actionTypes.FETCH_SERVER_MEMBERS_DONE:
       return {
         ...state,
         serverMembers: action.payload
-      }
-      
-      case actionTypes.SET_SERVER_TRN_ROLES_RATING:
+      };
+
+    case actionTypes.SET_SERVER_TRN_ROLES_RATING:
       return {
         ...state
-      }
+      };
 
-    default: return state;
+    default:
+      return state;
   }
-}
+};
