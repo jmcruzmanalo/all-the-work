@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { BrowserRouter, Route } from "react-router-dom";
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import styled from "styled-components";
-import Landing from "./Landing";
-import ServerRatingEdit from "./Server/ServerRatingEdit/ServerRatingEdit";
+import React, { Component } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import styled from 'styled-components';
+import Landing from './Landing';
+import ServerRatingEdit from './Server/ServerRatingEdit/ServerRatingEdit';
 
 const theme = createMuiTheme({
   palette: {
-    type: "dark"
+    type: 'dark'
   }
 });
 

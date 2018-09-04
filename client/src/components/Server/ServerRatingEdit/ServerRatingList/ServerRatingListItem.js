@@ -12,6 +12,13 @@ import {
 } from '@material-ui/core';
 import { ServerRatingListContext } from './ServerRatingList';
 
+const ListItemPositioned = styled(ListItem)`
+  && {
+    top: inherit !important;
+    left: inherit !important;
+  }
+`;
+
 const StyledTextField = styled(TextField)`
   && input {
     padding: 0px;
@@ -23,9 +30,9 @@ const ServerRatingListItem = ({ rangeName, index }) => {
     <Draggable draggableId={`${index}_id`} index={index}>
       {({ innerRef, draggableProps, dragHandleProps }) => (
         <ServerRatingListContext.Consumer>
-          {({ onRangeNameEdit }) => (
-            <RootRef rootRef={innerRef}>
-              <ListItem divider disableGutters {...draggableProps}>
+          {({ onRangeNameEdit }) => {
+            const item = (
+              <ListItemPositioned divider disableGutters {...draggableProps}>
                 <ListItemIcon {...dragHandleProps}>
                   <Icon color="disabled">reorder</Icon>
                 </ListItemIcon>
@@ -40,9 +47,11 @@ const ServerRatingListItem = ({ rangeName, index }) => {
                     }
                   />
                 </ListItemText>
-              </ListItem>
-            </RootRef>
-          )}
+              </ListItemPositioned>
+            );
+
+            return <RootRef rootRef={innerRef}>{item}</RootRef>;
+          }}
         </ServerRatingListContext.Consumer>
       )}
     </Draggable>

@@ -2,9 +2,11 @@
  * This file will handle the requesting of discord role changes VIA the GUI
  */
 
-import GuildRolesUpdateRequest from '../../database/models/guildRolesUpdateRequest';
+const {
+  GuildRolesUpdateRequest
+} = require('../../database/models/guildRolesUpdateRequest');
 
-export const requestRoleUpdate = async ({
+const requestRoleUpdate = async ({
   serverId,
   rolesRating,
   requesterDiscordId
@@ -23,3 +25,5 @@ export const requestRoleUpdate = async ({
     throw new Error(`roles.edit.js:requestRoleUpdate() - ${e}`);
   }
 };
+
+module.exports = { requestRoleUpdate };

@@ -10,7 +10,15 @@ import {
 } from 'redux-form';
 import styled from 'styled-components';
 import qs from 'query-string';
-import { Grid, Typography, Button, Icon } from '@material-ui/core';
+import {
+  Grid,
+  Typography,
+  Button,
+  Tab,
+  Tabs,
+  withTheme
+} from '@material-ui/core';
+import SwipeableViews from 'react-swipeable-views';
 import {
   setActiveServer,
   submitServerRatingEdit
@@ -24,11 +32,23 @@ import ServerRatingList, {
 } from './ServerRatingList/ServerRatingList';
 import DeleteDrop from './ServerRatingList/DeleteDrop';
 import ErrorMessage from '../../UI/ErrorMessage';
+import Padded from '../../UI/Padded';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
+
+const DarkTabs = styled(Tabs)`
+  && {
+    padding-left: 12px;
+    padding-right: 12px;
+    color: ${({ theme }) => theme.palette.text.primary};
+  }
+`;
+
+// Index based
+const RATING_TYPE = ['TRN Rating', 'Kill/Death Ratio'];
 
 class ServerRatingEdit extends Component {
   state = {
@@ -48,6 +68,9 @@ class ServerRatingEdit extends Component {
   // TODO: This might need to be moved to componentWillReceiveProps
   componentDidMount() {
     this.props.setActiveServer(this.state.serverId);
+    if (!this.props.ratingType) {
+      this.props.change('ratingType', RATING_TYPE[0]);
+    }
   }
 
   renderTRNRatingEditSlider(props) {
@@ -59,6 +82,10 @@ class ServerRatingEdit extends Component {
       />
     );
   }
+
+  ratingTypeChange = (event, value) => {
+    this.props.change('ratingType', RATING_TYPE[value]);
+  };
 
   addRating = () => {
     // For now use the index to link the two arrays. Since there will need to be functionality to swap the names with a range.
@@ -140,69 +167,93 @@ class ServerRatingEdit extends Component {
         <ErrorMessage>Dafuq, no requester discord ID wdym!!</ErrorMessage>
       );
     } else {
-      output = (
-        <form
-          onSubmit={this.props.handleSubmit(() => {
-            console.log(this.props.submitServerRatingEdit);
-            this.props.submitServerRatingEdit();
-          })}
-        >
-          <Field
-            name="trnRange"
-            component={this.renderTRNRatingEditSlider}
-            trnRange={this.props.trnRange}
-          />
-          <MarginedContainer>
-            <DragDropContext
-              onDragStart={this.onDragRatingStart}
-              onDragEnd={this.onDragRatingEnd}
-            >
-              <ServerRatingListContext.Provider
-                value={{
-                  onRangeNameEdit: this.onRangeNameEdit
-                }}
-              >
-                <ServerRatingList
-                  range={this.props.trnRange}
-                  rangeNames={this.props.trnRangeNames}
-                />
-              </ServerRatingListContext.Provider>
+      const tabIndex = this.props.ratingType
+        ? RATING_TYPE.indexOf(this.props.ratingType)
+        : 0;
 
-              <Grid
-                container
-                direction="row"
-                justify="center"
-                spacing={24}
-                alignItems="center"
+      output = (
+        <div>
+          <DarkTabs
+            theme={this.props.theme}
+            value={tabIndex}
+            onChange={this.ratingTypeChange}
+            indicatorColor="primary"
+            fullWidth
+          >
+            <Tab label="TRN Rating" />
+            <Tab label="Kill/Death ratio" />
+          </DarkTabs>
+
+          <SwipeableViews index={tabIndex}>
+            <Padded padding={12}>
+              <form
+                onSubmit={this.props.handleSubmit(() => {
+                  console.log(this.props.submitServerRatingEdit);
+                  this.props.submitServerRatingEdit();
+                })}
               >
-                <Grid item xs={6}>
-                  <Field
-                    name="newRatingName"
-                    value={this.props.newRatingName}
-                    component={ServerRatingAdd}
-                    formErrors={this.props.formErrors}
-                    onAddClick={this.addRating}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <DeleteDrop dragIsActive={this.state.dragIsActive} />
-                </Grid>
-              </Grid>
-            </DragDropContext>
-          </MarginedContainer>
-          <Button type="submit" variant="contained" color="primary">
-            Save
-          </Button>
-        </form>
+                <Field
+                  name="trnRange"
+                  component={this.renderTRNRatingEditSlider}
+                  trnRange={this.props.trnRange}
+                />
+                <MarginedContainer>
+                  <DragDropContext
+                    onDragStart={this.onDragRatingStart}
+                    onDragEnd={this.onDragRatingEnd}
+                  >
+                    <ServerRatingListContext.Provider
+                      value={{
+                        onRangeNameEdit: this.onRangeNameEdit
+                      }}
+                    >
+                      <ServerRatingList
+                        range={this.props.trnRange}
+                        rangeNames={this.props.trnRangeNames}
+                      />
+                    </ServerRatingListContext.Provider>
+
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      spacing={24}
+                      alignItems="center"
+                    >
+                      <Grid item xs={6}>
+                        <Field
+                          name="newRatingName"
+                          value={this.props.newRatingName}
+                          component={ServerRatingAdd}
+                          formErrors={this.props.formErrors}
+                          onAddClick={this.addRating}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <DeleteDrop dragIsActive={this.state.dragIsActive} />
+                      </Grid>
+                    </Grid>
+                  </DragDropContext>
+                </MarginedContainer>
+                <Button type="submit" variant="contained" color="primary">
+                  Save
+                </Button>
+              </form>
+            </Padded>
+            <Padded padding={12} />
+          </SwipeableViews>
+        </div>
       );
     }
 
     return (
       <Container>
         <MarginedContainer>
-          <Typography variant="title">
-            Server I.D. - {this.state.serverId}
-          </Typography>
+          <Padded padding={0} paddingLeft={12} paddingRight={12}>
+            <Typography variant="title">
+              Server I.D. - {this.state.serverId}
+            </Typography>
+          </Padded>
         </MarginedContainer>
         {output}
       </Container>
@@ -218,6 +269,7 @@ ServerRatingEdit.propTypes = {
   }),
   location: PropTypes.any,
   handleSubmit: PropTypes.func,
+  ratingType: PropTypes.string,
   trnRangeNames: PropTypes.array,
   trnRange: PropTypes.array,
   newRatingName: PropTypes.string,
@@ -227,7 +279,8 @@ ServerRatingEdit.propTypes = {
   }),
   change: PropTypes.func,
   setActiveServer: PropTypes.func,
-  submitServerRatingEdit: PropTypes.func
+  submitServerRatingEdit: PropTypes.func,
+  theme: PropTypes.object.isRequired
 };
 
 const selector = formValueSelector('serverRatingEdit');
@@ -235,6 +288,7 @@ const errorSelector = getFormSyncErrors('serverRatingEdit');
 
 function mapStateToProps(state) {
   return {
+    ratingType: selector(state, 'ratingType'),
     trnRangeNames: selector(state, 'trnRangeNames'),
     trnRange: selector(state, 'trnRange'),
     newRatingName: selector(state, 'newRatingName'),
@@ -279,4 +333,4 @@ ServerRatingEdit = connect(
   mapDispatchToProps
 )(ServerRatingEdit);
 
-export default ServerRatingEdit;
+export default withTheme()(ServerRatingEdit);
