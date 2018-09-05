@@ -44,11 +44,29 @@ module.exports = app => {
   app.post(
     `/api/servers/:serverId/requestUpdateRolesRating`,
     async (req, res) => {
-      const serverId = req.params.serverId;
-      console.log(serverId);
-      console.log(req.body);
+      const {
+        body: { ratingType, trnRange = [], trnRangeNames = [] },
+        params: { serverId }
+      } = req;
 
-      const rolesRating = req.body;
+      let rolesRating;
+
+      switch (ratingType) {
+        case 'TRN Rating':
+          rolesRating = trnRangeNames.map((name, index) => {
+            return {
+              name,
+              range: trnRange[index],
+              type: ratingType
+            };
+          });
+          break;
+        default:
+          res.status(400).send({
+            errorMessage: 'Unknown Rating Type'
+          });
+          return;
+      }
 
       await requestRoleUpdate({
         serverId,
@@ -57,7 +75,9 @@ module.exports = app => {
         requesterDiscordId: '359314226214600704'
       });
 
-      res.send('Alrayt');
+      res.send({
+        message: 'Request to update roles rating saved. Waiting for approval.'
+      });
     }
   );
 };

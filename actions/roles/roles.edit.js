@@ -26,4 +26,8 @@ const requestRoleUpdate = async ({
   }
 };
 
-module.exports = { requestRoleUpdate };
+const dropAllRequestRoleUpdate = async () => {
+  await GuildRolesUpdateRequest.remove({});
+};
+
+module.exports = { requestRoleUpdate, dropAllRequestRoleUpdate };

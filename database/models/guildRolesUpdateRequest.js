@@ -13,6 +13,10 @@ const GuildRoleInput = new Schema({
   range: {
     type: Schema.Types.Mixed,
     required: true
+  },
+  type: {
+    type: String,
+    required: true
   }
 });
 
@@ -21,10 +25,12 @@ const GuildRolesUpdateRequestSchema = new Schema({
     type: String,
     required: true
   },
-  rolesRating: {
-    type: GuildRoleInput,
-    required: true
-  },
+  rolesRating: [
+    {
+      type: GuildRoleInput,
+      required: true
+    }
+  ],
   requesterDiscordId: {
     type: String,
     required: true
@@ -35,7 +41,7 @@ const GuildRolesUpdateRequestSchema = new Schema({
 });
 
 GuildRolesUpdateRequestSchema.pre('save', function(next) {
-  this.requestedAt(Date.now());
+  this.requestedAt = Date.now();
   next();
 });
 
