@@ -9,19 +9,19 @@ import {
   getFormSyncErrors
 } from 'redux-form';
 import styled from 'styled-components';
-import qs from 'query-string';
-import {
-  Grid,
-  Typography,
-  Button,
-  Tab,
-  Tabs,
-  withTheme
-} from '@material-ui/core';
+import qs from 'querystring';
+
+import Typography from '@material-ui/core/Typography';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import withTheme from '@material-ui/core/styles/withTheme';
+import Grid from '@material-ui/core/Grid';
+
 import SwipeableViews from 'react-swipeable-views';
 import {
   setActiveServer,
-  submitServerRatingEdit
+  submitServerRatingEdit,
+  checkServerRolesRatingEditPassword
 } from '../../../actions/actions';
 import Container from '../../UI/Container';
 import TRNRatingSlider from './TRNRatingSlider';
@@ -33,6 +33,7 @@ import ServerRatingList, {
 import DeleteDrop from './ServerRatingList/DeleteDrop';
 import ErrorMessage from '../../UI/ErrorMessage';
 import Padded from '../../UI/Padded';
+import ServerRatingSubmit from './ServerRatingSubmit';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
@@ -54,15 +55,22 @@ class ServerRatingEdit extends Component {
   state = {
     dragIsActive: false,
     serverId: null,
-    requesterDiscordId: null
+    requesterDiscordId: null,
+    currentPassword: ''
   };
 
   constructor(props) {
     super(props);
     this.state.serverId = props.match.params.serverId;
 
-    const parsedQueryString = qs.parse(props.location.search);
-    this.state.requesterDiscordId = parsedQueryString.requesterDiscordId;
+    if (props.location.search) {
+      const parsedQueryString = qs.parse(
+        props.location.search.replace('?', '')
+      );
+
+      this.state.requesterDiscordId = parsedQueryString.requesterDiscordId;
+    }
+    this.state.currentPassword = props.password;
   }
 
   // TODO: This might need to be moved to componentWillReceiveProps
@@ -70,6 +78,14 @@ class ServerRatingEdit extends Component {
     this.props.setActiveServer(this.state.serverId);
     if (!this.props.ratingType) {
       this.props.change('ratingType', RATING_TYPE[0]);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.currentPassword !== this.props.password) {
+      this.setState({ currentPassword: this.props.password }, () => {
+        this.props.checkServerRolesRatingEditPassword();
+      });
     }
   }
 
@@ -82,6 +98,10 @@ class ServerRatingEdit extends Component {
       />
     );
   }
+
+  renderPasswordField = props => {
+    return <ServerRatingSubmit {...props} onChange={props.input.onChange} />;
+  };
 
   ratingTypeChange = (event, value) => {
     this.props.change('ratingType', RATING_TYPE[value]);
@@ -122,14 +142,12 @@ class ServerRatingEdit extends Component {
 
   onDragRatingStart = () => {
     this.setState({
-      ...this.state,
       dragIsActive: true
     });
   };
 
   onDragRatingEnd = ({ destination, source }) => {
     this.setState({
-      ...this.state,
       dragIsActive: false
     });
 
@@ -188,7 +206,6 @@ class ServerRatingEdit extends Component {
             <Padded padding={12}>
               <form
                 onSubmit={this.props.handleSubmit(() => {
-                  console.log(this.props.submitServerRatingEdit);
                   this.props.submitServerRatingEdit();
                 })}
               >
@@ -235,9 +252,11 @@ class ServerRatingEdit extends Component {
                     </Grid>
                   </DragDropContext>
                 </MarginedContainer>
-                <Button type="submit" variant="contained" color="primary">
-                  Save
-                </Button>
+                <Field
+                  name="password"
+                  component={this.renderPasswordField}
+                  value={this.props.password}
+                />
               </form>
             </Padded>
             <Padded padding={12} />
@@ -270,6 +289,7 @@ ServerRatingEdit.propTypes = {
   location: PropTypes.any,
   handleSubmit: PropTypes.func,
   ratingType: PropTypes.string,
+  password: PropTypes.string,
   trnRangeNames: PropTypes.array,
   trnRange: PropTypes.array,
   newRatingName: PropTypes.string,
@@ -280,6 +300,7 @@ ServerRatingEdit.propTypes = {
   change: PropTypes.func,
   setActiveServer: PropTypes.func,
   submitServerRatingEdit: PropTypes.func,
+  checkServerRolesRatingEditPassword: PropTypes.func,
   theme: PropTypes.object.isRequired
 };
 
@@ -289,6 +310,7 @@ const errorSelector = getFormSyncErrors('serverRatingEdit');
 function mapStateToProps(state) {
   return {
     ratingType: selector(state, 'ratingType'),
+    password: selector(state, 'password'),
     trnRangeNames: selector(state, 'trnRangeNames'),
     trnRange: selector(state, 'trnRange'),
     newRatingName: selector(state, 'newRatingName'),
@@ -299,6 +321,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setActiveServer,
   submitServerRatingEdit,
+  checkServerRolesRatingEditPassword,
   change
 };
 

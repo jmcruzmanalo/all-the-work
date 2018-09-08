@@ -4,13 +4,14 @@ require('../database/mongoose'); // This needs to be running
 
 const testConfig = {
   // TDD ?
-  'discord-api': true,
-  'fortnite-api': true,
+  'discord-api': false,
+  'fortnite-api': false,
 
   // BDD ?
-  kd: true,
-  roles: true,
-  members: true
+  kd: false,
+  roles: false,
+  members: false,
+  routes: false
 };
 
 module.exports = testConfig;

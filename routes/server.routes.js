@@ -80,4 +80,12 @@ module.exports = app => {
       });
     }
   );
+
+  app.fetch(
+    `/api/servers/:serverId/rolesRating/verifyPassword`,
+    async (req, res) => {
+      const serverId = req.params.serverId;
+      const password = req.body.password;
+    }
+  );
 };

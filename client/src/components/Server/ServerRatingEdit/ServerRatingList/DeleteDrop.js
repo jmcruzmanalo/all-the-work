@@ -1,15 +1,21 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Droppable } from "react-beautiful-dnd";
-import {
-  Paper,
-  Icon,
-  withTheme,
-  RootRef,
-  Typography,
-  Grid
-} from "@material-ui/core";
-import styled from "styled-components";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Droppable } from 'react-beautiful-dnd';
+// import {
+//   Paper,
+//   Icon,
+//   withTheme,
+//   RootRef,
+//   Typography,
+//   Grid
+// } from "@material-ui/core";
+import Paper from '@material-ui/core/Paper';
+import Icon from '@material-ui/core/Icon';
+import withTheme from '@material-ui/core/styles/withTheme';
+import RootRef from '@material-ui/core/RootRef';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import styled from 'styled-components';
 
 const DropArea = styled(Paper)`
   height: 50px;
@@ -37,10 +43,10 @@ const DeleteDrop = ({ theme }) => {
         <DropArea
           {...droppableProps}
           style={{
-            backgroundColor: isDraggingOver ? theme.palette.error.dark : ""
+            backgroundColor: isDraggingOver ? theme.palette.error.dark : ''
           }}
         >
-          <Grid100 container alignItems={"center"} justify={"space-between"}>
+          <Grid100 container alignItems={'center'} justify={'space-between'}>
             <Grid item>
               <FadingText
                 style={{ opacity: isDraggingOver ? 0 : 1 }}
@@ -50,7 +56,7 @@ const DeleteDrop = ({ theme }) => {
               </FadingText>
             </Grid>
             <Grid item>
-              <Icon color={isDraggingOver ? "action" : "disabled"}>delete</Icon>
+              <Icon color={isDraggingOver ? 'action' : 'disabled'}>delete</Icon>
             </Grid>
           </Grid100>
           {placeholder}

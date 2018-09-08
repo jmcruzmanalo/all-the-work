@@ -3,10 +3,12 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { MainGuildID } = require('../config');
 const { dropAllRequestRoleUpdate } = require('../actions/roles/roles.edit');
-
-const { app } = require('..');
+const config = require('./test.config');
 
 describe(`server.routes.js`, () => {
+  if (!config.routes) return;
+  const { app } = require('..');
+
   before(async () => {
     await dropAllRequestRoleUpdate();
   });

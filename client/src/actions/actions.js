@@ -19,6 +19,12 @@ export const fetchServerRolesRating = () => {
   };
 };
 
+export const checkServerRolesRatingEditPassword = () => {
+  return {
+    type: actionTypes.CHECK_SERVER_ROLES_RATING_EDIT_PASSWORD
+  };
+};
+
 export const submitServerRatingEdit = () => {
   return {
     type: actionTypes.SUBMIT_SERVER_ROLES_RATING_EDIT

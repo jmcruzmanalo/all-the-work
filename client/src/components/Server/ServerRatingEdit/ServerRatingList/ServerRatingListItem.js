@@ -2,14 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
-import {
-  ListItem,
-  RootRef,
-  Icon,
-  ListItemIcon,
-  ListItemText,
-  TextField
-} from '@material-ui/core';
+import ListItem from '@material-ui/core/ListItem';
+import RootRef from '@material-ui/core/RootRef';
+import Icon from '@material-ui/core/Icon';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import TextField from '@material-ui/core/TextField';
 import { ServerRatingListContext } from './ServerRatingList';
 
 const ListItemPositioned = styled(ListItem)`

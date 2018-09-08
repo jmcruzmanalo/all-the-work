@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Typography } from "@material-ui/core";
-import styled from "styled-components";
+import React from 'react';
+import PropTypes from 'prop-types';
+import Typography from '@material-ui/core/Typography';
+import styled from 'styled-components';
 
 const AlignmentIndicator = styled.div`
   position: absolute;

@@ -1,8 +1,7 @@
 const { Command } = require('discord.js-commando');
-const { getDeservedRole } = require('../../../actions/kd');
-const { UserLink } = require('../../../database/models/userLink');
-const { setUserRolesInGuild } = require('../../../actions/roles');
-const { getUserRoles, removeUserRole } = require('../../../api/discord-api');
+const {
+  getServerRolesConfigOrInsert
+} = require('../../../actions/roles/roles.edit');
 
 class DeservedRoleCommand extends Command {
   constructor(client) {
@@ -17,7 +16,36 @@ class DeservedRoleCommand extends Command {
 
   async run(message, argsString, formPattern) {
     message.channel.startTyping();
-    const discordID = message.author.id;
+    const discordId = message.author.id;
+    const serverId = message.guild.id;
+    const url = process.env.NGROK_TUNNEL;
+
+    if (message.member.permissions.has('ADMINISTRATOR')) {
+      const serverRolesConfig = await getServerRolesConfigOrInsert({
+        serverId,
+        latestRequesterDiscordId: discordId
+      });
+
+      message.channel.send({
+        embed: {
+          color: 3447003,
+          title: 'Set user roles',
+          description: `The link below will allow you to set the server via a GUI, you'll need to enter the password below on save`,
+          fields: [
+            {
+              name: 'Link:',
+              value: `${url}/servers/${serverId}/edit-ratings?requesterDiscordId=${discordId}`
+            },
+            {
+              name: 'Password: (if prompted on save)',
+              value: serverRolesConfig.password
+            }
+          ]
+        }
+      });
+    } else {
+      message.reply(`You need to be an admin to use this feature.`);
+    }
 
     message.channel.stopTyping();
   }

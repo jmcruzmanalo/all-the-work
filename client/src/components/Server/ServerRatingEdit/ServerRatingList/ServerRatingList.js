@@ -2,15 +2,13 @@ import React, { createContext } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable } from 'react-beautiful-dnd';
 import ServerRatingListItem from './ServerRatingListItem';
-import {
-  RootRef,
-  List,
-  ListItem,
-  Grid,
-  Typography,
-  Paper,
-  ListItemText
-} from '@material-ui/core';
+import RootRef from '@material-ui/core/RootRef';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import ListItemText from '@material-ui/core/ListItemText';
 import Padded from '../../../UI/Padded';
 
 export const ServerRatingListContext = createContext();

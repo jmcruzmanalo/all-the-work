@@ -1,12 +1,11 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  Input,
-  InputLabel,
-  FormControl,
-  FormHelperText
-} from '@material-ui/core';
+
+import Button from '@material-ui/core/Button';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 // TODO: Prevent Enter key from submitting the form here
 const ServerRatingAdd = props => {

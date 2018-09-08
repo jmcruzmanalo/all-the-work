@@ -1,7 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
-import { fork, all, call, select, takeLatest } from 'redux-saga/effects';
+import { all, call, select, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 import { getServerId, getServerRatingEditValues } from '../reducers/selectors';
+import { watchForPasswordEntry } from './watchPasswordEntry';
 
 // Roles Rating
 
@@ -64,5 +65,9 @@ function* watchServerEditSubmit() {
 }
 
 export default function* rootSaga() {
-  yield all([watchServerActiveSet(), watchServerEditSubmit()]);
+  yield all([
+    watchServerActiveSet(),
+    watchServerEditSubmit(),
+    watchForPasswordEntry()
+  ]);
 }
