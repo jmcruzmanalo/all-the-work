@@ -1,6 +1,9 @@
 const { getGuildRolesInDatabase } = require('../actions/roles');
 const { getLinkedServerMembers } = require('../actions/members');
 const { requestRoleUpdate } = require('../actions/roles/roles.edit');
+const {
+  ServerRolesConfig
+} = require('../database/models/serverRolesRatingConfig');
 
 module.exports = app => {
   app.get(`/api/servers/:serverId/details`, async (req, res) => {
@@ -81,11 +84,25 @@ module.exports = app => {
     }
   );
 
-  app.fetch(
+  app.post(
     `/api/servers/:serverId/rolesRating/verifyPassword`,
     async (req, res) => {
       const serverId = req.params.serverId;
       const password = req.body.password;
+
+      const serverRolesConfig = await ServerRolesConfig.findOne({
+        serverId,
+        password
+      });
+      if (serverRolesConfig) {
+        res.status(200).send({
+          isValid: true
+        });
+      } else {
+        res.status(200).send({
+          isValid: false
+        });
+      }
     }
   );
 };

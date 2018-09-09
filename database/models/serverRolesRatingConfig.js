@@ -32,7 +32,6 @@ const ServerRolesConfigSchema = new Schema({
     }
   ],
   password: {
-    // Hashed
     type: String,
     required: true
   },

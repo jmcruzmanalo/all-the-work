@@ -1,4 +1,5 @@
 const expect = require('expect');
+const config = require('./test.config');
 const { MainGuildID, DeveloperDiscordID } = require('../config');
 const {
   ServerRolesConfig
@@ -9,6 +10,8 @@ const {
 } = require('../actions/roles/roles.edit');
 
 describe(`roles.edit.js`, () => {
+  if (!config.rolesEdit) return;
+
   before(async () => {
     await dropAllServerRolesConfig();
   });

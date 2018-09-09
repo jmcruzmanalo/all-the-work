@@ -4,18 +4,22 @@ import * as actionTypes from '../actions/actionTypes';
 // server = sampleState in redux
 // const sampleState = {
 //   serverId: 'serverId',
-//   serverMembers: [],
-//   serverRolesRating: {
+//   serverEditPasswordIsValid: false
 //   }
 // };
 
 export default (state = null, action) => {
   switch (action.type) {
     case actionTypes.SET_ACTIVE_SERVER:
-      console.log('Inside Set Active Server');
       return {
         ...state,
         serverId: action.payload
+      };
+
+    case actionTypes.SET_ACTIVE_SERVER_PASSWORD_VALIDITY:
+      return {
+        ...state,
+        serverEditPasswordIsValid: action.payload
       };
 
     case actionTypes.FETCH_SERVER_MEMBERS_DONE:

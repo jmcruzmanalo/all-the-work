@@ -25,12 +25,12 @@ const getServerDetails = async ({ serverId }) => {
       getRolesRating: true
     }
   });
-  return response;
+  return response.data;
 };
 
 function* fetchServerDetails() {
   const serverId = yield select(getServerId);
-  const result = yield call(getServerDetails, { serverId });
+  const data = yield call(getServerDetails, { serverId });
 }
 
 function* watchServerActiveSet() {

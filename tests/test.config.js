@@ -10,8 +10,9 @@ const testConfig = {
   // BDD ?
   kd: false,
   roles: false,
+  rolesEdit: false,
   members: false,
-  routes: false
+  routes: true
 };
 
 module.exports = testConfig;

@@ -1,0 +1,1 @@
+POST http://localhost:5000/api/servers/415506140840067076/rolesRating/verifyPassword
