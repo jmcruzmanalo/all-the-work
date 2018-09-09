@@ -8,6 +8,7 @@ import {
   change,
   getFormSyncErrors
 } from 'redux-form';
+import { getServerEditPasswordIsValid } from '../../../reducers/selectors';
 import styled from 'styled-components';
 import qs from 'querystring';
 
@@ -16,6 +17,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
@@ -33,7 +35,7 @@ import ServerRatingList, {
 import DeleteDrop from './ServerRatingList/DeleteDrop';
 import ErrorMessage from '../../UI/ErrorMessage';
 import Padded from '../../UI/Padded';
-import ServerRatingSubmit from './ServerRatingSubmit';
+import ServerRatingPasswordInput from './ServerRatingPasswordInput';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
@@ -100,7 +102,10 @@ class ServerRatingEdit extends Component {
   }
 
   renderPasswordField = props => {
-    return <ServerRatingSubmit {...props} onChange={props.input.onChange} />;
+    console.log(props);
+    return (
+      <ServerRatingPasswordInput {...props} onChange={props.input.onChange} />
+    );
   };
 
   ratingTypeChange = (event, value) => {
@@ -256,7 +261,19 @@ class ServerRatingEdit extends Component {
                   name="password"
                   component={this.renderPasswordField}
                   value={this.props.password}
+                  error={
+                    this.props.password && !this.props.serverEditPasswordIsValid
+                  }
                 />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  onClick={() => {}}
+                  disabled={!this.props.serverEditPasswordIsValid}
+                >
+                  Submit
+                </Button>
               </form>
             </Padded>
             <Padded padding={12} />
@@ -290,6 +307,7 @@ ServerRatingEdit.propTypes = {
   handleSubmit: PropTypes.func,
   ratingType: PropTypes.string,
   password: PropTypes.string,
+  serverEditPasswordIsValid: PropTypes.bool,
   trnRangeNames: PropTypes.array,
   trnRange: PropTypes.array,
   newRatingName: PropTypes.string,
@@ -311,6 +329,7 @@ function mapStateToProps(state) {
   return {
     ratingType: selector(state, 'ratingType'),
     password: selector(state, 'password'),
+    serverEditPasswordIsValid: getServerEditPasswordIsValid(state),
     trnRangeNames: selector(state, 'trnRangeNames'),
     trnRange: selector(state, 'trnRange'),
     newRatingName: selector(state, 'newRatingName'),

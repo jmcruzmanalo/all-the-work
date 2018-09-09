@@ -5,7 +5,6 @@ import axios from 'axios';
 import { getServerId, getEnteredPassword } from '../reducers/selectors';
 
 const verifyPassword = async ({ serverId, password }) => {
-  console.log(serverId, password);
   const response = await axios.post(
     `/api/servers/${serverId}/rolesRating/verifyPassword`,
     { password }
