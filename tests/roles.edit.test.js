@@ -6,7 +6,8 @@ const {
 } = require('../database/models/serverRolesRatingConfig');
 const {
   getServerRolesConfigOrInsert,
-  dropAllServerRolesConfig
+  dropAllServerRolesConfig,
+  updateServerRolesConfig
 } = require('../actions/roles/roles.edit');
 
 describe(`roles.edit.js`, () => {
@@ -29,7 +30,7 @@ describe(`roles.edit.js`, () => {
     expect(keys.includes('serverId')).toBeTruthy();
   });
 
-  it(`should get an already created serverRolesConfig doc`, async () => {
+  it(`should get an already existing serverRolesConfig doc`, async () => {
     const serverRolesConfig = await getServerRolesConfigOrInsert({
       serverId: MainGuildID,
       latestRequesterDiscordId: DeveloperDiscordID

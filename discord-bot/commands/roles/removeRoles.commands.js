@@ -1,7 +1,6 @@
 const { Command } = require('discord.js-commando');
-const { removeAddedRoles } = require('../../../actions/roles');
+const { removeAddedRoles } = require('../../../actions/roles/roles');
 const { GuildRole } = require('../../../database/models/guildRoles');
-
 
 class DeservedRoleCommand extends Command {
   constructor(client) {
@@ -26,7 +25,9 @@ class DeservedRoleCommand extends Command {
       message.reply(`Finished removing the roles`);
     } catch (e) {
       console.log(e);
-      throw new Error(`There was an error removing the roles, see console logs.`);
+      throw new Error(
+        `There was an error removing the roles, see console logs.`
+      );
     } finally {
       message.channel.stopTyping();
     }

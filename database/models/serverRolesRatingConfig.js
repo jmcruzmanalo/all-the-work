@@ -35,6 +35,10 @@ const ServerRolesConfigSchema = new Schema({
     type: String,
     required: true
   },
+  ratingType: {
+    // The active form of rating that a server uses
+    type: String
+  },
   lastUpdatedBy: {
     type: String,
     required: true

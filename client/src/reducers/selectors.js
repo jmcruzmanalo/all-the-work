@@ -7,8 +7,10 @@ export const getServerId = state => {
   if (!state.server) return null;
   return state.server.serverId;
 };
+
 export const getServerRatingEditValues = state =>
   getFormValues('serverRatingEdit')(state);
+
 export const getEnteredPassword = state => {
   return serverRatingEditSelector(state, 'password');
 };

@@ -22,15 +22,10 @@ export default (state = null, action) => {
         serverEditPasswordStatus: action.payload
       };
 
-    case actionTypes.FETCH_SERVER_MEMBERS_DONE:
+    case actionTypes.SET_SERVER_RATING_EDIT_DEFAULTS:
       return {
         ...state,
-        serverMembers: action.payload
-      };
-
-    case actionTypes.SET_SERVER_TRN_ROLES_RATING:
-      return {
-        ...state
+        ...action.payload
       };
 
     default:

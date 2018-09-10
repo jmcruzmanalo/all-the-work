@@ -1,6 +1,9 @@
-const { getGuildRolesInDatabase } = require('../actions/roles');
+const {
+  getGuildRolesInDatabase,
+  getServerRolesInDatabase
+} = require('../actions/roles/roles');
 const { getLinkedServerMembers } = require('../actions/members');
-const { requestRoleUpdate } = require('../actions/roles/roles.edit');
+const { updateServerRolesConfig } = require('../actions/roles/roles.edit');
 const {
   ServerRolesConfig
 } = require('../database/models/serverRolesRatingConfig');
@@ -10,23 +13,24 @@ module.exports = app => {
     const serverId = req.params.serverId;
     const { getMembers = false, getRolesRating = false } = req.query;
     const response = {};
+    try {
+      if (getRolesRating) {
+        const serverRolesConfig = await getServerRolesInDatabase(serverId);
+        response.rolesRating = serverRolesConfig.rolesRating;
+        response.ratingType = serverRolesConfig.ratingType;
+      }
+      if (getMembers) {
+        response.members = await getLinkedServerMembers({ serverId });
+      }
 
-    if (getRolesRating) {
-      response.rolesRating = (await getGuildRolesInDatabase({
-        guildID: serverId
-      })).map(role => {
-        return {
-          ...role,
-          _id: role._id.toString()
-        };
+      res.send(response);
+      return;
+    } catch (e) {
+      console.log(e);
+      res.status(500).send({
+        errorMessage: e
       });
     }
-
-    if (getMembers) {
-      response.members = await getLinkedServerMembers({ serverId });
-    }
-
-    res.send(response);
   });
 
   app.get(`/api/servers/:serverId/rolesRating`, async (req, res) => {
@@ -48,9 +52,25 @@ module.exports = app => {
     `/api/servers/:serverId/requestUpdateRolesRating`,
     async (req, res) => {
       const {
-        body: { ratingType, trnRange = [], trnRangeNames = [] },
+        body,
         params: { serverId }
       } = req;
+
+      if (!body.hasOwnProperty('serverRatingEditValues')) {
+        res.status(400).send({
+          errorMessage: 'No serverRatingEditValues property in body'
+        });
+        return;
+      }
+
+      const {
+        password,
+        serverRatingEditValues: {
+          ratingType,
+          trnRange = [],
+          trnRangeNames = []
+        }
+      } = body;
 
       let rolesRating;
 
@@ -71,16 +91,26 @@ module.exports = app => {
           return;
       }
 
-      await requestRoleUpdate({
-        serverId,
-        rolesRating,
-        // Temporary hard-coded ID
-        requesterDiscordId: '359314226214600704'
-      });
-
-      res.send({
-        message: 'Request to update roles rating saved. Waiting for approval.'
-      });
+      try {
+        await updateServerRolesConfig({
+          serverId,
+          password,
+          rolesRating,
+          ratingType,
+          // Temporary hard-coded ID
+          requesterDiscordId: '359314226214600704'
+        });
+        res.status(200).send({
+          message: 'Finished updating the database'
+        });
+      } catch (e) {
+        console.log(e);
+        res.status(401).send({
+          message:
+            'Probably a wrong password || no server id found. Should handle 500 here',
+          errorInfo: e
+        });
+      }
     }
   );
 

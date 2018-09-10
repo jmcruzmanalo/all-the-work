@@ -1,5 +1,6 @@
 import * as actionTypes from '../actions/actionTypes';
-import { all, fork, call, select, takeLatest } from 'redux-saga/effects';
+import { initialize } from 'redux-form';
+import { all, fork, call, select, takeLatest, put } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   getServerId,
@@ -7,19 +8,6 @@ import {
   getEnteredPassword
 } from '../reducers/selectors';
 import { watchForPasswordEntry } from './serverEditSagas/watchPasswordEntry';
-
-// Roles Rating
-
-// TODO: The params need to be placed at the store?
-// const getServerRolesRating = async ({ serverId }) => {
-//   const results = await axios.get(`/api/servers/${serverId}/rolesRating`);
-//   console.log(results);
-// }
-
-// function* fetchServerRolesRating() {
-//   const serverId = yield select(getServerId);
-//   const result = yield call(getServerRolesRating, { serverId });
-// }
 
 // Server Details
 const getServerDetails = async ({ serverId }) => {
@@ -35,16 +23,28 @@ const getServerDetails = async ({ serverId }) => {
 function* fetchServerDetails() {
   const serverId = yield select(getServerId);
   const data = yield call(getServerDetails, { serverId });
+  const trnRange = data.rolesRating.map(role => role.range);
+  const trnRangeNames = data.rolesRating.map(role => role.name);
+  yield put(
+    initialize('serverRatingEdit', {
+      ratingType: data.ratingType,
+      trnRange,
+      trnRangeNames
+    })
+  );
 }
 
 export const sendServerEditDetails = async (
   serverId,
   serverEditPassword,
-  serverEditData
+  serverRatingEditValues
 ) => {
+  if ((!serverId, !serverEditPassword, !serverRatingEditValues))
+    throw new Error(`Incomplete params`);
+
   const url = `/api/servers/${serverId}/requestUpdateRolesRating`;
   const postRequest = axios.post(url, {
-    serverEditData,
+    serverRatingEditValues,
     password: serverEditPassword
   });
   return await postRequest;

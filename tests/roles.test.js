@@ -13,7 +13,7 @@ const {
   getGuildRolesInDatabase,
   setUserRolesInGuild,
   sortNeededRoles
-} = require('../actions/roles');
+} = require('../actions/roles/roles');
 const { getUserRoles } = require('../api/discord-api');
 const { GuildRole } = require('../database/models/guildRoles');
 const {

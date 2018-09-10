@@ -1,7 +1,10 @@
 // TODO: Figure out the best location to place this file
+const discordAPI = require('../../api/discord-api');
+const { GuildRole } = require('../../database/models/guildRoles');
+const {
+  ServerRolesConfig
+} = require('../../database/models/serverRolesRatingConfig');
 
-const discordAPI = require('../api/discord-api');
-const { GuildRole } = require('../database/models/guildRoles');
 const arrayChunk = require('array.chunk');
 
 /**
@@ -301,6 +304,7 @@ const getRolesByName = async ({ guildID, roleName }) => {
 };
 
 // TODO: Setup a mongoose query to get guild roles in the database
+// @depracated
 const getGuildRolesInDatabase = async ({ guildID }) => {
   if (!guildID)
     throw new Error(`roles.js:getGuildRolesInDatabase - no guildID provided`);
@@ -311,6 +315,22 @@ const getGuildRolesInDatabase = async ({ guildID }) => {
   return rolesInServer.map(doc => {
     return doc.toObject();
   });
+};
+
+const getServerRolesInDatabase = async serverId => {
+  try {
+    if (!serverId) throw new Error(`no serverId provided`);
+    const doc = await ServerRolesConfig.findOne({
+      serverId
+    });
+    if (doc) {
+      return doc;
+    } else {
+      throw new Error(`Server Roles Config not found for server ${serverId}`);
+    }
+  } catch (e) {
+    throw new Error(`roles.js:getServerRolesInDatabase() - ${e}`);
+  }
 };
 
 const setUserRolesInGuild = async ({ guildID, roleID, userID }) => {
@@ -336,5 +356,6 @@ module.exports = {
   addRole,
   removeRole,
   setUserRolesInGuild,
-  getGuildRolesInDatabase
+  getGuildRolesInDatabase,
+  getServerRolesInDatabase
 };

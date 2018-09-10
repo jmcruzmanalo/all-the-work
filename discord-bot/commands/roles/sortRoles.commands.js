@@ -1,6 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { sortNeededRoles } = require('../../../actions/roles');
-
+const { sortNeededRoles } = require('../../../actions/roles/roles');
 
 class DeservedRoleCommand extends Command {
   constructor(client) {
@@ -18,11 +17,13 @@ class DeservedRoleCommand extends Command {
     const guildID = message.member.guild.id;
 
     try {
-      await sortNeededRoles({ guildID });    
+      await sortNeededRoles({ guildID });
       message.reply(`Finished sorting the roles.`);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
-      throw new Error(`There was an error sorting the roles, see console logs.`);
+      throw new Error(
+        `There was an error sorting the roles, see console logs.`
+      );
     } finally {
       message.channel.stopTyping();
     }

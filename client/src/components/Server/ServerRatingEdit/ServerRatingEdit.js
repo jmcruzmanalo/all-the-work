@@ -87,6 +87,7 @@ class ServerRatingEdit extends Component {
   // TODO: This might need to be moved to componentWillReceiveProps
   componentDidMount() {
     this.props.setActiveServer(this.state.serverId);
+
     if (!this.props.ratingType) {
       this.props.change('ratingType', RATING_TYPE[0]);
     }
@@ -300,7 +301,9 @@ class ServerRatingEdit extends Component {
               </Grid>
             </form>
           </Padded>
-          <Padded padding={12} />
+          <Padded padding={12}>
+            <Typography>Not yet implemented...</Typography>
+          </Padded>
         </SwipeableViews>
       </div>
     );

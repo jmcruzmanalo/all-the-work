@@ -20,16 +20,16 @@ const getServerRolesConfigOrInsert = async ({
   serverId = null,
   latestRequesterDiscordId = null
 }) => {
-  if (!serverId || !latestRequesterDiscordId)
-    throw new Error(`No serverId or latestRequesterDiscordId passed`);
-
-  const password = passwordGen.generate({
-    length: 16,
-    numbers: true,
-    symbols: true
-  });
-
   try {
+    if (!serverId || !latestRequesterDiscordId)
+      throw new Error(`No serverId or latestRequesterDiscordId passed`);
+
+    const password = passwordGen.generate({
+      length: 16,
+      numbers: true,
+      symbols: true
+    });
+
     let serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
 
     if (serverRolesConfig) {
@@ -52,7 +52,35 @@ const getServerRolesConfigOrInsert = async ({
   }
 };
 
+const updateServerRolesConfig = async ({
+  serverId,
+  password,
+  rolesRating,
+  ratingType
+}) => {
+  try {
+    if (!serverId || !password || !rolesRating)
+      throw new Error(`Incomplete params`);
+
+    const serverRoleConfig = await ServerRolesConfig.findOne({
+      serverId,
+      password
+    });
+
+    if (serverRoleConfig) {
+      serverRoleConfig.rolesRating = rolesRating;
+      serverRoleConfig.ratingType = ratingType;
+      await serverRoleConfig.save();
+    } else {
+      throw new Error(`No matching serverId or password`);
+    }
+  } catch (e) {
+    throw new Error(`roles.edit.js:updateServerRolesConfig() - ${e}`);
+  }
+};
+
 module.exports = {
   dropAllServerRolesConfig,
-  getServerRolesConfigOrInsert
+  getServerRolesConfigOrInsert,
+  updateServerRolesConfig
 };
