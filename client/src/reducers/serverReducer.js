@@ -4,7 +4,7 @@ import * as actionTypes from '../actions/actionTypes';
 // server = sampleState in redux
 // const sampleState = {
 //   serverId: 'serverId',
-//   serverEditPasswordIsValid: false
+//   serverEditPasswordStatus: 'INVALID' || 'VALID' || 'LOADING'
 //   }
 // };
 
@@ -16,10 +16,10 @@ export default (state = null, action) => {
         serverId: action.payload
       };
 
-    case actionTypes.SET_ACTIVE_SERVER_PASSWORD_VALIDITY:
+    case actionTypes.SET_ACTIVE_SERVER_PASSWORD_STATUS:
       return {
         ...state,
-        serverEditPasswordIsValid: action.payload
+        serverEditPasswordStatus: action.payload
       };
 
     case actionTypes.FETCH_SERVER_MEMBERS_DONE:

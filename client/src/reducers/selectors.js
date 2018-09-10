@@ -12,7 +12,7 @@ export const getServerRatingEditValues = state =>
 export const getEnteredPassword = state => {
   return serverRatingEditSelector(state, 'password');
 };
-export const getServerEditPasswordIsValid = state => {
+export const getServerEditPasswordStatus = state => {
   if (!state.server) return null;
-  return state.server.serverEditPasswordIsValid;
+  return state.server.serverEditPasswordStatus;
 };

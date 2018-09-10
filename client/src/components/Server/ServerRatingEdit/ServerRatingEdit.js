@@ -8,7 +8,7 @@ import {
   change,
   getFormSyncErrors
 } from 'redux-form';
-import { getServerEditPasswordIsValid } from '../../../reducers/selectors';
+import { getServerEditPasswordStatus } from '../../../reducers/selectors';
 import styled from 'styled-components';
 import qs from 'querystring';
 
@@ -18,6 +18,7 @@ import Tabs from '@material-ui/core/Tabs';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
@@ -48,6 +49,14 @@ const DarkTabs = styled(Tabs)`
     padding-right: 12px;
     color: ${({ theme }) => theme.palette.text.primary};
   }
+`;
+
+const AbsoluteLoader = styled(CircularProgress)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
 `;
 
 // Index based
@@ -102,7 +111,6 @@ class ServerRatingEdit extends Component {
   }
 
   renderPasswordField = props => {
-    console.log(props);
     return (
       <ServerRatingPasswordInput {...props} onChange={props.input.onChange} />
     );
@@ -185,102 +193,117 @@ class ServerRatingEdit extends Component {
     let output;
     if (!this.state.serverId) {
       output = <ErrorMessage>No Server ID defined</ErrorMessage>;
+      return;
     } else if (!this.state.requesterDiscordId) {
       output = (
         <ErrorMessage>Dafuq, no requester discord ID wdym!!</ErrorMessage>
       );
-    } else {
-      const tabIndex = this.props.ratingType
-        ? RATING_TYPE.indexOf(this.props.ratingType)
-        : 0;
-
-      output = (
-        <div>
-          <DarkTabs
-            theme={this.props.theme}
-            value={tabIndex}
-            onChange={this.ratingTypeChange}
-            indicatorColor="primary"
-            fullWidth
-          >
-            <Tab label="TRN Rating" />
-            <Tab label="Kill/Death ratio" />
-          </DarkTabs>
-
-          <SwipeableViews index={tabIndex}>
-            <Padded padding={12}>
-              <form
-                onSubmit={this.props.handleSubmit(() => {
-                  this.props.submitServerRatingEdit();
-                })}
-              >
-                <Field
-                  name="trnRange"
-                  component={this.renderTRNRatingEditSlider}
-                  trnRange={this.props.trnRange}
-                />
-                <MarginedContainer>
-                  <DragDropContext
-                    onDragStart={this.onDragRatingStart}
-                    onDragEnd={this.onDragRatingEnd}
-                  >
-                    <ServerRatingListContext.Provider
-                      value={{
-                        onRangeNameEdit: this.onRangeNameEdit
-                      }}
-                    >
-                      <ServerRatingList
-                        range={this.props.trnRange}
-                        rangeNames={this.props.trnRangeNames}
-                      />
-                    </ServerRatingListContext.Provider>
-
-                    <Grid
-                      container
-                      direction="row"
-                      justify="center"
-                      spacing={24}
-                      alignItems="center"
-                    >
-                      <Grid item xs={6}>
-                        <Field
-                          name="newRatingName"
-                          value={this.props.newRatingName}
-                          component={ServerRatingAdd}
-                          formErrors={this.props.formErrors}
-                          onAddClick={this.addRating}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <DeleteDrop dragIsActive={this.state.dragIsActive} />
-                      </Grid>
-                    </Grid>
-                  </DragDropContext>
-                </MarginedContainer>
-                <Field
-                  name="password"
-                  component={this.renderPasswordField}
-                  value={this.props.password}
-                  error={
-                    this.props.password && !this.props.serverEditPasswordIsValid
-                  }
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  onClick={() => {}}
-                  disabled={!this.props.serverEditPasswordIsValid}
-                >
-                  Submit
-                </Button>
-              </form>
-            </Padded>
-            <Padded padding={12} />
-          </SwipeableViews>
-        </div>
-      );
+      return;
     }
+
+    const tabIndex = this.props.ratingType
+      ? RATING_TYPE.indexOf(this.props.ratingType)
+      : 0;
+
+    output = (
+      <div>
+        <DarkTabs
+          theme={this.props.theme}
+          value={tabIndex}
+          onChange={this.ratingTypeChange}
+          indicatorColor="primary"
+          fullWidth
+        >
+          <Tab label="TRN Rating" />
+          <Tab label="Kill/Death ratio" />
+        </DarkTabs>
+
+        <SwipeableViews index={tabIndex}>
+          <Padded padding={12}>
+            <form
+              onSubmit={this.props.handleSubmit(() => {
+                this.props.submitServerRatingEdit();
+              })}
+            >
+              <Field
+                name="trnRange"
+                component={this.renderTRNRatingEditSlider}
+                trnRange={this.props.trnRange}
+              />
+              <MarginedContainer>
+                <DragDropContext
+                  onDragStart={this.onDragRatingStart}
+                  onDragEnd={this.onDragRatingEnd}
+                >
+                  <ServerRatingListContext.Provider
+                    value={{
+                      onRangeNameEdit: this.onRangeNameEdit
+                    }}
+                  >
+                    <ServerRatingList
+                      range={this.props.trnRange}
+                      rangeNames={this.props.trnRangeNames}
+                    />
+                  </ServerRatingListContext.Provider>
+
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    spacing={24}
+                    alignItems="center"
+                  >
+                    <Grid item xs={6}>
+                      <Field
+                        name="newRatingName"
+                        value={this.props.newRatingName}
+                        component={ServerRatingAdd}
+                        formErrors={this.props.formErrors}
+                        onAddClick={this.addRating}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <DeleteDrop dragIsActive={this.state.dragIsActive} />
+                    </Grid>
+                  </Grid>
+                </DragDropContext>
+              </MarginedContainer>
+              <Grid container spacing={24} alignItems="baseline">
+                <Grid item>
+                  <Field
+                    name="password"
+                    component={this.renderPasswordField}
+                    value={this.props.password}
+                    error={
+                      this.props.password &&
+                      this.props.serverEditPasswordStatus !== 'VALID'
+                    }
+                  />
+                </Grid>
+                <Grid item style={{ position: 'relative' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={this.props.serverEditPasswordStatus !== 'VALID'}
+                  >
+                    Submit
+                  </Button>
+                  {this.props.serverEditPasswordStatus === 'LOADING' && (
+                    <AbsoluteLoader
+                      size={24}
+                      className="progress-bar"
+                      color="secondary"
+                    />
+                  )}
+                </Grid>
+              </Grid>
+            </form>
+          </Padded>
+          <Padded padding={12} />
+        </SwipeableViews>
+      </div>
+    );
 
     return (
       <Container>
@@ -307,7 +330,7 @@ ServerRatingEdit.propTypes = {
   handleSubmit: PropTypes.func,
   ratingType: PropTypes.string,
   password: PropTypes.string,
-  serverEditPasswordIsValid: PropTypes.bool,
+  serverEditPasswordStatus: PropTypes.string,
   trnRangeNames: PropTypes.array,
   trnRange: PropTypes.array,
   newRatingName: PropTypes.string,
@@ -329,7 +352,7 @@ function mapStateToProps(state) {
   return {
     ratingType: selector(state, 'ratingType'),
     password: selector(state, 'password'),
-    serverEditPasswordIsValid: getServerEditPasswordIsValid(state),
+    serverEditPasswordStatus: getServerEditPasswordStatus(state),
     trnRangeNames: selector(state, 'trnRangeNames'),
     trnRange: selector(state, 'trnRange'),
     newRatingName: selector(state, 'newRatingName'),

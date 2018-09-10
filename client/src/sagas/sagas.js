@@ -1,8 +1,12 @@
 import * as actionTypes from '../actions/actionTypes';
-import { all, call, select, takeLatest } from 'redux-saga/effects';
+import { all, fork, call, select, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
-import { getServerId, getServerRatingEditValues } from '../reducers/selectors';
-import { watchForPasswordEntry } from './watchPasswordEntry';
+import {
+  getServerId,
+  getServerRatingEditValues,
+  getEnteredPassword
+} from '../reducers/selectors';
+import { watchForPasswordEntry } from './serverEditSagas/watchPasswordEntry';
 
 // Roles Rating
 
@@ -33,13 +37,16 @@ function* fetchServerDetails() {
   const data = yield call(getServerDetails, { serverId });
 }
 
-function* watchServerActiveSet() {
-  yield takeLatest(actionTypes.SET_ACTIVE_SERVER, fetchServerDetails);
-}
-
-export const sendServerEditDetails = async (serverId, serverEditData) => {
+export const sendServerEditDetails = async (
+  serverId,
+  serverEditPassword,
+  serverEditData
+) => {
   const url = `/api/servers/${serverId}/requestUpdateRolesRating`;
-  const postRequest = axios.post(url, serverEditData);
+  const postRequest = axios.post(url, {
+    serverEditData,
+    password: serverEditPassword
+  });
   return await postRequest;
 };
 
@@ -47,14 +54,24 @@ export function* submitServerRatingEdit() {
   // Get the form data first
   const serverRatingEditValues = yield select(getServerRatingEditValues);
   const serverId = yield select(getServerId);
+  const serverEditPassword = yield select(getEnteredPassword);
   const response = yield call(
     sendServerEditDetails,
     serverId,
+    serverEditPassword,
     serverRatingEditValues
   );
   // Dispatch a success call?
 
   console.log(response);
+}
+
+/******************************************************************************/
+/******************************* WATCHERS *************************************/
+/******************************************************************************/
+
+function* watchServerActiveSet() {
+  yield takeLatest(actionTypes.SET_ACTIVE_SERVER, fetchServerDetails);
 }
 
 function* watchServerEditSubmit() {
@@ -66,8 +83,8 @@ function* watchServerEditSubmit() {
 
 export default function* rootSaga() {
   yield all([
-    watchServerActiveSet(),
-    watchServerEditSubmit(),
-    watchForPasswordEntry()
+    fork(watchServerActiveSet),
+    fork(watchServerEditSubmit),
+    fork(watchForPasswordEntry)
   ]);
 }
