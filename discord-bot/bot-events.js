@@ -11,7 +11,7 @@ const onReady = async () => {
   for (let x = 0; x < guildsArray.length; x++) {
     const guild = guildsArray[x];
     const rolesArray = guild.roles.array();
-    addNeededRoles({ guildID: guild.id, activeRoles: rolesArray })
+    addNeededRoles({ serverId: guild.id, activeRoles: rolesArray })
       .then(() => {
         console.log(`Prepared roles for server: ${guild.id}`);
         // return sortNeededRoles({guildID: guild.id});

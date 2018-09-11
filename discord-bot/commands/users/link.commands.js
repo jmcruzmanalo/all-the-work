@@ -16,27 +16,35 @@ class LinkCommand extends Command {
 
   async run(message, argsString, formPattern) {
     message.channel.startTyping();
-    const args = argsString.split(" ");
-    const serverId = message.guild.id
+    const args = argsString.split(' ');
+    const serverId = message.guild.id;
     const userDiscordId = message.author.id;
-    const epicIGN = args[0];
+    let epicIGN = args.join(' ');
 
     try {
       if (!epicIGN) {
-        message.reply(`yafuq, provide your Epic IGN. \`!atw link your-ign-here\``);
+        message.reply(
+          `yafuq, provide your Epic IGN. \`!atw link your-ign-here\``
+        );
         return;
       }
 
       if (await doesUserExist({ ign: epicIGN })) {
-        await linkServerMemberToEpicIGN({ serverId, userDiscordId, epicIGN});
-        message.reply(`Successfully linked your ign (${epicIGN}) to your discord account.`);
+        await linkServerMemberToEpicIGN({ serverId, userDiscordId, epicIGN });
+        message.reply(
+          `Successfully linked your ign (${epicIGN}) to your discord account.`
+        );
       } else {
-        message.reply(`The user \`${epicIGN}\` does not seem to exist in the Epic servers.`);
+        message.reply(
+          `The user \`${epicIGN}\` does not seem to exist in the Epic servers.`
+        );
         return;
       }
     } catch (e) {
       console.log(e);
-      message.reply(`There was an error processing your request, let the DooDoo owner know. he fuq`);
+      message.reply(
+        `There was an error processing your request, let the DooDoo owner know. he fuq`
+      );
     } finally {
       message.channel.stopTyping();
     }

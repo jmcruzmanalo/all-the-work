@@ -2,14 +2,12 @@ const expect = require('expect');
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MainGuildID, DeveloperDiscordID } = require('../config');
-const config = require('./test.config');
 const {
   dropAllServerRolesConfig,
   getServerRolesConfigOrInsert
 } = require('../actions/roles/roles.edit');
 
 describe(`server.routes.js`, () => {
-  if (!config.routes) return;
   const { app } = require('..');
 
   const serverConfigValues = {

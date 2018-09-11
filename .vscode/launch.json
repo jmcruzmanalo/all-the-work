@@ -28,6 +28,7 @@
         "bdd",
         "--timeout",
         "999999",
+        "--recursive",
         "--colors",
         "${workspaceFolder}/tests"
       ],

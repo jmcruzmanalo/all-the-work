@@ -1,8 +1,7 @@
 const _ = require('lodash');
 const expect = require('expect');
-const testConfig = require('./test.config');
 const clone = require('clone');
-const { MainGuildID: guildID, DeveloperDiscordID } = require('../config');
+const { serverId, developerDiscordId } = require('../config');
 const {
   checkIfRolesExists,
   getRolesByName,
@@ -17,19 +16,21 @@ const {
 const { getUserRoles } = require('../api/discord-api');
 const { GuildRole } = require('../database/models/guildRoles');
 const {
+  testPassword,
+  rolesAsClientUIInput,
   RolesAsDatabaseResults,
   TestGuildID,
   RolesAsInput,
   RoleExistingInServer
 } = require('./seed/roles.seed');
 
-describe(`Roles file`, () => {
-  if (!testConfig['roles']) return;
+const { getServerRolesConfigOrInsert } = require('../actions/roles/roles.edit');
 
+describe(`Roles file`, () => {
   const clearAllRoles = async () => {
     const rolesAsInput = clone(RolesAsInput, false);
     const rolesPromises = rolesAsInput.map(roleInputted => {
-      return removeRole({ guildID, role: roleInputted });
+      return removeRole({ serverId, role: roleInputted });
     });
 
     await Promise.all(rolesPromises);
@@ -50,7 +51,7 @@ describe(`Roles file`, () => {
       const expectedMissing = [rolesAsInput[0].name, rolesAsInput[1].name];
       rolesAsInput.push(clone(RoleExistingInServer, false));
       const check = await checkIfRolesExists({
-        guildID,
+        serverId,
         roles: rolesAsInput
       });
       expect(check.length).toBe(4);
@@ -128,11 +129,11 @@ describe(`Roles file`, () => {
         await setUserRolesInGuild({
           guildID,
           roleID: r.id,
-          userID: DeveloperDiscordID
+          userID: developerDiscordId
         });
         const currentUserRoles = await getUserRoles(
           guildID,
-          DeveloperDiscordID
+          developerDiscordId
         );
 
         expect(currentUserRoles).toContain(r.id);
@@ -147,8 +148,27 @@ describe(`Roles file`, () => {
 
   describe(`BEHAVIOR TESTS`, () => {
     before(clearAllRoles);
+    before(async () => {
+      await getServerRolesConfigOrInsert({
+        serverId: MainGuildID,
+        latestRequesterDiscordId: developerDiscordId,
+        password: testPassword
+      });
+      await updateServerRolesConfig({
+        serverId: MainGuildID,
+        password: testPassword,
+        rolesRating: rolesAsClientUIInput.trnRangeNames.map((name, index) => {
+          return {
+            name,
+            range: rolesAsClientUIInput.trnRange[index],
+            type: rolesAsClientUIInput.ratingType
+          };
+        }),
+        ratingType: rolesAsClientUIInput.ratingType
+      });
+    });
 
-    describe(`Adding then sorting then removing a bunch of roles`, () => {
+    describe(`Adding then removing a bunch of roles`, () => {
       it(`should add the roles similar to what a user would input`, async () => {
         const response = await addNeededRoles({
           guildID,
@@ -161,12 +181,6 @@ describe(`Roles file`, () => {
           })
         );
       });
-
-      // SORTING cannot be reliably done for now. Basically the position field on the end point sometimes adds the roles above or below the role occupying the target position
-      // it(`should sort the roles based on it's inputted position`, async () => {
-      //   expect(await sortNeededRoles({guildID})).toBe(true);
-      // });
-
       it(`should remove the roles that were added by the bot`, async () => {
         const response = await removeAddedRoles({ guildID });
         expect(response).true;

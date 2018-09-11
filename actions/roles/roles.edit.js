@@ -18,17 +18,20 @@ const dropAllServerRolesConfig = async () => {
  */
 const getServerRolesConfigOrInsert = async ({
   serverId = null,
-  latestRequesterDiscordId = null
+  latestRequesterDiscordId = null,
+  password
 }) => {
   try {
     if (!serverId || !latestRequesterDiscordId)
       throw new Error(`No serverId or latestRequesterDiscordId passed`);
 
-    const password = passwordGen.generate({
-      length: 16,
-      numbers: true,
-      symbols: true
-    });
+    if (!password) {
+      password = passwordGen.generate({
+        length: 16,
+        numbers: true,
+        symbols: true
+      });
+    }
 
     let serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
 

@@ -35,6 +35,7 @@
     "analyze": "source-map-explorer build/static/js/main.*"
   },
   "devDependencies": {
+    "eslint-config-react-app": "^2.1.0",
     "source-map-explorer": "^1.6.0"
   }
 }

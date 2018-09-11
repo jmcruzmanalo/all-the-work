@@ -45,6 +45,15 @@ const ServerRolesConfigSchema = new Schema({
   }
 });
 
+ServerRolesConfigSchema.methods.getRolesByRatingType = function() {
+  const serverRoleConfig = this;
+  const ratingType = this.ratingType;
+  const rolesRatings = serverRoleConfig.rolesRating.filter(
+    role => ratingType === role.type
+  );
+  return [...rolesRatings.map(r => r.toObject())];
+};
+
 ServerRolesConfigSchema.pre('save', function(next) {
   this.lastUpdated = Date.now();
   next();
