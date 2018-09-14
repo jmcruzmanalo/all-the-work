@@ -13,28 +13,32 @@ const arrayChunk = require('array.chunk');
  * @return Array of Discord Role Objects
  */
 const addNeededRoles = async ({ serverId, activeRoles }) => {
-  const neededRoles = (await ServerRolesConfig.findOne({
-    serverId
-  })).getRolesByRatingType();
-  const missingRoles = await checkIfRolesExists({
-    serverId,
-    neededRoles,
-    activeRoles
-  });
-
-  if (missingRoles.length === 0) return true;
-
-  // Add the roles based on the object
-  const addPromises = missingRoles.map(missingRole => {
-    const role = neededRoles.find(r => {
-      return r.name === missingRole;
-    });
-    return addRole({ serverId, role });
-  });
-
   try {
-    const addedRoles = await Promise.all(addPromises);
-    return addedRoles;
+    const serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
+
+    if (serverRolesConfig) {
+      const neededRoles = serverRolesConfig.getRolesByRatingType();
+      const missingRoles = await checkIfRolesExists({
+        serverId,
+        neededRoles,
+        activeRoles
+      });
+
+      if (missingRoles.length === 0) return true;
+
+      // Add the roles based on the object
+      const addPromises = missingRoles.map(missingRole => {
+        const role = neededRoles.find(r => {
+          return r.name === missingRole;
+        });
+        return addRole({ serverId, role });
+      });
+
+      const addedRoles = await Promise.all(addPromises);
+      return addedRoles;
+    } else {
+      return false;
+    }
   } catch (e) {
     console.log(e);
     throw new Error(`roles.js:addNeededRoles() - ${e}`);

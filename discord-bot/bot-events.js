@@ -11,18 +11,19 @@ const onReady = async () => {
   for (let x = 0; x < guildsArray.length; x++) {
     const guild = guildsArray[x];
     const rolesArray = guild.roles.array();
-    addNeededRoles({ serverId: guild.id, activeRoles: rolesArray })
-      .then(() => {
-        console.log(`Prepared roles for server: ${guild.id}`);
-        // return sortNeededRoles({guildID: guild.id});
-      })
-      .then(() => {
-        // console.log('Done sorting the Roles');
-        // #suspicious-messages ID: 445547935833391104
-      });
+    addNeededRoles({ serverId: guild.id, activeRoles: rolesArray }).then(
+      addedRoles => {
+        if (addedRoles && addedRoles.length) {
+          console.log(`Prepared roles for server: ${guild.id}`);
+        } else {
+          console.log(
+            'No serverRolesConfig detected. use `!atw set-server-roles`'
+          );
+        }
+      }
+    );
   }
 };
-
 const onMessage = async message => {
   // message.channel.name
   if (DEV_MODE && message.channel.name !== 'bot-development') {

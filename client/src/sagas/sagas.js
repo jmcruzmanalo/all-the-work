@@ -11,27 +11,37 @@ import { watchForPasswordEntry } from './serverEditSagas/watchPasswordEntry';
 
 // Server Details
 const getServerDetails = async ({ serverId }) => {
-  const response = await axios.get(`/api/servers/${serverId}/details`, {
-    params: {
-      getMembers: true,
-      getRolesRating: true
-    }
-  });
-  return response.data;
+  try {
+    const response = await axios.get(`/api/servers/${serverId}/details`, {
+      params: {
+        getMembers: true,
+        getRolesRating: true
+      }
+    });
+    return response.data;
+  } catch (e) {
+    const status = e.request.status;
+    console.log(`Could not connect to server - status ${status}`);
+    return false;
+  }
 };
 
 function* fetchServerDetails() {
   const serverId = yield select(getServerId);
   const data = yield call(getServerDetails, { serverId });
-  const trnRange = data.rolesRating.map(role => role.range);
-  const trnRangeNames = data.rolesRating.map(role => role.name);
-  yield put(
-    initialize('serverRatingEdit', {
-      ratingType: data.ratingType,
-      trnRange,
-      trnRangeNames
-    })
-  );
+  if (data) {
+    const trnRange = data.rolesRating.map(role => role.range);
+    const trnRangeNames = data.rolesRating.map(role => role.name);
+    yield put(
+      initialize('serverRatingEdit', {
+        ratingType: data.ratingType,
+        trnRange,
+        trnRangeNames
+      })
+    );
+  } else {
+    console.log('Dispatch a "could not connect to server"');
+  }
 }
 
 export const sendServerEditDetails = async (

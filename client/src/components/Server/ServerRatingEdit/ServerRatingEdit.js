@@ -14,11 +14,9 @@ import qs from 'querystring';
 
 import Typography from '@material-ui/core/Typography';
 import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
@@ -36,27 +34,13 @@ import ServerRatingList, {
 import DeleteDrop from './ServerRatingList/DeleteDrop';
 import ErrorMessage from '../../UI/ErrorMessage';
 import Padded from '../../UI/Padded';
+import AbsoluteLoader from '../../UI/Styled-Components/ServerRatingEdit/AbsoluteLoader';
+import DarkTabs from '../../UI/Styled-Components/ServerRatingEdit/DarkTabs';
 import ServerRatingPasswordInput from './ServerRatingPasswordInput';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
   margin-bottom: 20px;
-`;
-
-const DarkTabs = styled(Tabs)`
-  && {
-    padding-left: 12px;
-    padding-right: 12px;
-    color: ${({ theme }) => theme.palette.text.primary};
-  }
-`;
-
-const AbsoluteLoader = styled(CircularProgress)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -12px;
-  margin-left: -12px;
 `;
 
 // Index based
@@ -90,6 +74,8 @@ class ServerRatingEdit extends Component {
 
     if (!this.props.ratingType) {
       this.props.change('ratingType', RATING_TYPE[0]);
+    } else {
+      console.log(this.props.ratingType);
     }
   }
 
@@ -98,6 +84,10 @@ class ServerRatingEdit extends Component {
       this.setState({ currentPassword: this.props.password }, () => {
         this.props.checkServerRolesRatingEditPassword();
       });
+    }
+
+    if (!this.props.ratingType) {
+      this.props.change('ratingType', RATING_TYPE[0]);
     }
   }
 
