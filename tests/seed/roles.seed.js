@@ -1,7 +1,7 @@
 const { ObjectID } = require('mongodb');
 
-const testPassword = 'qwer1234';
-
+const password = 'qwer1234';
+const userDiscordId = '359314226214600704';
 const serverId = '415506140840067076';
 
 const rolesAsClientUIInput = {
@@ -185,7 +185,8 @@ const RoleExistingInServer = {
 };
 
 module.exports = {
-  testPassword,
+  password,
+  userDiscordId,
   serverId,
   rolesAsClientUIInput,
   RolesAsDatabaseResults,

@@ -9,12 +9,12 @@ const {
   removeAddedRoles
 } = require('../../../actions/roles/roles');
 const {
-  testPassword: password,
+  password,
   serverId,
   rolesAsClientUIInput
 } = require('../../seed/roles.seed');
 
-describe.only('actions/roles.js', () => {
+describe('actions/roles.js', () => {
   describe('BDD - Testing on bot login', () => {
     const { app } = require('../../../index');
 

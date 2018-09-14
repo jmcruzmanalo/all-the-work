@@ -6,13 +6,14 @@ const request = require('request');
 const instance = axios.create({
   baseURL: 'https://discordapp.com/api',
   headers: {
-    'Authorization': `Bot ${BotToken}`,
+    Authorization: `Bot ${BotToken}`,
     'User-Agent': 'DiscordBot'
   }
 });
 
 const getUser = async (guildID, userID) => {
-  if (!guildID || !userID) throw new Error(`discord-api.js:getUser() - one of the params is missing`);
+  if (!guildID || !userID)
+    throw new Error(`discord-api.js:getUser() - one of the params is missing`);
   const url = `/guilds/${guildID}/members/${userID}`;
   let res;
   try {
@@ -20,7 +21,7 @@ const getUser = async (guildID, userID) => {
     return res.data;
   } catch (e) {
     console.log(e);
-    throw new Error(`discord-api.js:getUser() - ${e}`)
+    throw new Error(`discord-api.js:getUser() - ${e}`);
   }
 };
 
@@ -28,16 +29,16 @@ const getUser = async (guildID, userID) => {
  * Gets the roles in a certain guild
  * @param {String} guildID - The guildID, remember to pass a string
  */
-const getRoles = async (guildID) => {
+const getRoles = async guildID => {
   const url = `/guilds/${guildID}/roles`;
   let res;
   try {
     res = await instance.get(url);
   } catch (e) {
-    throw new Error(`discord-api:getRoles() - ${e}`)
+    throw new Error(`discord-api:getRoles() - ${e}`);
   }
   return res.data;
-}
+};
 
 const addRole = async (guildID, roleName, roleOptions = {}) => {
   const url = `/guilds/${guildID}/roles`;
@@ -70,7 +71,10 @@ const deleteRole = async (guildID, roleID) => {
 };
 
 const setUserRole = async (guildID, roleID, userID) => {
-  if (!guildID || !roleID || !userID) throw new Error(`discord-api.js:setUserRole() - one of the params is missing`);
+  if (!guildID || !roleID || !userID)
+    throw new Error(
+      `discord-api.js:setUserRole() - one of the params is missing`
+    );
   const url = `/guilds/${guildID}/members/${userID}/roles/${roleID}`;
   let res;
   try {
@@ -82,39 +86,41 @@ const setUserRole = async (guildID, roleID, userID) => {
     }
   } catch (e) {
     console.log(e);
-    throw new Error(`discord-api.js:setUserRole() - ${e}`)
+    throw new Error(`discord-api.js:setUserRole() - ${e}`);
   }
 };
 
 const getUserRoles = async (guildID, userID) => {
-  if (!guildID || !userID) throw new Error(`discord-api.js:getUserRoles() - one of the params is missing`);
+  if (!guildID || !userID)
+    throw new Error(
+      `discord-api.js:getUserRoles() - one of the params is missing`
+    );
   let res;
   try {
     user = await getUser(guildID, userID);
     return user.roles;
   } catch (e) {
     console.log(e);
-    throw new Error(`discord-api.js:getUserRoles() - ${e}`)
+    throw new Error(`discord-api.js:getUserRoles() - ${e}`);
   }
 };
 
 const removeUserRole = async (guildID, roleID, userID) => {
-  console.log(guildID);
-  console.log(roleID);
-  console.log(userID);
-  if (!guildID || !roleID || !userID) throw new Error(`discord-api.js:removeUserRoles() - one of the params is missing`);
+  if (!guildID || !roleID || !userID)
+    throw new Error(
+      `discord-api.js:removeUserRoles() - one of the params is missing`
+    );
 
   const url = `/guilds/${guildID}/members/${userID}/roles/${roleID}`;
   let res;
   try {
     res = await instance.delete(url);
     if (res.status === 204) return true;
-    throw new Error(res);    
+    throw new Error(res);
   } catch (e) {
     console.log(e);
     throw new Error(`discord-api.js:removeUserRoles() - ${e}`);
   }
-
 };
 
 /**
@@ -122,16 +128,17 @@ const removeUserRole = async (guildID, roleID, userID) => {
  */
 const applyGuildPositions = async (guildID, positions) => {
   if (!guildID || !positions) throw new Error(`one of the params is missing`);
-  if (!Array.isArray(positions)) throw new Error(`positions param is not an array`);
+  if (!Array.isArray(positions))
+    throw new Error(`positions param is not an array`);
   let res;
   try {
-
     const url = `/guilds/415506140840067076/roles`;
     res = await instance.patch(url, positions, {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'DiscordBot',
-        'Authorization': 'Bot NDY1ODU3MDcxMDk1NzQyNDk1.DiTmuQ.kriHkhbB7uXxd8t_Prg_9oTZuv0'
+        Authorization:
+          'Bot NDY1ODU3MDcxMDk1NzQyNDk1.DiTmuQ.kriHkhbB7uXxd8t_Prg_9oTZuv0'
       }
     });
     if (res.status !== 200) {
@@ -142,8 +149,14 @@ const applyGuildPositions = async (guildID, positions) => {
     console.log(e);
     throw new Error(`discord-api.js:applyGuildPositions() - ${e}`);
   }
-
-
 };
 
-module.exports = { getRoles, addRole, deleteRole, setUserRole, getUserRoles, applyGuildPositions, removeUserRole };
+module.exports = {
+  getRoles,
+  addRole,
+  deleteRole,
+  setUserRole,
+  getUserRoles,
+  applyGuildPositions,
+  removeUserRole
+};

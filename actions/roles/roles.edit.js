@@ -1,5 +1,5 @@
 /**
- * This file will handle the requesting of discord role changes VIA the GUI
+ * This file will handle the requesting of discord role changes VIA the GUI AND mainly the serverRolesConfig
  */
 const passwordGen = require('generate-password');
 const {

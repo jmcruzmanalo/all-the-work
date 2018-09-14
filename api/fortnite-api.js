@@ -22,21 +22,23 @@ const doesUserExist = async ({ ign, platform = 'pc' }) => {
     } else {
       throw new Error(`Unhandled response status`);
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e);
     throw new Error(`fortnite-api.js:doesUserExist() - ${e}`);
   }
 };
 
 const getStats = async ({ ign, platform = 'pc' }) => {
-  if (!ign) throw new Error(`fortnite-api.js:getStats() - provide an IGN`)
+  if (!ign) throw new Error(`fortnite-api.js:getStats() - provide an IGN`);
   const url = `/${platform}/${ign}`;
   try {
     let response = await instance.get(url);
-    return response.data;
-  }
-  catch (e) {
-    console.log(e);
+    // TODO: Add unit test for this
+    if (response.hasOwnProperty('error')) {
+      return false;
+    }
+    return response.data.stats;
+  } catch (e) {
     throw new Error(`fortnite-api.js:getStats - ${e}`);
   }
 };

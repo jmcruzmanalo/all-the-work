@@ -187,6 +187,7 @@ const getServerRolesInDatabase = async serverId => {
   }
 };
 
+//@deprecated
 const setUserRolesInGuild = async ({ guildID, roleID, userID }) => {
   if (!guildID || !userID || !roleID)
     throw new Error(`roles.js:setUserRolesInGuild() - incomplete params`);
