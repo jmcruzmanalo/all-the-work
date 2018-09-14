@@ -6,7 +6,8 @@ const {
 const {
   getRoles,
   getUserRoles,
-  setUserRole
+  setUserRole,
+  removeUserRole
 } = require('../../api/discord-api');
 
 const compareRoles = (rating, ranges) => {
@@ -45,6 +46,7 @@ const getTRN = async epicIGN => {
   }
 };
 
+// Returns an object with addedRoles and removedRoles properties
 const applyRolesToUser = async ({
   serverId,
   userDiscordId,
@@ -62,19 +64,34 @@ const applyRolesToUser = async ({
 
     const activeServerRoles = await getRoles(serverId);
 
-    const activeUserRoleIds = activeServerRoles
-      .filter(role => deservedRoles.includes(role.name))
-      .map(role => role.id);
+    const deservedRolesObject = activeServerRoles.filter(
+      role =>
+        deservedRoles.includes(role.name) && !activeUserRoles.includes(role.id)
+    );
 
-    for (roleId of activeUserRoleIds) {
-      await setUserRole(serverId, roleId, userDiscordId);
+    for (role of deservedRolesObject) {
+      await setUserRole(serverId, role.id, userDiscordId);
     }
+
+    const invalidRolesObject = activeServerRoles.filter(
+      role =>
+        invalidRoles.includes(role.name) && activeUserRoles.includes(role.id)
+    );
+
+    for (role of invalidRolesObject) {
+      await removeUserRole(serverId, role.id, userDiscordId);
+    }
+
+    return {
+      addedRoles: deservedRolesObject,
+      removedRoles: invalidRolesObject
+    };
   } catch (e) {
     throw new Error(`roles.compute.js:applyRolesToUser() - ${e}`);
   }
 };
 
-const getDeservedTRNRole = async ({ serverId, userDiscordId }) => {
+const getDeservedTRNRole = async ({ serverId, userDiscordId, trn }) => {
   try {
     if (!serverId || !userDiscordId) throw new Error(`Incomplete params`);
 
@@ -84,12 +101,14 @@ const getDeservedTRNRole = async ({ serverId, userDiscordId }) => {
         error: `You haven't linked an epic IGN to this discord account yafuq. Use \`!atw link <epic IGN>\`.`
       };
     }
-    const trn = await getTRN(epicIGN);
 
     if (!trn) {
-      return {
-        error: `Could not find your linked epic IGN in fortnite tracker's database`
-      };
+      trn = await getTRN(epicIGN);
+      if (!trn) {
+        return {
+          error: `Could not find your linked epic IGN in fortnite tracker's database`
+        };
+      }
     }
 
     const serverRoleConfig = await ServerRolesConfig.findOne({

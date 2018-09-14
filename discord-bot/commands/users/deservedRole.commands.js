@@ -26,7 +26,6 @@ class DeservedRoleCommand extends Command {
 
     if (doc) {
       const serverId = message.member.guild.id;
-      const { epicIGN } = doc;
 
       const roles = await getDeservedTRNRole({
         serverId,
