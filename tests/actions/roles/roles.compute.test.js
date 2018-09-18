@@ -7,6 +7,9 @@ const {
   userDiscordId
 } = require('../../seed/roles.seed');
 const {
+  ServerRolesConfig
+} = require('../../../database/models/serverRolesRatingConfig');
+const {
   addNeededRoles,
   removeAddedRoles
 } = require('../../../actions/roles/roles');
@@ -22,12 +25,19 @@ const {
 const { UserLink } = require('../../../database/models/userLink');
 
 describe.only('actions/roles.compute.js', () => {
-  describe('BDD - Testing adding role based on KD', () => {
+  describe('BDD - Testing adding role based on stats', () => {
     const { app } = require('../../../index');
     before(async () => {
       await removeAddedRoles({ serverId });
       await dropAllServerRolesConfig();
       await UserLink.remove({});
+    });
+
+    after(async () => {
+      // Clear everything to clean the discord server
+      // await removeAddedRoles({ serverId });
+      // await dropAllServerRolesConfig();
+      // await UserLink.remove({});
     });
 
     describe(`Setup initial data first`, () => {
@@ -63,6 +73,14 @@ describe.only('actions/roles.compute.js', () => {
             name: expect.anything()
           })
         );
+
+        const serverRolesConfig = (await ServerRolesConfig.findOne({
+          serverId
+        })).toObject();
+        for (let roleRating of serverRolesConfig.rolesRating) {
+          expect(roleRating).toHaveProperty('discordRoleObject');
+          expect(roleRating.discordRoleObject.name).toBe(roleRating.name);
+        }
       });
 
       it(`should link ATW_Seensei to discord user first id - ${userDiscordId}`, async () => {

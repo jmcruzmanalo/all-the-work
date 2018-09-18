@@ -17,6 +17,9 @@ const ServerRoleRating = new Schema({
   type: {
     type: String,
     required: true
+  },
+  discordRoleObject: {
+    type: Object
   }
 });
 
@@ -45,6 +48,7 @@ const ServerRolesConfigSchema = new Schema({
   }
 });
 
+// Gets the roles rating by their type depending on the active rating type
 ServerRolesConfigSchema.methods.getRolesByRatingType = function() {
   const serverRoleConfig = this;
   const ratingType = this.ratingType;

@@ -4,9 +4,6 @@ const { GuildRole } = require('../../database/models/guildRoles');
 const {
   ServerRolesConfig
 } = require('../../database/models/serverRolesRatingConfig');
-const { getRoles } = require('../../api/discord-api');
-
-const arrayChunk = require('array.chunk');
 
 /**
  * Adds all the roles that are missing and required by the bot
@@ -49,16 +46,20 @@ const addNeededRoles = async ({ serverId, activeRoles }) => {
  * Removes all the roles that were added by the bot
  */
 const removeAddedRoles = async ({ serverId }) => {
-  const roles = await (await ServerRolesConfig.findOne({
-    serverId
-  })).getRolesByRatingType();
-  const removePromises = roles.map(role => {
-    return removeRole({ serverId, role });
-  });
-
   try {
-    await Promise.all(removePromises);
-    return true;
+    if (!serverId) throw new Error(`No serverId provided`);
+    const serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
+    if (serverRolesConfig) {
+      const roles = serverRolesConfig.getRolesByRatingType();
+      const removePromises = roles.map(role =>
+        removeRole({ serverId, roleId: role.discordRoleObject.id })
+      );
+
+      await Promise.all(removePromises);
+      return true;
+    } else {
+      return false;
+    }
   } catch (e) {
     console.log(e);
     throw new Error(`roles.js:removeAddedRoles() - ${e}`);
@@ -105,38 +106,50 @@ const addRole = async ({ serverId, role }) => {
       `roles.js:addRole() - Please provide a serverId and roleName`
     );
 
-  const addedRole = await discordAPI.addRole(serverId, role.name, {
+  const discordRoleObject = await discordAPI.addRole(serverId, role.name, {
     ...role.roleOptions
   });
 
-  return addedRole;
+  await ServerRolesConfig.updateOne(
+    {
+      serverId: serverId,
+      rolesRating: {
+        $elemMatch: {
+          name: role.name,
+          type: role.type
+        }
+      }
+    },
+    {
+      $set: {
+        'rolesRating.$.discordRoleObject': discordRoleObject
+      }
+    }
+  );
+
+  return discordRoleObject;
 };
 
 /**
- * Removes a role based on a name on a guild. It'll also delete duplicates.
+ * Removes a role based on Id. Only the Id is reliable, the name can be edited on the discord side, so to be sure.
  */
-const removeRole = async ({ serverId, role }) => {
-  if (!role)
-    throw new Error(`roles.js:removeRole() - Please provide a role Object`);
-
-  const roleName = role.name;
-
-  // get all the roles of a certain guild
-  const roles = await getRolesByName({ serverId, roleName });
-
-  // loop through all the roles and get the IDs of those that have the same name
-  const roleIDs = roles.map(r => {
-    return r.id;
-  });
-
-  // Should return a 204
-  const deletePromises = roleIDs.map(roleID => {
-    // TODO: check if this is the best way to run findOneAndRemove
-    return discordAPI.deleteRole(serverId, roleID);
-  });
-
+const removeRole = async ({ serverId, roleId }) => {
   try {
-    await Promise.all(deletePromises);
+    if (!serverId || !roleId) {
+      throw new Error(`missing parameter serverId or role Id`);
+    }
+    await discordAPI.deleteRole(serverId, roleId);
+    await ServerRolesConfig.updateOne(
+      { serverId },
+      {
+        $pull: {
+          rolesRating: {
+            'discordRoleObject.id': roleId
+          }
+        }
+      }
+    );
+
     return true;
   } catch (e) {
     console.log(e);
@@ -158,7 +171,7 @@ const getRolesByName = async ({ serverId, roleName }) => {
 };
 
 // TODO: Setup a mongoose query to get guild roles in the database
-// @depracated
+// @deprecated
 const getGuildRolesInDatabase = async ({ guildID }) => {
   if (!guildID)
     throw new Error(`roles.js:getGuildRolesInDatabase - no guildID provided`);
