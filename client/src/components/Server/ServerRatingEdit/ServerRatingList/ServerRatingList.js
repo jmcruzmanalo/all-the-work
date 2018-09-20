@@ -13,10 +13,12 @@ import Padded from '../../../UI/Padded';
 
 export const ServerRatingListContext = createContext();
 
-const ServerRatingList = ({ rangeNames = [], range = [] }) => {
-  const listRangeNames = [...rangeNames]
+const ServerRatingList = ({ rolesRating }) => {
+  console.log(rolesRating);
+
+  const listRangeNames = [...rolesRating]
     .reverse()
-    .map((name, index) => (
+    .map(({ name }, index) => (
       <ServerRatingListItem
         key={`${index}-rating-list-item`}
         rangeName={name}
@@ -24,13 +26,15 @@ const ServerRatingList = ({ rangeNames = [], range = [] }) => {
       />
     ));
 
-  const listRange = [...range].reverse().map(({ min, max }, index) => (
-    <ListItem key={index} divider>
-      <ListItemText>
-        {min} - {max}
-      </ListItemText>
-    </ListItem>
-  ));
+  const listRange = [...rolesRating]
+    .reverse()
+    .map(({ range: { min, max } }, index) => (
+      <ListItem key={index} divider>
+        <ListItemText>
+          {min} - {max}
+        </ListItemText>
+      </ListItem>
+    ));
 
   const renderList = ({ innerRef, droppableProps, placeholder }) => {
     return (
@@ -72,8 +76,7 @@ const ServerRatingList = ({ rangeNames = [], range = [] }) => {
 };
 
 ServerRatingList.propTypes = {
-  range: PropTypes.array,
-  rangeNames: PropTypes.array,
+  rolesRating: PropTypes.array.isRequired,
   innerRef: PropTypes.any,
   droppableProps: PropTypes.any,
   placeholder: PropTypes.any

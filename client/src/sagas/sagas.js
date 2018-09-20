@@ -1,4 +1,3 @@
-import * as actionTypes from '../actions/actionTypes';
 import { initialize } from 'redux-form';
 import { all, fork, call, select, takeLatest, put } from 'redux-saga/effects';
 import axios from 'axios';
@@ -6,8 +5,12 @@ import {
   getServerId,
   getServerRatingEditValues,
   getEnteredPassword
-} from '../reducers/selectors';
+} from '../redux/selectors';
 import { watchForPasswordEntry } from './serverEditSagas/watchPasswordEntry';
+import {
+  SET_ACTIVE_SERVER,
+  SUBMIT_SERVER_ROLES_RATING_EDIT
+} from '../redux/modules/server';
 
 // Server Details
 const getServerDetails = async ({ serverId }) => {
@@ -30,13 +33,10 @@ function* fetchServerDetails() {
   const serverId = yield select(getServerId);
   const data = yield call(getServerDetails, { serverId });
   if (data) {
-    const trnRange = data.rolesRating.map(role => role.range);
-    const trnRangeNames = data.rolesRating.map(role => role.name);
     yield put(
       initialize('serverRatingEdit', {
         ratingType: data.ratingType,
-        trnRange,
-        trnRangeNames
+        rolesRating: data.rolesRating
       })
     );
   } else {
@@ -81,14 +81,11 @@ export function* submitServerRatingEdit() {
 /******************************************************************************/
 
 function* watchServerActiveSet() {
-  yield takeLatest(actionTypes.SET_ACTIVE_SERVER, fetchServerDetails);
+  yield takeLatest(SET_ACTIVE_SERVER, fetchServerDetails);
 }
 
 function* watchServerEditSubmit() {
-  yield takeLatest(
-    actionTypes.SUBMIT_SERVER_ROLES_RATING_EDIT,
-    submitServerRatingEdit
-  );
+  yield takeLatest(SUBMIT_SERVER_ROLES_RATING_EDIT, submitServerRatingEdit);
 }
 
 export default function* rootSaga() {

@@ -4,7 +4,8 @@ import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 import styled from 'styled-components';
 import Landing from './Landing';
-import ServerRatingEdit from './Server/ServerRatingEdit/ServerRatingEdit';
+// import ServerRatingEdit from './Server/ServerRatingEdit/ServerRatingEdit';
+import ServerRatingEdit from '../containers/ServerRatingEdit/ServerRatingEdit';
 
 const theme = createMuiTheme({
   palette: {

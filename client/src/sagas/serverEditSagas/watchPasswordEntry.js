@@ -1,8 +1,11 @@
-import * as actionTypes from '../../actions/actionTypes';
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
 import axios from 'axios';
-import { getServerId, getEnteredPassword } from '../../reducers/selectors';
+import {
+  SET_ACTIVE_SERVER_PASSWORD_STATUS,
+  CHECK_SERVER_ROLES_RATING_EDIT_PASSWORD
+} from '../../redux/modules/server';
+import { getServerId, getEnteredPassword } from '../../redux/selectors';
 
 const verifyPassword = async ({ serverId, password }) => {
   const response = await axios.post(
@@ -14,7 +17,7 @@ const verifyPassword = async ({ serverId, password }) => {
 
 export function* checkServerRatingEditPassword(action) {
   yield put({
-    type: actionTypes.SET_ACTIVE_SERVER_PASSWORD_STATUS,
+    type: SET_ACTIVE_SERVER_PASSWORD_STATUS,
     payload: 'LOADING'
   });
   yield call(delay, 500);
@@ -22,14 +25,14 @@ export function* checkServerRatingEditPassword(action) {
   const password = yield select(getEnteredPassword);
   const res = yield call(verifyPassword, { serverId, password });
   yield put({
-    type: actionTypes.SET_ACTIVE_SERVER_PASSWORD_STATUS,
+    type: SET_ACTIVE_SERVER_PASSWORD_STATUS,
     payload: res.isValid ? 'VALID' : 'INVALID'
   });
 }
 
 export function* watchForPasswordEntry() {
   yield takeLatest(
-    actionTypes.CHECK_SERVER_ROLES_RATING_EDIT_PASSWORD,
+    CHECK_SERVER_ROLES_RATING_EDIT_PASSWORD,
     checkServerRatingEditPassword
   );
 }

@@ -8,7 +8,7 @@ import {
   change,
   getFormSyncErrors
 } from 'redux-form';
-import { getServerEditPasswordStatus } from '../../../reducers/selectors';
+import { getServerEditPasswordStatus } from '../../redux/selectors';
 import styled from 'styled-components';
 import qs from 'querystring';
 
@@ -23,20 +23,20 @@ import {
   setActiveServer,
   submitServerRatingEdit,
   checkServerRolesRatingEditPassword
-} from '../../../actions/actions';
-import Container from '../../UI/Container';
-import TRNRatingSlider from './TRNRatingSlider';
-import ServerRatingAdd from './ServerRatingAdd';
+} from '../../redux/modules/server';
+import Container from '../../components/UI/Container';
+import TRNRatingSlider from '../../components/Server/ServerRatingEdit/TRNRatingSlider';
+import ServerRatingAdd from '../../components/Server/ServerRatingEdit/ServerRatingAdd';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ServerRatingList, {
   ServerRatingListContext
-} from './ServerRatingList/ServerRatingList';
-import DeleteDrop from './ServerRatingList/DeleteDrop';
-import ErrorMessage from '../../UI/ErrorMessage';
-import Padded from '../../UI/Padded';
-import AbsoluteLoader from '../../UI/Styled-Components/ServerRatingEdit/AbsoluteLoader';
-import DarkTabs from '../../UI/Styled-Components/ServerRatingEdit/DarkTabs';
-import ServerRatingPasswordInput from './ServerRatingPasswordInput';
+} from '../../components/Server/ServerRatingEdit/ServerRatingList/ServerRatingList';
+import DeleteDrop from '../../components/Server/ServerRatingEdit/ServerRatingList/DeleteDrop';
+import ErrorMessage from '../../components/UI/ErrorMessage';
+import Padded from '../../components/UI/Padded';
+import AbsoluteLoader from '../../components/UI/Styled-Components/ServerRatingEdit/AbsoluteLoader';
+import DarkTabs from '../../components/UI/Styled-Components/ServerRatingEdit/DarkTabs';
+import ServerRatingPasswordInput from '../../components/Server/ServerRatingEdit/ServerRatingPasswordInput';
 
 const MarginedContainer = styled.div`
   margin-top: 20px;
@@ -85,18 +85,14 @@ class ServerRatingEdit extends Component {
         this.props.checkServerRolesRatingEditPassword();
       });
     }
-
-    if (!this.props.ratingType) {
-      this.props.change('ratingType', RATING_TYPE[0]);
-    }
   }
 
   renderTRNRatingEditSlider(props) {
     return (
       <TRNRatingSlider
         {...props}
-        values={props.trnRange ? props.trnRange : []}
-        onChange={range => props.input.onChange(range)}
+        rolesRating={props.trnRolesRating}
+        onChange={value => props.input.onChange(value)}
       />
     );
   }
@@ -116,32 +112,48 @@ class ServerRatingEdit extends Component {
 
     let shouldUpdate = true;
 
-    const updatedNames = this.props.trnRangeNames
-      ? [...this.props.trnRangeNames]
+    const updatedRolesRating = this.props.rolesRating
+      ? [...this.props.rolesRating]
       : [];
-    updatedNames.unshift(this.props.newRatingName);
 
-    const updatedRange = this.props.trnRange ? [...this.props.trnRange] : [];
-    updatedRange.unshift({
-      min: 0,
-      max: 100
+    updatedRolesRating.unshift({
+      name: this.props.newRatingName,
+      range: {
+        min: 0,
+        max: 100
+      },
+      type: this.props.ratingType
     });
-    if (updatedRange.length > 1) {
-      if (updatedRange[1].max <= 100) {
-        shouldUpdate = false;
-      } else {
-        updatedRange[1] = {
-          ...updatedRange[1],
-          min: 101
-        };
-      }
-    }
 
-    if (shouldUpdate) {
-      this.props.change('trnRangeNames', updatedNames);
-      this.props.change('trnRange', updatedRange);
-      this.props.change('newRatingName', '');
-    }
+    this.props.change('rolesRating', updatedRolesRating);
+    this.props.change('newRatingName', '');
+
+    // const updatedNames = this.props.trnRangeNames
+    //   ? [...this.props.trnRangeNames]
+    //   : [];
+    // updatedNames.unshift(this.props.newRatingName);
+
+    // const updatedRange = this.props.trnRange ? [...this.props.trnRange] : [];
+    // updatedRange.unshift({
+    //   min: 0,
+    //   max: 100
+    // });
+    // if (updatedRange.length > 1) {
+    //   if (updatedRange[1].max <= 100) {
+    //     shouldUpdate = false;
+    //   } else {
+    //     updatedRange[1] = {
+    //       ...updatedRange[1],
+    //       min: 101
+    //     };
+    //   }
+    // }
+
+    // if (shouldUpdate) {
+    // this.props.change('trnRangeNames', updatedNames);
+    // this.props.change('trnRange', updatedRange);
+    // this.props.change('newRatingName', '');
+    // }
   };
 
   onDragRatingStart = () => {
@@ -196,6 +208,12 @@ class ServerRatingEdit extends Component {
       ? RATING_TYPE.indexOf(this.props.ratingType)
       : 0;
 
+    const trnRolesRating = this.props.rolesRating
+      ? this.props.rolesRating.filter(
+          roleRating => roleRating.type === this.props.ratingType
+        )
+      : [];
+
     output = (
       <div>
         <DarkTabs
@@ -217,9 +235,9 @@ class ServerRatingEdit extends Component {
               })}
             >
               <Field
-                name="trnRange"
+                name="rolesRating"
                 component={this.renderTRNRatingEditSlider}
-                trnRange={this.props.trnRange}
+                trnRolesRating={trnRolesRating}
               />
               <MarginedContainer>
                 <DragDropContext
@@ -231,10 +249,7 @@ class ServerRatingEdit extends Component {
                       onRangeNameEdit: this.onRangeNameEdit
                     }}
                   >
-                    <ServerRatingList
-                      range={this.props.trnRange}
-                      rangeNames={this.props.trnRangeNames}
-                    />
+                    <ServerRatingList rolesRating={trnRolesRating} />
                   </ServerRatingListContext.Provider>
 
                   <Grid
@@ -324,9 +339,8 @@ ServerRatingEdit.propTypes = {
   ratingType: PropTypes.string,
   password: PropTypes.string,
   serverEditPasswordStatus: PropTypes.string,
-  trnRangeNames: PropTypes.array,
-  trnRange: PropTypes.array,
   newRatingName: PropTypes.string,
+  rolesRating: PropTypes.array,
   formErrors: PropTypes.shape({
     trnRange: PropTypes.string,
     newRatingName: PropTypes.string
@@ -343,11 +357,10 @@ const errorSelector = getFormSyncErrors('serverRatingEdit');
 
 function mapStateToProps(state) {
   return {
+    rolesRating: selector(state, 'rolesRating'),
     ratingType: selector(state, 'ratingType'),
     password: selector(state, 'password'),
     serverEditPasswordStatus: getServerEditPasswordStatus(state),
-    trnRangeNames: selector(state, 'trnRangeNames'),
-    trnRange: selector(state, 'trnRange'),
     newRatingName: selector(state, 'newRatingName'),
     formErrors: errorSelector(state)
   };
@@ -360,30 +373,46 @@ const mapDispatchToProps = {
   change
 };
 
-function validate({ trnRange, trnRangeNames, newRatingName }) {
+function validate({ rolesRating, newRatingName }) {
   const errors = {};
 
-  if (Array.isArray(trnRangeNames) && trnRangeNames.includes(newRatingName)) {
+  // Error if newRatingName is already entered in ratings
+  const i = rolesRating.filter(roleRating => roleRating.name === newRatingName);
+  if (i.length) {
     errors['newRatingName'] = `This role already exists yafuq`;
   }
 
-  if (
-    Array.isArray(trnRange) &&
-    trnRange.length > 0 &&
-    trnRange[0].max === 100
-  ) {
-    errors['trnRange'] = `Move the latest range before adding another yafuq`;
+  if (rolesRating.length > 0 && rolesRating[0].range.max === 100) {
     errors[
       'newRatingName'
-    ] = `Can't add another role because one is still set to 100`;
+    ] = `Move the latest range before adding another yafuq`;
   }
+
+  // if (Array.isArray(trnRangeNames) && trnRangeNames.includes(newRatingName)) {
+  //   errors['newRatingName'] = `This role already exists yafuq`;
+  // }
+
+  // if (
+  //   Array.isArray(trnRange) &&
+  //   trnRange.length > 0 &&
+  //   trnRange[0].max === 100
+  // ) {
+  //   errors['trnRange'] = `Move the latest range before adding another yafuq`;
+  //   errors[
+  //     'newRatingName'
+  //   ] = `Can't add another role because one is still set to 100`;
+  // }
 
   return errors;
 }
 
 ServerRatingEdit = reduxForm({
   validate,
-  form: 'serverRatingEdit'
+  form: 'serverRatingEdit',
+  initialValues: {
+    ratingType: RATING_TYPE[0],
+    rolesRating: []
+  }
 })(ServerRatingEdit);
 
 ServerRatingEdit = connect(
