@@ -1,7 +1,7 @@
 const { Command } = require('discord.js-commando');
 const { getKDs } = require('../../../actions/kd');
 const { getEpicIgnWithDiscordId } = require('../../../actions/members');
-const { deleteMessage } = require('../../../api/discord-api');
+const { doesUserExist } = require('../../../api/fortnite-api');
 
 class KDCommands extends Command {
   constructor(client) {
@@ -45,14 +45,28 @@ class KDCommands extends Command {
       : await getEpicIgnWithDiscordId(userDiscordId);
     message.delete();
 
-    const kds = await getKDs(epicIgn);
-    const sentMessage = await message.channel.send(
-      this.generateMessage(epicIgn, kds)
-    );
-    setTimeout(() => {
-      sentMessage.delete();
-    }, 8000);
-
+    console.log(epicIgn);
+    if (epicIgn && (await doesUserExist({ ign: epicIgn }))) {
+      const kds = await getKDs(epicIgn);
+      const sentMessage = await message.channel.send(
+        this.generateMessage(epicIgn, kds)
+      );
+      setTimeout(() => {
+        sentMessage.delete();
+      }, 8000);
+    } else {
+      if (args[0]) {
+        message.reply(
+          `Could not find epic IGN \`${epicIgn}\` in the Fortnite Tracker database.`
+        );
+      } else if (epicIgn && !args[0]) {
+        message.reply(
+          `Your linked ign \`${epicIgn}\` doesn't seem to exist. Did you update your ign? Try using \`!atw link <your-latest-ign>\`.`
+        );
+      } else {
+        message.reply(`You haven't linked any fortnite ign to this discord account.`)
+      }
+    }
     message.channel.stopTyping();
     return;
   }
