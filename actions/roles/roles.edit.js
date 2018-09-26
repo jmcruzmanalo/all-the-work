@@ -82,8 +82,26 @@ const updateServerRolesConfig = async ({
   }
 };
 
+const getServerRolesConfig = async serverId => {
+  try {
+    if (!serverId) throw new Error(`Missing serverId param`);
+    const rolesRating = await ServerRolesConfig.findOne({
+      serverId
+    }).select({
+      _id: 0,
+      password: 0,
+      lastUpdatedBy: 0,
+      'rolesRating._id': 0
+    });
+    return rolesRating.toObject();
+  } catch (e) {
+    throw new Error(`roles.edit.js:getServerRolesRating() - ${e}`);
+  }
+};
+
 module.exports = {
   dropAllServerRolesConfig,
   getServerRolesConfigOrInsert,
-  updateServerRolesConfig
+  updateServerRolesConfig,
+  getServerRolesConfig
 };

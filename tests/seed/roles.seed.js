@@ -6,25 +6,41 @@ const serverId = '415506140840067076';
 
 const rolesAsClientUIInput = {
   ratingType: 'TRN Rating',
-  trnRange: [
+  rolesRating: [
     {
-      min: 0,
-      max: 2000
+      name: 'TEST3',
+      range: {
+        min: 0,
+        max: 2000
+      },
+      type: 'TRN Rating'
     },
     {
-      min: 2001,
-      max: 3250
+      name: 'TEST2',
+      range: {
+        min: 2001,
+        max: 3000
+      },
+      type: 'TRN Rating'
     },
     {
-      min: 3251,
-      max: 4000
+      name: 'TEST1',
+      range: {
+        min: 3001,
+        max: 4500
+      },
+      type: 'TRN Rating'
     },
     {
-      min: 4001,
-      max: 5000
+      name: 'TEST0',
+      range: {
+        min: 4501,
+        max: 5000
+      },
+      type: 'TRN Rating'
     }
   ],
-  trnRangeNames: ['TEST3', 'TEST2', 'TEST1', 'TEST0']
+  password: 'qwer1234'
 };
 
 const TestGuildID = '12341234';

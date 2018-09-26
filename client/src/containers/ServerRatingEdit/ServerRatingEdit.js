@@ -11,12 +11,15 @@ import {
 import { getServerEditPasswordStatus } from '../../redux/selectors';
 import styled from 'styled-components';
 import qs from 'querystring';
-
+import clone from 'clone';
+import has from 'lodash/has';
 import Typography from '@material-ui/core/Typography';
 import Tab from '@material-ui/core/Tab';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Modal from '@material-ui/core/Modal';
+import Paper from '@material-ui/core/Paper';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
@@ -44,11 +47,12 @@ const MarginedContainer = styled.div`
 `;
 
 // Index based
-const RATING_TYPE = ['TRN Rating', 'Kill/Death Ratio'];
+export const RATING_TYPE = ['TRN Rating', 'Kill/Death Ratio'];
 
 class ServerRatingEdit extends Component {
   state = {
     dragIsActive: false,
+    dragWarn: false,
     serverId: null,
     requesterDiscordId: null,
     currentPassword: ''
@@ -108,10 +112,6 @@ class ServerRatingEdit extends Component {
   };
 
   addRating = () => {
-    // For now use the index to link the two arrays. Since there will need to be functionality to swap the names with a range.
-
-    let shouldUpdate = true;
-
     const updatedRolesRating = this.props.rolesRating
       ? [...this.props.rolesRating]
       : [];
@@ -125,71 +125,59 @@ class ServerRatingEdit extends Component {
       type: this.props.ratingType
     });
 
+    if (updatedRolesRating.length > 1) {
+      updatedRolesRating[1].range = {
+        ...updatedRolesRating[1].range,
+        min: 101
+      };
+    }
+
     this.props.change('rolesRating', updatedRolesRating);
     this.props.change('newRatingName', '');
-
-    // const updatedNames = this.props.trnRangeNames
-    //   ? [...this.props.trnRangeNames]
-    //   : [];
-    // updatedNames.unshift(this.props.newRatingName);
-
-    // const updatedRange = this.props.trnRange ? [...this.props.trnRange] : [];
-    // updatedRange.unshift({
-    //   min: 0,
-    //   max: 100
-    // });
-    // if (updatedRange.length > 1) {
-    //   if (updatedRange[1].max <= 100) {
-    //     shouldUpdate = false;
-    //   } else {
-    //     updatedRange[1] = {
-    //       ...updatedRange[1],
-    //       min: 101
-    //     };
-    //   }
-    // }
-
-    // if (shouldUpdate) {
-    // this.props.change('trnRangeNames', updatedNames);
-    // this.props.change('trnRange', updatedRange);
-    // this.props.change('newRatingName', '');
-    // }
   };
 
-  onDragRatingStart = () => {
-    this.setState({
-      dragIsActive: true
-    });
+  onDragRatingStart = ({ source: { index: i } }) => {
+    const hasId = has(this.props.rolesRating[i], 'discordRoleObject.id');
+
+    if (hasId) {
+      this.setState({
+        dragIsActive: true,
+        dragWarn: true
+      });
+    } else {
+      this.setState({
+        dragIsActive: true
+      });
+    }
   };
 
   onDragRatingEnd = ({ destination, source }) => {
     this.setState({
-      dragIsActive: false
+      dragIsActive: false,
+      dragWarn: false
     });
 
     if (!destination) return;
 
     if (destination.droppableId === 'rating-list-delete-drop-area') {
-      const updatedRangeNames = Array.from(this.props.trnRangeNames).reverse();
-      const updatedRange = Array.from(this.props.trnRange).reverse();
-      updatedRangeNames.splice(source.index, 1);
-      updatedRange.splice(source.index, 1);
-      this.props.change('trnRangeNames', updatedRangeNames.reverse());
-      this.props.change('trnRange', updatedRange.reverse());
+      const r = clone(this.props.rolesRating).reverse();
+      r.splice(source.index, 1);
+      this.props.change('rolesRating', r.reverse());
     } else {
-      const reorderedNames = Array.from(this.props.trnRangeNames).reverse();
-      const [removed] = reorderedNames.splice(source.index, 1);
-      reorderedNames.splice(destination.index, 0, removed);
-      reorderedNames.reverse();
-      this.props.change('trnRangeNames', reorderedNames);
+      const r = clone(this.props.rolesRating).reverse();
+      const n1 = r[source.index].name;
+      const n2 = r[destination.index].name;
+      r[source.index].name = n2;
+      r[destination.index].name = n1;
+      r.reverse();
+      this.props.change('rolesRating', r);
     }
   };
 
   onRangeNameEdit = (value, index) => {
-    const updatedNames = Array.from(this.props.trnRangeNames).reverse();
-    updatedNames[index] = value;
-    updatedNames.reverse();
-    this.props.change('trnRangeNames', updatedNames);
+    const r = clone(this.props.rolesRating).reverse();
+    r[index].name = value;
+    this.props.change('rolesRating', r.reverse());
   };
 
   render() {
@@ -269,7 +257,7 @@ class ServerRatingEdit extends Component {
                       />
                     </Grid>
                     <Grid item xs={6}>
-                      <DeleteDrop dragIsActive={this.state.dragIsActive} />
+                      <DeleteDrop dragWarn={this.state.dragWarn} />
                     </Grid>
                   </Grid>
                 </DragDropContext>
@@ -382,7 +370,7 @@ function validate({ rolesRating, newRatingName }) {
     errors['newRatingName'] = `This role already exists yafuq`;
   }
 
-  if (rolesRating.length > 0 && rolesRating[0].range.max === 100) {
+  if (rolesRating.length > 0 && rolesRating[0].range.max <= 100) {
     errors[
       'newRatingName'
     ] = `Move the latest range before adding another yafuq`;

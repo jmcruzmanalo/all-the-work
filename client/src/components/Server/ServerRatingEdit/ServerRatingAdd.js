@@ -23,10 +23,10 @@ const ServerRatingAdd = props => {
             }
           }}
         />
-        {props.meta.error &&
+        {(props.meta.error &&
           props.input.value && (
             <FormHelperText>{props.meta.error}</FormHelperText>
-          )}
+          )) || <FormHelperText> </FormHelperText>}
       </FormControl>
 
       <Button

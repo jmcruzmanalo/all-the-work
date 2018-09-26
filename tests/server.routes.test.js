@@ -1,47 +1,44 @@
 const expect = require('expect');
 const request = require('supertest');
 const mongoose = require('mongoose');
-const { MainGuildID, DeveloperDiscordID } = require('../config');
 const {
   dropAllServerRolesConfig,
-  getServerRolesConfigOrInsert
+  getServerRolesConfigOrInsert,
+  getServerRolesConfig,
+  updateServerRolesConfig
 } = require('../actions/roles/roles.edit');
+const { removeAddedRoles } = require('../actions/roles/roles');
+const {
+  password,
+  userDiscordId,
+  rolesAsClientUIInput,
+  serverId
+} = require('./seed/roles.seed');
+const clone = require('clone');
 
 describe(`server.routes.js`, () => {
   const { app } = require('..');
 
-  const serverConfigValues = {
-    serverId: MainGuildID,
-    latestRequesterDiscordId: DeveloperDiscordID
-  };
-
   describe(`Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword`, () => {
-    let password = '';
-
     before(async () => {
+      await removeAddedRoles({ serverId });
       await dropAllServerRolesConfig();
     });
-
     it(`should add a serverRolesConfig - same command used by the bot`, async () => {
       // Add a server roles config before checking
       const serverRolesConfig = await getServerRolesConfigOrInsert({
-        ...serverConfigValues
-      });
-      const {
         serverId,
-        newlyInserted,
-        latestRequesterDiscordId
-      } = serverRolesConfig;
-      password = serverRolesConfig.password;
-
-      expect(newlyInserted).toBeTruthy();
-      expect(serverId).toBe(serverConfigValues.serverId);
-      expect(password).not.toBeUndefined();
+        latestRequesterDiscordId: userDiscordId,
+        password
+      });
+      expect(serverRolesConfig.newlyInserted).toBeTruthy();
+      expect(serverRolesConfig.serverId).toBe(serverId);
+      expect(serverRolesConfig.password).toBe(password);
     });
 
     it(`should make a request to verify the password successfully`, async () => {
       await request(app)
-        .post(`/api/servers/${MainGuildID}/rolesRating/verifyPassword`)
+        .post(`/api/servers/${serverId}/rolesRating/verifyPassword`)
         .send({
           password
         })
@@ -53,7 +50,7 @@ describe(`server.routes.js`, () => {
 
     it(`should make a request to verify an invalid password`, async () => {
       await request(app)
-        .post(`/api/servers/${MainGuildID}/rolesRating/verifyPassword`)
+        .post(`/api/servers/${serverId}/rolesRating/verifyPassword`)
         .send({
           password: 'Random Password'
         })
@@ -65,55 +62,89 @@ describe(`server.routes.js`, () => {
   });
 
   describe(`Saving serverRolesConfig - /api/servers/:serverId/requestUpdateRolesRating`, () => {
-    let password = '';
-
     before(async () => {
+      await removeAddedRoles({ serverId });
       await dropAllServerRolesConfig();
     });
 
     it(`should add a serverRolesConfig - same command used by the bot`, async () => {
       // Add a server roles config before checking
       const serverRolesConfig = await getServerRolesConfigOrInsert({
-        ...serverConfigValues
+        serverId,
+        latestRequesterDiscordId: userDiscordId,
+        password
       });
-      const { serverId, newlyInserted } = serverRolesConfig;
-      password = serverRolesConfig.password;
-
-      expect(newlyInserted).toBeTruthy();
-      expect(serverId).toBe(serverConfigValues.serverId);
-      expect(password).not.toBeUndefined();
+      expect(serverRolesConfig.newlyInserted).toBeTruthy();
+      expect(serverRolesConfig.serverId).toBe(serverId);
+      expect(serverRolesConfig.password).toBe(password);
     });
 
     it(`should update the server roles config with the received data from the client`, async () => {
       await request(app)
-        .post(`/api/servers/${MainGuildID}/requestUpdateRolesRating`)
+        .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
         .send({
           password,
-          serverRatingEditValues: {
-            ratingType: 'TRN Rating',
-            trnRangeNames: ['Doodoo', 'Kouhai', 'Senpapi'],
-            trnRange: [
-              {
-                min: 0,
-                max: 2500
-              },
-              {
-                min: 2501,
-                max: 4500
-              },
-              {
-                min: 4501,
-                max: 5000
-              }
-            ]
-          }
+          serverRatingEditValues: rolesAsClientUIInput
         })
         .expect(200)
-        .expect(res => {
-          expect(res.body).toMatchObject({
-            message: 'Finished updating the database'
-          });
+        .expect(({ body: { serverRolesConfig: { rolesRating } } }) => {
+          for (let roleRating of rolesRating) {
+            expect(roleRating).toHaveProperty('discordRoleObject');
+            expect(roleRating.discordRoleObject).toMatchObject({
+              name: expect.anything()
+            });
+          }
         });
+    });
+
+    describe(`Using the current serverRolesConfig`, () => {
+      it(`should add a new role and add it to the discord server`, async () => {
+        const serverRolesConfig = await getServerRolesConfig(serverId);
+        const updateInput = clone(serverRolesConfig, false);
+        updateInput.rolesRating.unshift({
+          name: 'TEST4',
+          range: {
+            min: 0,
+            max: 500
+          },
+          type: 'TRN Rating'
+        });
+        updateInput.rolesRating[1].range.min = 501;
+        await updateServerRolesConfig({
+          serverId,
+          password,
+          rolesRating: updateInput.rolesRating,
+          ratingType: 'TRN Rating'
+        });
+
+        await request(app)
+          .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
+          .send({
+            password,
+            serverRatingEditValues: updateInput
+          })
+          .expect(200)
+          .expect(({ body: { serverRolesConfig: { rolesRating } } }) => {
+            for (let roleRating of rolesRating) {
+              expect(roleRating).toHaveProperty('discordRoleObject');
+              expect(roleRating.discordRoleObject).toMatchObject({
+                name: expect.anything()
+              });
+            }
+            expect(rolesRating[0]).toMatchObject({
+              discordRoleObject: expect.any(Object),
+              name: expect.any(String),
+              range: expect.any(Object),
+              type: expect.any(String)
+            });
+          });
+      });
+
+      it(`should remove one of the roles`, async () => {});
+
+      it(`should change the name of one of the roles`, async () => {});
+
+      
     });
   });
 });

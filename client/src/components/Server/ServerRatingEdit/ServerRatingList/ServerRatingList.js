@@ -14,8 +14,6 @@ import Padded from '../../../UI/Padded';
 export const ServerRatingListContext = createContext();
 
 const ServerRatingList = ({ rolesRating }) => {
-  console.log(rolesRating);
-
   const listRangeNames = [...rolesRating]
     .reverse()
     .map(({ name }, index) => (

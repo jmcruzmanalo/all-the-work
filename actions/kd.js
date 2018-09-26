@@ -28,10 +28,10 @@ const CONST_PROPS = {
  * curr_p2 = solos
  * @param {String} ign The ign of the fortnite player
  */
-const getKDs = async ({ ign }) => {
+const getKDs = async ign => {
   if (!ign) throw new Error(`kd.js:getKDs() - no ign provided`);
   try {
-    const { stats } = await getStats({ ign });
+    const stats = await getStats({ ign });
     const solosStat = stats.hasOwnProperty(CONST_PROPS.C_SOLOS)
       ? stats[CONST_PROPS.C_SOLOS].kd.valueDec
       : 'N/A';

@@ -33,7 +33,7 @@ const FadingText = styled(Typography)`
   transition: 0.2s;
 `;
 
-const DeleteDrop = ({ theme }) => {
+const DeleteDrop = ({ dragWarn, theme }) => {
   const renderDropArea = (
     { innerRef, droppableProps, placeholder },
     { isDraggingOver }
@@ -52,7 +52,9 @@ const DeleteDrop = ({ theme }) => {
                 style={{ opacity: isDraggingOver ? 0 : 1 }}
                 color="textSecondary"
               >
-                Drag here to delete
+                {dragWarn
+                  ? 'This will remove the role on the discord server on "Submit"'
+                  : 'Drag here to delete'}
               </FadingText>
             </Grid>
             <Grid item>
@@ -66,11 +68,9 @@ const DeleteDrop = ({ theme }) => {
   };
 
   return (
-    // <Paper>
     <Droppable droppableId="rating-list-delete-drop-area">
       {renderDropArea}
     </Droppable>
-    // </Paper>
   );
 };
 
@@ -78,7 +78,8 @@ DeleteDrop.propTypes = {
   innerRef: PropTypes.any,
   droppableProps: PropTypes.any,
   placeholder: PropTypes.any,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
+  dragWard: PropTypes.bool
 };
 
 export default withTheme()(DeleteDrop);

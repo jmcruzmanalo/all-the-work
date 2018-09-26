@@ -123,6 +123,20 @@ const removeUserRole = async (guildID, roleID, userID) => {
   }
 };
 
+// Not actually needed since Discord.js supports this.
+const deleteMessage = async (channelId, messageId) => {
+  try {
+    if (!channelId || !messageId) throw new Error(`missing channelId or messageId`);
+    const url = `/channels/${channelId}/messages/${messageId}`;
+    const res = await instance.delete(url);
+    if (res.status === 204) return true;
+    if (res.status === 404) return false;
+  } catch (e) {
+    console.log(e);
+    throw new Error(`discord-api.js:deleteMessage() - ${e}`);
+  }
+}
+
 /**
  * Applies the array to the guild's roles. Accepts an array of object with the roleID as id and position as a number.
  */
@@ -158,5 +172,6 @@ module.exports = {
   setUserRole,
   getUserRoles,
   applyGuildPositions,
-  removeUserRole
+  removeUserRole,
+  deleteMessage
 };

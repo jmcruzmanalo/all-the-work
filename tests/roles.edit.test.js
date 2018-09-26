@@ -1,5 +1,6 @@
 const expect = require('expect');
 const { MainGuildID, DeveloperDiscordID } = require('../config');
+const { serverId, userDiscordId } = require('./seed/roles.seed');
 const {
   ServerRolesConfig
 } = require('../database/models/serverRolesRatingConfig');
@@ -16,8 +17,8 @@ describe(`roles.edit.js`, () => {
 
   it(`should add a new serverRolesConfig doc`, async () => {
     const serverRolesConfig = await getServerRolesConfigOrInsert({
-      serverId: MainGuildID,
-      latestRequesterDiscordId: DeveloperDiscordID
+      serverId,
+      latestRequesterDiscordId: userDiscordId
     });
     expect(serverRolesConfig.newlyInserted).toBeTruthy();
 
@@ -29,8 +30,8 @@ describe(`roles.edit.js`, () => {
 
   it(`should get an already existing serverRolesConfig doc`, async () => {
     const serverRolesConfig = await getServerRolesConfigOrInsert({
-      serverId: MainGuildID,
-      latestRequesterDiscordId: DeveloperDiscordID
+      serverId,
+      latestRequesterDiscordId: userDiscordId
     });
     expect(serverRolesConfig.newlyInserted).toBeFalsy();
     const keys = Object.keys(serverRolesConfig);

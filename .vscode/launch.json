@@ -29,6 +29,7 @@
         "--timeout",
         "999999",
         "--recursive",
+        "--bail",
         "--colors",
         "${workspaceFolder}/tests"
       ],

@@ -1,5 +1,4 @@
-import { getFormValues } from 'redux-form';
-import { formValueSelector } from 'redux-form';
+import { getFormValues, formValueSelector } from 'redux-form';
 
 const serverRatingEditSelector = formValueSelector('serverRatingEdit');
 

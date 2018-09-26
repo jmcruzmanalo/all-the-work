@@ -24,7 +24,7 @@ const {
 } = require('../../../actions/roles/roles.compute');
 const { UserLink } = require('../../../database/models/userLink');
 
-describe.only('actions/roles.compute.js', () => {
+describe('actions/roles.compute.js', () => {
   describe('BDD - Testing adding role based on stats', () => {
     const { app } = require('../../../index');
     before(async () => {
@@ -40,7 +40,7 @@ describe.only('actions/roles.compute.js', () => {
       // await UserLink.remove({});
     });
 
-    describe(`Setup initial data first`, () => {
+    describe(`Setup`, () => {
       it(`should setup the data first`, async () => {
         await getServerRolesConfigOrInsert({
           serverId,
@@ -56,31 +56,21 @@ describe.only('actions/roles.compute.js', () => {
             serverRatingEditValues: rolesAsClientUIInput
           })
           .expect(200)
-          .expect(res => {
-            expect(res.body).toMatchObject({
-              message: 'Finished updating the database'
-            });
+          .expect(({ body }) => {
+            expect(body).toHaveProperty('serverRolesConfig');
+            expect(body.serverRolesConfig).toHaveProperty('rolesRating');
+            const rolesRating = body.serverRolesConfig.rolesRating;
+            expect(rolesRating.length).toBe(4);
+            expect(rolesRating).toContainEqual(
+              expect.objectContaining({
+                name: expect.anything()
+              })
+            );
+            for (let roleRating of rolesRating) {
+              expect(roleRating).toHaveProperty('discordRoleObject');
+              expect(roleRating.discordRoleObject.name).toBe(roleRating.name);
+            }
           });
-      });
-
-      it(`should add the missing roles to the actual server`, async () => {
-        const response = await addNeededRoles({
-          serverId
-        });
-        expect(response.length).toBe(4);
-        expect(response).toContainEqual(
-          expect.objectContaining({
-            name: expect.anything()
-          })
-        );
-
-        const serverRolesConfig = (await ServerRolesConfig.findOne({
-          serverId
-        })).toObject();
-        for (let roleRating of serverRolesConfig.rolesRating) {
-          expect(roleRating).toHaveProperty('discordRoleObject');
-          expect(roleRating.discordRoleObject.name).toBe(roleRating.name);
-        }
       });
 
       it(`should link ATW_Seensei to discord user first id - ${userDiscordId}`, async () => {

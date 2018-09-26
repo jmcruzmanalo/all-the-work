@@ -58,6 +58,17 @@ ServerRolesConfigSchema.methods.getRolesByRatingType = function() {
   return [...rolesRatings.map(r => r.toObject())];
 };
 
+ServerRolesConfigSchema.methods.getNewRoles = function() {
+  const serverRoleConfig = this;
+  const rolesRatings = serverRoleConfig.rolesRating.filter(role => {
+    return !(
+      role.hasOwnProperty('discordRoleObject') &&
+      role.discordRoleObject.hasOwnProperty('id')
+    );
+  });
+  return [...rolesRatings.map(r => r.toObject())];
+};
+
 ServerRolesConfigSchema.pre('save', function(next) {
   this.lastUpdated = Date.now();
   next();

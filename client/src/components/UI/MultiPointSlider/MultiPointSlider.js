@@ -22,10 +22,10 @@ const MultiPointSlider = ({ domain, values = [], onChange, onUpdate }) => {
           display: 'block',
           marginLeft: 'auto',
           marginRight: 'auto',
-          marginBottom: '35px',
+          marginBottom: '40px',
           width: 'calc(100% - 40px)',
           height: '45px',
-          paddingTop: '20px'
+          paddingTop: '30px'
         }}
         values={values}
         onChange={

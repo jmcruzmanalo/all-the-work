@@ -11,6 +11,7 @@ import {
   SET_ACTIVE_SERVER,
   SUBMIT_SERVER_ROLES_RATING_EDIT
 } from '../redux/modules/server';
+import { RATING_TYPE } from '../containers/ServerRatingEdit/ServerRatingEdit';
 
 // Server Details
 const getServerDetails = async ({ serverId }) => {
@@ -35,7 +36,7 @@ function* fetchServerDetails() {
   if (data) {
     yield put(
       initialize('serverRatingEdit', {
-        ratingType: data.ratingType,
+        ratingType: data.ratingType ? data.ratingType : RATING_TYPE[0],
         rolesRating: data.rolesRating
       })
     );
@@ -57,7 +58,8 @@ export const sendServerEditDetails = async (
     serverRatingEditValues,
     password: serverEditPassword
   });
-  return await postRequest;
+  const response = await postRequest;
+  return response.data;
 };
 
 export function* submitServerRatingEdit() {
@@ -65,7 +67,7 @@ export function* submitServerRatingEdit() {
   const serverRatingEditValues = yield select(getServerRatingEditValues);
   const serverId = yield select(getServerId);
   const serverEditPassword = yield select(getEnteredPassword);
-  const response = yield call(
+  const data = yield call(
     sendServerEditDetails,
     serverId,
     serverEditPassword,
@@ -73,7 +75,16 @@ export function* submitServerRatingEdit() {
   );
   // Dispatch a success call?
 
-  console.log(response);
+  if (data) {
+    // yield put(
+    //   initialize('serverRatingEdit', {
+    //     ratingType: data.ratingType ? data.ratingType : RATING_TYPE[0],
+    //     rolesRating: data.rolesRating
+    //   })
+    // );
+  }
+
+  console.log(data);
 }
 
 /******************************************************************************/

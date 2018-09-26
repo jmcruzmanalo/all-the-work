@@ -4,9 +4,15 @@ const { GuildRole } = require('../../database/models/guildRoles');
 const {
   ServerRolesConfig
 } = require('../../database/models/serverRolesRatingConfig');
+const { getRoles } = require('../../api/discord-api');
+
+const syncRoles = async ({serverId, activeRoles}) => {
+  await addNeededRoles({serverId, activeRoles});
+}
 
 /**
  * Adds all the roles that are missing and required by the bot
+ * activeRoles can be null, it'll be checked by checkIfRolesExists
  * @return Array of Discord Role Objects
  */
 const addNeededRoles = async ({ serverId, activeRoles }) => {
@@ -14,7 +20,8 @@ const addNeededRoles = async ({ serverId, activeRoles }) => {
     const serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
 
     if (serverRolesConfig) {
-      const neededRoles = serverRolesConfig.getRolesByRatingType();
+      const neededRoles = serverRolesConfig.getNewRoles();
+
       const missingRoles = await checkIfRolesExists({
         serverId,
         neededRoles,
@@ -51,9 +58,11 @@ const removeAddedRoles = async ({ serverId }) => {
     const serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
     if (serverRolesConfig) {
       const roles = serverRolesConfig.getRolesByRatingType();
-      const removePromises = roles.map(role =>
-        removeRole({ serverId, roleId: role.discordRoleObject.id })
-      );
+      const removePromises = roles
+        .filter(role => role.hasOwnProperty('discordRoleObject'))
+        .map(role =>
+          removeRole({ serverId, roleId: role.discordRoleObject.id })
+        );
 
       await Promise.all(removePromises);
       return true;
@@ -69,7 +78,7 @@ const removeAddedRoles = async ({ serverId }) => {
 /**
  * Checks if the roles exist, this returns an array of roles that did not exist
  * @param {String} serverId the server/guild ID to be searched (discord server)
- * @param {Array} neededRoles An array of role names
+ * @param {Array} neededRoles An array of roles that are needed
  * @param {Array} activeRoles the roles that are already in the discord server, if undefined it'll `GET` them
  * @returns {Promise<true|Array>} should return true if all the roles have been found or an array of roles that do not exist
  */
@@ -184,6 +193,7 @@ const getGuildRolesInDatabase = async ({ guildID }) => {
   });
 };
 
+// @deprecated
 const getServerRolesInDatabase = async serverId => {
   try {
     if (!serverId) throw new Error(`no serverId provided`);

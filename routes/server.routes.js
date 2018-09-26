@@ -1,9 +1,13 @@
 const {
+  addNeededRoles,
   getGuildRolesInDatabase,
   getServerRolesInDatabase
 } = require('../actions/roles/roles');
 const { getLinkedServerMembers } = require('../actions/members');
-const { updateServerRolesConfig } = require('../actions/roles/roles.edit');
+const {
+  updateServerRolesConfig,
+  getServerRolesConfig
+} = require('../actions/roles/roles.edit');
 const {
   ServerRolesConfig
 } = require('../database/models/serverRolesRatingConfig');
@@ -15,9 +19,11 @@ module.exports = app => {
     const response = {};
     try {
       if (getRolesRating) {
-        const serverRolesConfig = await getServerRolesInDatabase(serverId);
-        response.rolesRating = serverRolesConfig.rolesRating;
-        response.ratingType = serverRolesConfig.ratingType;
+        const { rolesRating, ratingType } = await getServerRolesConfig(
+          serverId
+        );
+        response.rolesRating = rolesRating;
+        response.ratingType = ratingType;
       }
       if (getMembers) {
         response.members = await getLinkedServerMembers({ serverId });
@@ -65,31 +71,8 @@ module.exports = app => {
 
       const {
         password,
-        serverRatingEditValues: {
-          ratingType,
-          trnRange = [],
-          trnRangeNames = []
-        }
+        serverRatingEditValues: { ratingType, rolesRating }
       } = body;
-
-      let rolesRating;
-
-      switch (ratingType) {
-        case 'TRN Rating':
-          rolesRating = trnRangeNames.map((name, index) => {
-            return {
-              name,
-              range: trnRange[index],
-              type: ratingType
-            };
-          });
-          break;
-        default:
-          res.status(400).send({
-            errorMessage: 'Unknown Rating Type'
-          });
-          return;
-      }
 
       try {
         await updateServerRolesConfig({
@@ -100,9 +83,10 @@ module.exports = app => {
           // Temporary hard-coded ID
           requesterDiscordId: '359314226214600704'
         });
-        res.status(200).send({
-          message: 'Finished updating the database'
-        });
+        // Call sync roles instead
+        await addNeededRoles({ serverId });
+        const latestServerRolesRating = await getServerRolesConfig(serverId);
+        res.status(200).send({ serverRolesConfig: latestServerRolesRating });
       } catch (e) {
         console.log(e);
         res.status(401).send({

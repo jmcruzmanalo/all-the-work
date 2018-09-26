@@ -26,7 +26,7 @@ class DeservedRoleCommand extends Command {
         latestRequesterDiscordId: discordId
       });
 
-      message.channel.send({
+      await message.channel.send({
         embed: {
           color: 3447003,
           title: 'Set user roles',
@@ -44,7 +44,7 @@ class DeservedRoleCommand extends Command {
         }
       });
     } else {
-      message.reply(`You need to be an admin to use this feature.`);
+      await message.reply(`You need to be an admin to use this feature.`);
     }
 
     message.channel.stopTyping();
