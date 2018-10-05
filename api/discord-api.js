@@ -6,7 +6,7 @@ const request = require('request');
 const instance = axios.create({
   baseURL: 'https://discordapp.com/api',
   headers: {
-    Authorization: `Bot ${BotToken}`,
+    Authorization: `${BotToken}`,
     'User-Agent': 'DiscordBot'
   }
 });
@@ -29,8 +29,8 @@ const getUser = async (guildID, userID) => {
  * Gets the roles in a certain guild
  * @param {String} guildID - The guildID, remember to pass a string
  */
-const getRoles = async guildID => {
-  const url = `/guilds/${guildID}/roles`;
+const getRoles = async serverId => {
+  const url = `/guilds/${serverId}/roles`;
   let res;
   try {
     res = await instance.get(url);

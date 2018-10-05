@@ -86,10 +86,11 @@ describe('actions/roles.compute.js', () => {
       describe(`Adding a role for the first time`, () => {
         let deservedRoles = [];
         let invalidRoles = [];
-        it(`should check the deserved roles of a player based on TRN`, async () => {
+        it(`should check the deserved roles of a player based on a high TRN`, async () => {
           const roles = await getDeservedTRNRole({
             serverId,
-            userDiscordId
+            userDiscordId,
+            trn: 4900
           });
           expect(roles.deservedRoles).toMatchObject(['TEST0']);
           expect(roles.invalidRoles).toMatchObject(['TEST3', 'TEST2', 'TEST1']);
@@ -115,7 +116,7 @@ describe('actions/roles.compute.js', () => {
       describe(`Adding a new role and removing the old one due to trn change`, () => {
         let deservedRoles = [];
         let invalidRoles = [];
-        it(`should check the deserved roles of a player based on TRN`, async () => {
+        it(`should check the deserved roles of a player based on a TRN that is level lower`, async () => {
           const roles = await getDeservedTRNRole({
             serverId,
             userDiscordId,

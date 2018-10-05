@@ -33,11 +33,12 @@ const getServerDetails = async ({ serverId }) => {
 function* fetchServerDetails() {
   const serverId = yield select(getServerId);
   const data = yield call(getServerDetails, { serverId });
-  if (data) {
+  if (data && (data.ratingType || data.rolesRating.length)) {
     yield put(
       initialize('serverRatingEdit', {
-        ratingType: data.ratingType ? data.ratingType : RATING_TYPE[0],
-        rolesRating: data.rolesRating
+        ratingType: data.ratingType,
+        rolesRating: data.rolesRating,
+        removedRolesRating: []
       })
     );
   } else {
