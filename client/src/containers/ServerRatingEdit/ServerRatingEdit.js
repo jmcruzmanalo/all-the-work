@@ -184,122 +184,120 @@ class ServerRatingEdit extends Component {
     let output;
     if (!this.state.serverId) {
       output = <ErrorMessage>No Server ID defined</ErrorMessage>;
-      return;
     } else if (!this.state.requesterDiscordId) {
       output = (
         <ErrorMessage>Dafuq, no requester discord ID wdym!!</ErrorMessage>
       );
-      return;
-    }
+    } else {
+      const tabIndex = this.props.ratingType
+        ? RATING_TYPE.indexOf(this.props.ratingType)
+        : 0;
 
-    const tabIndex = this.props.ratingType
-      ? RATING_TYPE.indexOf(this.props.ratingType)
-      : 0;
+      const trnRolesRating = this.props.rolesRating
+        ? this.props.rolesRating.filter(
+            roleRating => roleRating.type === this.props.ratingType
+          )
+        : [];
 
-    const trnRolesRating = this.props.rolesRating
-      ? this.props.rolesRating.filter(
-          roleRating => roleRating.type === this.props.ratingType
-        )
-      : [];
+      output = (
+        <div>
+          <DarkTabs
+            theme={this.props.theme}
+            value={tabIndex}
+            onChange={this.ratingTypeChange}
+            indicatorColor="primary"
+            fullWidth
+          >
+            <Tab label="TRN Rating" />
+            <Tab label="Kill/Death ratio" />
+          </DarkTabs>
 
-    output = (
-      <div>
-        <DarkTabs
-          theme={this.props.theme}
-          value={tabIndex}
-          onChange={this.ratingTypeChange}
-          indicatorColor="primary"
-          fullWidth
-        >
-          <Tab label="TRN Rating" />
-          <Tab label="Kill/Death ratio" />
-        </DarkTabs>
-
-        <SwipeableViews index={tabIndex}>
-          <Padded padding={12}>
-            <form
-              onSubmit={this.props.handleSubmit(() => {
-                this.props.submitServerRatingEdit();
-              })}
-            >
-              <Field
-                name="rolesRating"
-                component={this.renderTRNRatingEditSlider}
-                trnRolesRating={trnRolesRating}
-              />
-              <MarginedContainer>
-                <DragDropContext
-                  onDragStart={this.onDragRatingStart}
-                  onDragEnd={this.onDragRatingEnd}
-                >
-                  <ServerRatingListContext.Provider
-                    value={{
-                      onRangeNameEdit: this.onRangeNameEdit
-                    }}
+          <SwipeableViews index={tabIndex}>
+            <Padded padding={12}>
+              <form
+                onSubmit={this.props.handleSubmit(() => {
+                  this.props.submitServerRatingEdit();
+                })}
+              >
+                <Field
+                  name="rolesRating"
+                  component={this.renderTRNRatingEditSlider}
+                  trnRolesRating={trnRolesRating}
+                />
+                <MarginedContainer>
+                  <DragDropContext
+                    onDragStart={this.onDragRatingStart}
+                    onDragEnd={this.onDragRatingEnd}
                   >
-                    <ServerRatingList rolesRating={trnRolesRating} />
-                  </ServerRatingListContext.Provider>
+                    <ServerRatingListContext.Provider
+                      value={{
+                        onRangeNameEdit: this.onRangeNameEdit
+                      }}
+                    >
+                      <ServerRatingList rolesRating={trnRolesRating} />
+                    </ServerRatingListContext.Provider>
 
-                  <Grid
-                    container
-                    direction="row"
-                    justify="center"
-                    spacing={24}
-                    alignItems="center"
-                  >
-                    <Grid item xs={6}>
-                      <Field
-                        name="newRatingName"
-                        value={this.props.newRatingName}
-                        component={ServerRatingAdd}
-                        formErrors={this.props.formErrors}
-                        onAddClick={this.addRating}
-                      />
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      spacing={24}
+                      alignItems="center"
+                    >
+                      <Grid item xs={6}>
+                        <Field
+                          name="newRatingName"
+                          value={this.props.newRatingName}
+                          component={ServerRatingAdd}
+                          formErrors={this.props.formErrors}
+                          onAddClick={this.addRating}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <DeleteDrop dragWarn={this.state.dragWarn} />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                      <DeleteDrop dragWarn={this.state.dragWarn} />
-                    </Grid>
-                  </Grid>
-                </DragDropContext>
-              </MarginedContainer>
-              <Grid container spacing={24} alignItems="baseline">
-                <Grid item>
-                  <Field
-                    name="password"
-                    component={this.renderPasswordField}
-                    value={this.props.password}
-                    error={
-                      this.props.password &&
-                      this.props.serverEditPasswordStatus !== 'VALID'
-                    }
-                  />
-                </Grid>
-                <Grid item style={{ position: 'relative' }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={this.props.serverEditPasswordStatus !== 'VALID'}
-                  >
-                    Submit
-                  </Button>
-                  {this.props.serverEditPasswordStatus === 'LOADING' && (
-                    <AbsoluteLoader
-                      size={24}
-                      className="progress-bar"
-                      color="secondary"
+                  </DragDropContext>
+                </MarginedContainer>
+                <Grid container spacing={24} alignItems="baseline">
+                  <Grid item>
+                    <Field
+                      name="password"
+                      component={this.renderPasswordField}
+                      value={this.props.password}
+                      error={
+                        this.props.password &&
+                        this.props.serverEditPasswordStatus !== 'VALID'
+                      }
                     />
-                  )}
+                  </Grid>
+                  <Grid item style={{ position: 'relative' }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={this.props.serverEditPasswordStatus !== 'VALID'}
+                    >
+                      Submit
+                    </Button>
+                    {this.props.serverEditPasswordStatus === 'LOADING' && (
+                      <AbsoluteLoader
+                        size={24}
+                        className="progress-bar"
+                        color="secondary"
+                      />
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
-            </form>
-          </Padded>
-          <Padded padding={12}>
-            <Typography>Not yet implemented...</Typography>
-          </Padded>
-        </SwipeableViews>
-      </div>
-    );
+              </form>
+            </Padded>
+            <Padded padding={12}>
+              <Typography>Not yet implemented...</Typography>
+            </Padded>
+          </SwipeableViews>
+        </div>
+      );
+    }
 
     return (
       <Container>

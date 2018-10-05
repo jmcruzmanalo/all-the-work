@@ -4,7 +4,6 @@
 const { BotToken } = require('../config');
 const { bot } = require('./bot-instance');
 const { onReady, onMessage } = require('./bot-events');
-const DEV_MODE = true;
 
 module.exports = () => {
   bot.on('ready', onReady);

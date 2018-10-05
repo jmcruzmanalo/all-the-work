@@ -9,7 +9,7 @@ class KDCommands extends Command {
       name: 'kd',
       group: 'kd',
       memberName: 'test',
-      description: `Gets the KD of the linked account or specified epic IGN. It will delete the command and also send a self destructing message.`,
+      description: `Gets the KD of the linked account or specified epic IGN. It will delete the command sent by the user and also send a self destructing message.`,
       examples: ['`!atw kd`', '`!atw kd ATW_Seensei`']
     });
   }
