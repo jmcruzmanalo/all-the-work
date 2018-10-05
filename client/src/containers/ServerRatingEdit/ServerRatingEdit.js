@@ -18,8 +18,6 @@ import Tab from '@material-ui/core/Tab';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Modal from '@material-ui/core/Modal';
-import Paper from '@material-ui/core/Paper';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
@@ -137,8 +135,9 @@ class ServerRatingEdit extends Component {
   };
 
   onDragRatingStart = ({ source: { index: i } }) => {
-    const hasId = has(this.props.rolesRating[i], 'discordRoleObject.id');
-
+    const rolesRating = clone(this.props.rolesRating, false);
+    rolesRating.reverse();
+    const hasId = has(rolesRating[i], 'discordRoleObject.id');
     if (hasId) {
       this.setState({
         dragIsActive: true,
@@ -160,11 +159,17 @@ class ServerRatingEdit extends Component {
     if (!destination) return;
 
     if (destination.droppableId === 'rating-list-delete-drop-area') {
-      const r = clone(this.props.rolesRating).reverse();
-      r.splice(source.index, 1);
+      const r = clone(this.props.rolesRating, false).reverse();
+      const removed = r.splice(source.index, 1)[0];
       this.props.change('rolesRating', r.reverse());
+
+      if (has(removed, 'discordRoleObject.id')) {
+        const removedClone = clone(this.props.removedRolesRating, false);
+        removedClone.push(removed);
+        this.props.change('removedRolesRating', removedClone);
+      }
     } else {
-      const r = clone(this.props.rolesRating).reverse();
+      const r = clone(this.props.rolesRating, false).reverse();
       const n1 = r[source.index].name;
       const n2 = r[destination.index].name;
       r[source.index].name = n2;
@@ -175,7 +180,7 @@ class ServerRatingEdit extends Component {
   };
 
   onRangeNameEdit = (value, index) => {
-    const r = clone(this.props.rolesRating).reverse();
+    const r = clone(this.props.rolesRating, false).reverse();
     r[index].name = value;
     this.props.change('rolesRating', r.reverse());
   };
@@ -345,6 +350,7 @@ function mapStateToProps(state) {
   return {
     rolesRating: selector(state, 'rolesRating'),
     ratingType: selector(state, 'ratingType'),
+    removedRolesRating: selector(state, 'removedRolesRating'),
     password: selector(state, 'password'),
     serverEditPasswordStatus: getServerEditPasswordStatus(state),
     newRatingName: selector(state, 'newRatingName'),
@@ -397,7 +403,8 @@ ServerRatingEdit = reduxForm({
   form: 'serverRatingEdit',
   initialValues: {
     ratingType: RATING_TYPE[0],
-    rolesRating: []
+    rolesRating: [],
+    removedRolesRating: []
   }
 })(ServerRatingEdit);
 

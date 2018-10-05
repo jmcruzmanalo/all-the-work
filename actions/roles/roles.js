@@ -161,7 +161,6 @@ const removeRole = async ({ serverId, roleId }) => {
 
     return true;
   } catch (e) {
-    console.log(e);
     throw new Error(`roles.js:removeRole() - ${e}`);
   }
 

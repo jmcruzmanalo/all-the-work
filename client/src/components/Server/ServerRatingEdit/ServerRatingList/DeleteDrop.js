@@ -34,6 +34,9 @@ const FadingText = styled(Typography)`
 `;
 
 const DeleteDrop = ({ dragWarn, theme }) => {
+
+  console.log(dragWarn);
+
   const renderDropArea = (
     { innerRef, droppableProps, placeholder },
     { isDraggingOver }
