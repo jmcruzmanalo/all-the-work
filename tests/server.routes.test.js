@@ -16,7 +16,7 @@ const {
 } = require('./seed/roles.seed');
 const clone = require('clone');
 
-describe(`server.routes.js`, () => {
+describe.only(`server.routes.js`, () => {
   const { app } = require('..');
 
   describe(`Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword`, () => {

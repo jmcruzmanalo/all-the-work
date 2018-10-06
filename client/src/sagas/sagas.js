@@ -1,6 +1,7 @@
 import { initialize } from 'redux-form';
 import { all, fork, call, select, takeLatest, put } from 'redux-saga/effects';
 import axios from 'axios';
+import has from 'lodash/has';
 import {
   getServerId,
   getServerRatingEditValues,
@@ -9,40 +10,42 @@ import {
 import { watchForPasswordEntry } from './serverEditSagas/watchPasswordEntry';
 import {
   SET_ACTIVE_SERVER,
-  SUBMIT_SERVER_ROLES_RATING_EDIT
+  SUBMIT_SERVER_ROLES_RATING_EDIT,
+  toggleFetchingServerDetails,
+  setError
 } from '../redux/modules/server';
-import { RATING_TYPE } from '../containers/ServerRatingEdit/ServerRatingEdit';
 
 // Server Details
 const getServerDetails = async ({ serverId }) => {
-  try {
-    const response = await axios.get(`/api/servers/${serverId}/details`, {
-      params: {
-        getMembers: true,
-        getRolesRating: true
-      }
-    });
-    return response.data;
-  } catch (e) {
-    const status = e.request.status;
-    console.log(`Could not connect to server - status ${status}`);
-    return false;
-  }
+  const response = await axios.get(`/api/servers/${serverId}/details`, {
+    params: {
+      getMembers: true,
+      getRolesRating: true
+    }
+  });
+  return response.data;
 };
 
 function* fetchServerDetails() {
-  const serverId = yield select(getServerId);
-  const data = yield call(getServerDetails, { serverId });
-  if (data && (data.ratingType || data.rolesRating.length)) {
-    yield put(
-      initialize('serverRatingEdit', {
-        ratingType: data.ratingType,
-        rolesRating: data.rolesRating,
-        removedRolesRating: []
-      })
-    );
-  } else {
-    console.log('Dispatch a "could not connect to server"');
+  try {
+    const serverId = yield select(getServerId);
+    const data = yield call(getServerDetails, { serverId });
+    if (data && (data.ratingType || data.rolesRating.length)) {
+      yield put(
+        initialize('serverRatingEdit', {
+          ratingType: data.ratingType,
+          rolesRating: data.rolesRating,
+          removedRolesRating: []
+        })
+      );
+      yield put(toggleFetchingServerDetails());
+    }
+  } catch (e) {
+    if (has(e, 'response.data.errorMessage')) {
+      yield put(setError(e.response.data.errorMessage));
+    } else {
+      yield put(setError('Could not connect to server'));
+    }
   }
 }
 

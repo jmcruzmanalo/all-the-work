@@ -19,11 +19,19 @@ module.exports = app => {
     const response = {};
     try {
       if (getRolesRating) {
-        const { rolesRating, ratingType } = await getServerRolesConfig(
-          serverId
-        );
-        response.rolesRating = rolesRating;
-        response.ratingType = ratingType;
+        const serverRolesConfig = await getServerRolesConfig(serverId);
+        if (serverRolesConfig) {
+          const { rolesRating, ratingType } = await getServerRolesConfig(
+            serverId
+          );
+          response.rolesRating = rolesRating;
+          response.ratingType = ratingType;
+        } else {
+          return res.status(404).send({
+            errorMessage: 'Could not find discord server. If you visited this link outside of the discord bot then this can happen.'
+          });
+        }
+        
       }
       if (getMembers) {
         response.members = await getLinkedServerMembers({ serverId });
@@ -33,7 +41,7 @@ module.exports = app => {
       return;
     } catch (e) {
       console.log(e);
-      res.status(404).send({
+      res.status(500).send({
         errorMessage: e
       });
     }

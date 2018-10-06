@@ -93,7 +93,10 @@ const getServerRolesConfig = async serverId => {
       lastUpdatedBy: 0,
       'rolesRating._id': 0
     });
-    return rolesRating.toObject();
+    if (rolesRating) {
+      return rolesRating.toObject();
+    }
+    return false;
   } catch (e) {
     throw new Error(`roles.edit.js:getServerRolesRating() - ${e}`);
   }

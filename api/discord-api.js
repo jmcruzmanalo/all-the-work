@@ -6,8 +6,8 @@ const request = require('request');
 const instance = axios.create({
   baseURL: 'https://discordapp.com/api',
   headers: {
-    Authorization: `${BotToken}`,
-    'User-Agent': 'DiscordBot'
+    Authorization: `Bot ${BotToken}`,
+    // 'User-Agent': 'DiscordBot'
   }
 });
 

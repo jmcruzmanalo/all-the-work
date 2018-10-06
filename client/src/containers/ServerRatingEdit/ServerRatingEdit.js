@@ -8,7 +8,12 @@ import {
   change,
   getFormSyncErrors
 } from 'redux-form';
-import { getServerEditPasswordStatus } from '../../redux/selectors';
+import {
+  getServerEditPasswordStatus,
+  getServerId,
+  getRequesterDiscordId,
+  getErrorMessage
+} from '../../redux/selectors';
 import styled from 'styled-components';
 import qs from 'querystring';
 import clone from 'clone';
@@ -18,10 +23,12 @@ import Tab from '@material-ui/core/Tab';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import SwipeableViews from 'react-swipeable-views';
 import {
   setActiveServer,
+  setRequesterDiscordId,
   submitServerRatingEdit,
   checkServerRolesRatingEditPassword
 } from '../../redux/modules/server';
@@ -58,21 +65,18 @@ class ServerRatingEdit extends Component {
 
   constructor(props) {
     super(props);
-    this.state.serverId = props.match.params.serverId;
 
-    if (props.location.search) {
-      const parsedQueryString = qs.parse(
-        props.location.search.replace('?', '')
-      );
-
-      this.state.requesterDiscordId = parsedQueryString.requesterDiscordId;
-    }
     this.state.currentPassword = props.password;
   }
 
   // TODO: This might need to be moved to componentWillReceiveProps
   componentDidMount() {
-    this.props.setActiveServer(this.state.serverId);
+    const { match, location } = this.props;
+    this.props.setActiveServer(match.params.serverId);
+    if (location.search) {
+      const parsedQueryString = qs.parse(location.search.replace('?', ''));
+      this.props.setRequesterDiscordId(parsedQueryString.requesterDiscordId);
+    }
 
     if (!this.props.ratingType) {
       this.props.change('ratingType', RATING_TYPE[0]);
@@ -187,121 +191,133 @@ class ServerRatingEdit extends Component {
 
   render() {
     let output;
-    if (!this.state.serverId) {
-      output = <ErrorMessage>No Server ID defined</ErrorMessage>;
-    } else if (!this.state.requesterDiscordId) {
-      output = (
-        <ErrorMessage>Dafuq, no requester discord ID wdym!!</ErrorMessage>
-      );
+    if (this.props.errorMessage) {
+      console.log(this.props.errorMessage);
+      output = <ErrorMessage>{this.props.errorMessage}</ErrorMessage>;
     } else {
-      const tabIndex = this.props.ratingType
-        ? RATING_TYPE.indexOf(this.props.ratingType)
-        : 0;
-
-      const trnRolesRating = this.props.rolesRating
-        ? this.props.rolesRating.filter(
-            roleRating => roleRating.type === this.props.ratingType
-          )
-        : [];
-
-      output = (
-        <div>
-          <DarkTabs
-            theme={this.props.theme}
-            value={tabIndex}
-            onChange={this.ratingTypeChange}
-            indicatorColor="primary"
-            fullWidth
+      if (this.props.fetchingServerDetails) {
+        output = (
+          <div
+            style={{
+              textAlign: 'center'
+            }}
           >
-            <Tab label="TRN Rating" />
-            <Tab label="Kill/Death ratio" />
-          </DarkTabs>
+            <CircularProgress size={90} />
+            <Typography>Fetching server details</Typography>
+          </div>
+        );
+      } else {
+        const tabIndex = this.props.ratingType
+          ? RATING_TYPE.indexOf(this.props.ratingType)
+          : 0;
 
-          <SwipeableViews index={tabIndex}>
-            <Padded padding={12}>
-              <form
-                onSubmit={this.props.handleSubmit(() => {
-                  this.props.submitServerRatingEdit();
-                })}
-              >
-                <Field
-                  name="rolesRating"
-                  component={this.renderTRNRatingEditSlider}
-                  trnRolesRating={trnRolesRating}
-                />
-                <MarginedContainer>
-                  <DragDropContext
-                    onDragStart={this.onDragRatingStart}
-                    onDragEnd={this.onDragRatingEnd}
-                  >
-                    <ServerRatingListContext.Provider
-                      value={{
-                        onRangeNameEdit: this.onRangeNameEdit
-                      }}
-                    >
-                      <ServerRatingList rolesRating={trnRolesRating} />
-                    </ServerRatingListContext.Provider>
+        const trnRolesRating = this.props.rolesRating
+          ? this.props.rolesRating.filter(
+              roleRating => roleRating.type === this.props.ratingType
+            )
+          : [];
 
-                    <Grid
-                      container
-                      direction="row"
-                      justify="center"
-                      spacing={24}
-                      alignItems="center"
+        output = (
+          <div>
+            <DarkTabs
+              theme={this.props.theme}
+              value={tabIndex}
+              onChange={this.ratingTypeChange}
+              indicatorColor="primary"
+              fullWidth
+            >
+              <Tab label="TRN Rating" />
+              <Tab label="Kill/Death ratio" />
+            </DarkTabs>
+
+            <SwipeableViews index={tabIndex}>
+              <Padded padding={12}>
+                <form
+                  onSubmit={this.props.handleSubmit(() => {
+                    this.props.submitServerRatingEdit();
+                  })}
+                >
+                  <Field
+                    name="rolesRating"
+                    component={this.renderTRNRatingEditSlider}
+                    trnRolesRating={trnRolesRating}
+                  />
+                  <MarginedContainer>
+                    <DragDropContext
+                      onDragStart={this.onDragRatingStart}
+                      onDragEnd={this.onDragRatingEnd}
                     >
-                      <Grid item xs={6}>
-                        <Field
-                          name="newRatingName"
-                          value={this.props.newRatingName}
-                          component={ServerRatingAdd}
-                          formErrors={this.props.formErrors}
-                          onAddClick={this.addRating}
-                        />
+                      <ServerRatingListContext.Provider
+                        value={{
+                          onRangeNameEdit: this.onRangeNameEdit
+                        }}
+                      >
+                        <ServerRatingList rolesRating={trnRolesRating} />
+                      </ServerRatingListContext.Provider>
+
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        spacing={24}
+                        alignItems="center"
+                      >
+                        <Grid item xs={6}>
+                          <Field
+                            name="newRatingName"
+                            value={this.props.newRatingName}
+                            component={ServerRatingAdd}
+                            formErrors={this.props.formErrors}
+                            onAddClick={this.addRating}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <DeleteDrop dragWarn={this.state.dragWarn} />
+                        </Grid>
                       </Grid>
-                      <Grid item xs={6}>
-                        <DeleteDrop dragWarn={this.state.dragWarn} />
-                      </Grid>
-                    </Grid>
-                  </DragDropContext>
-                </MarginedContainer>
-                <Grid container spacing={24} alignItems="baseline">
-                  <Grid item>
-                    <Field
-                      name="password"
-                      component={this.renderPasswordField}
-                      value={this.props.password}
-                      error={
-                        this.props.password &&
-                        this.props.serverEditPasswordStatus !== 'VALID'
-                      }
-                    />
-                  </Grid>
-                  <Grid item style={{ position: 'relative' }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      type="submit"
-                      disabled={this.props.serverEditPasswordStatus !== 'VALID'}
-                    >
-                      Submit
-                    </Button>
-                    {this.props.serverEditPasswordStatus === 'LOADING' && (
-                      <AbsoluteLoader
-                        size={24}
-                        className="progress-bar"
-                        color="secondary"
+                    </DragDropContext>
+                  </MarginedContainer>
+                  <Grid container spacing={24} alignItems="baseline">
+                    <Grid item>
+                      <Field
+                        name="password"
+                        component={this.renderPasswordField}
+                        value={this.props.password}
+                        error={
+                          this.props.password &&
+                          this.props.serverEditPasswordStatus !== 'VALID'
+                        }
                       />
-                    )}
+                    </Grid>
+                    <Grid item style={{ position: 'relative' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        disabled={
+                          this.props.serverEditPasswordStatus !== 'VALID'
+                        }
+                      >
+                        Submit
+                      </Button>
+                      {this.props.serverEditPasswordStatus === 'LOADING' && (
+                        <AbsoluteLoader
+                          size={24}
+                          className="progress-bar"
+                          color="secondary"
+                        />
+                      )}
+                    </Grid>
                   </Grid>
-                </Grid>
-              </form>
-            </Padded>
-            <Padded padding={12}>
-              <Typography>Not yet implemented...</Typography>
-            </Padded>
-          </SwipeableViews>
-        </div>
-      );
+                </form>
+              </Padded>
+              <Padded padding={12}>
+                <Typography>Not yet implemented...</Typography>
+              </Padded>
+            </SwipeableViews>
+          </div>
+        );
+      }
     }
 
     return (
@@ -309,7 +325,7 @@ class ServerRatingEdit extends Component {
         <MarginedContainer>
           <Padded padding={0} paddingLeft={12} paddingRight={12}>
             <Typography variant="title">
-              Server I.D. - {this.state.serverId}
+              Discord Server I.D. - {this.props.serverId}
             </Typography>
           </Padded>
         </MarginedContainer>
@@ -319,6 +335,7 @@ class ServerRatingEdit extends Component {
   }
 }
 
+// TODO: Update propTypes
 ServerRatingEdit.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
@@ -348,6 +365,10 @@ const errorSelector = getFormSyncErrors('serverRatingEdit');
 
 function mapStateToProps(state) {
   return {
+    fetchingServerDetails: state.server.fetchingServerDetails,
+    serverId: getServerId(state),
+    requesterDiscordId: getRequesterDiscordId(state),
+    errorMessage: getErrorMessage(state),
     rolesRating: selector(state, 'rolesRating'),
     ratingType: selector(state, 'ratingType'),
     removedRolesRating: selector(state, 'removedRolesRating'),
@@ -360,6 +381,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   setActiveServer,
+  setRequesterDiscordId,
   submitServerRatingEdit,
   checkServerRolesRatingEditPassword,
   change
@@ -379,21 +401,6 @@ function validate({ rolesRating, newRatingName }) {
       'newRatingName'
     ] = `Move the latest range before adding another yafuq`;
   }
-
-  // if (Array.isArray(trnRangeNames) && trnRangeNames.includes(newRatingName)) {
-  //   errors['newRatingName'] = `This role already exists yafuq`;
-  // }
-
-  // if (
-  //   Array.isArray(trnRange) &&
-  //   trnRange.length > 0 &&
-  //   trnRange[0].max === 100
-  // ) {
-  //   errors['trnRange'] = `Move the latest range before adding another yafuq`;
-  //   errors[
-  //     'newRatingName'
-  //   ] = `Can't add another role because one is still set to 100`;
-  // }
 
   return errors;
 }

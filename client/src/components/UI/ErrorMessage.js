@@ -18,7 +18,7 @@ const ErrorDiv = styled(Paper)`
 const ErrorMessage = ({ children, theme }) => {
   return (
     <ErrorDiv theme={theme}>
-      <Grid container alignItems="center" spacing={32}>
+      <Grid container alignItems="center" wrap="nowrap" spacing={32}>
         <Grid item>
           <Icon>error</Icon>
         </Grid>

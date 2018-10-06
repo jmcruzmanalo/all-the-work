@@ -9,6 +9,6 @@ module.exports = () => {
   bot.on('ready', onReady);
 
   bot.on('message', onMessage);
-
+  console.log('Running bot.js', BotToken);
   bot.login(BotToken);
 };
