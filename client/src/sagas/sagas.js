@@ -38,8 +38,8 @@ function* fetchServerDetails() {
           removedRolesRating: []
         })
       );
-      yield put(toggleFetchingServerDetails());
     }
+    yield put(toggleFetchingServerDetails());
   } catch (e) {
     if (has(e, 'response.data.errorMessage')) {
       yield put(setError(e.response.data.errorMessage));

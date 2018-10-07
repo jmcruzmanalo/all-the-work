@@ -79,7 +79,7 @@ export const setError = errorMessage => {
  * REDUCER
  */
 
-export default (state = { fetchingServerDetails: true, error: '' }, action) => {
+export default (state = { fetchingServerDetails: true, errorMessage: '' }, action) => {
   switch (action.type) {
     case TOGGLE_FETCHING_SERVER_DETAILS:
       return {
