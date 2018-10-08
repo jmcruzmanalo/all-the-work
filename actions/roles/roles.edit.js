@@ -89,6 +89,7 @@ const getServerRolesConfig = async serverId => {
       serverId
     }).select({
       _id: 0,
+      __v: 0,
       password: 0,
       lastUpdatedBy: 0,
       'rolesRating._id': 0

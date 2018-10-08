@@ -13,15 +13,11 @@ class DeservedRoleCommand extends Command {
     });
   }
 
-  async run(message, argsString, formPattern) {
+  async run(message) {
     message.channel.startTyping();
-    const guildID = message.member.guild.id;
-
+    const serverId = message.member.guild.id;
     try {
-      await removeAddedRoles({ guildID });
-      await GuildRole.remove({
-        guildID
-      });
+      await removeAddedRoles({ serverId });
       message.reply(`Finished removing the roles`);
     } catch (e) {
       console.log(e);

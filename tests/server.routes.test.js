@@ -87,7 +87,9 @@ describe.only(`server.routes.js`, () => {
           serverRatingEditValues: rolesAsClientUIInput
         })
         .expect(200)
-        .expect(({ body: { serverRolesConfig: { rolesRating } } }) => {
+        .expect((response) => {
+          const body = response.body;
+          const rolesRating = body.rolesRating;
           for (let roleRating of rolesRating) {
             expect(roleRating).toHaveProperty('discordRoleObject');
             expect(roleRating.discordRoleObject).toMatchObject({
@@ -124,7 +126,9 @@ describe.only(`server.routes.js`, () => {
             serverRatingEditValues: updateInput
           })
           .expect(200)
-          .expect(({ body: { serverRolesConfig: { rolesRating } } }) => {
+          .expect((response) => {
+            const body = response.body;
+            const rolesRating = body.rolesRating;
             for (let roleRating of rolesRating) {
               expect(roleRating).toHaveProperty('discordRoleObject');
               expect(roleRating.discordRoleObject).toMatchObject({
@@ -138,13 +142,14 @@ describe.only(`server.routes.js`, () => {
               type: expect.any(String)
             });
           });
+
+        const serverRolesConfigUpdated = await getServerRolesConfig(serverId);
+        expect(serverRolesConfigUpdated.rolesRating).toMatchObject(updateInput.rolesRating);
       });
 
       it(`should remove one of the roles`, async () => {});
 
       it(`should change the name of one of the roles`, async () => {});
-
-      
     });
   });
 });

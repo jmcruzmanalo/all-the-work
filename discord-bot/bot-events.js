@@ -16,6 +16,7 @@ const onReady = async () => {
         if (addedRoles && addedRoles.length) {
           console.log(`Prepared roles for server: ${guild.id}`);
         } else {
+          // TODO: This is logged even though there is clearly a serverConfig
           console.log(
             'No serverRolesConfig detected. use `!atw set-server-roles`'
           );

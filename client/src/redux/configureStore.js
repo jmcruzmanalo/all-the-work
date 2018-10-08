@@ -1,6 +1,6 @@
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
 import createSagaMiddleWare from 'redux-saga';
-import rootSaga from '../sagas/sagas';
+import rootSaga from '../sagas';
 import { reducer as formsReducer } from 'redux-form';
 import serverReducer from './modules/server';
 

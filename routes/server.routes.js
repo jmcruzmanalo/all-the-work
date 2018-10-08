@@ -94,9 +94,10 @@ module.exports = app => {
         // Call sync roles instead
         await addNeededRoles({ serverId });
         const latestServerRolesRating = await getServerRolesConfig(serverId);
-        res.status(200).send({ serverRolesConfig: latestServerRolesRating });
+        res.status(200).send({
+          ...latestServerRolesRating
+        });
       } catch (e) {
-        console.log(e);
         res.status(401).send({
           message:
             'Probably a wrong password || no server id found. Should handle 500 here',
