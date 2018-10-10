@@ -167,11 +167,11 @@ class ServerRatingEdit extends Component {
       const removed = r.splice(source.index, 1)[0];
       this.props.change('rolesRating', r.reverse());
 
-      if (has(removed, 'discordRoleObject.id')) {
-        const removedClone = clone(this.props.removedRolesRating, false);
-        removedClone.push(removed);
-        this.props.change('removedRolesRating', removedClone);
-      }
+      // if (has(removed, 'discordRoleObject.id')) {
+      //   const removedClone = clone(this.props.removedRolesRating, false);
+      //   removedClone.push(removed);
+      //   this.props.change('removedRolesRating', removedClone);
+      // }
     } else {
       const r = clone(this.props.rolesRating, false).reverse();
       const n1 = r[source.index].name;

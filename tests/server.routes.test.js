@@ -21,7 +21,7 @@ const {
 const { getRoles } = require('../api/discord-api');
 const clone = require('clone');
 
-describe.only(`server.routes.js`, () => {
+describe(`server.routes.js`, () => {
   const { app } = require('..');
 
   describe(`Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword`, () => {

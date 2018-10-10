@@ -34,14 +34,18 @@ class DeservedRoleCommand extends Command {
 
       const { deservedRoles, invalidRoles } = roles;
 
-      await applyRolesToUser({
+      const { addedRoles } = await applyRolesToUser({
         serverId,
         userDiscordId,
         deservedRoles,
         invalidRoles
       });
+      console.log(addedRoles);
+      if (addedRoles && addedRoles.length >= 1) {
+        await message.reply(`You've joined ${addedRoles[0].name}`);
+      }
     } else {
-      message.reply(
+      await message.reply(
         'No linked account to discordID yafuq. Run: `!atw link your-IGN'
       );
     }

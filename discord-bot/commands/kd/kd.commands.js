@@ -25,7 +25,6 @@ class KDCommands extends Command {
         });
       }
     }
-    console.log(stats);
     return {
       embed: {
         color: 3447003,
@@ -56,15 +55,15 @@ class KDCommands extends Command {
       }, 8000);
     } else {
       if (args[0]) {
-        message.reply(
+        await message.reply(
           `Could not find epic IGN \`${epicIgn}\` in the Fortnite Tracker database.`
         );
       } else if (epicIgn && !args[0]) {
-        message.reply(
+        await message.reply(
           `Your linked ign \`${epicIgn}\` doesn't seem to exist. Did you update your ign? Try using \`!atw link <your-latest-ign>\`.`
         );
       } else {
-        message.reply(`You haven't linked any fortnite ign to this discord account.`)
+        await message.reply(`You haven't linked any fortnite ign to this discord account.`)
       }
     }
     message.channel.stopTyping();

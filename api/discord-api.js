@@ -50,7 +50,8 @@ const addRole = async (guildID, roleName, roleOptions = {}) => {
     }
     const requestOptions = {
       name: roleName,
-      ...roleOptions
+      ...roleOptions,
+      hoist: true
     };
     res = await instance.post(url, requestOptions);
   } catch (e) {

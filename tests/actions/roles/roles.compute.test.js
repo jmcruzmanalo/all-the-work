@@ -3,15 +3,12 @@ const request = require('supertest');
 const {
   serverId,
   rolesAsClientUIInput,
+  roleNames,
   password,
   userDiscordId
 } = require('../../seed/roles.seed');
 const {
-  ServerRolesConfig
-} = require('../../../database/models/serverRolesRatingConfig');
-const {
-  addNeededRoles,
-  removeAddedRoles
+  removeRolesByNames
 } = require('../../../actions/roles/roles');
 const {
   dropAllServerRolesConfig,
@@ -24,11 +21,11 @@ const {
 } = require('../../../actions/roles/roles.compute');
 const { UserLink } = require('../../../database/models/userLink');
 
-describe('actions/roles.compute.js', () => {
+describe.only('actions/roles.compute.js', () => {
   describe('BDD - Testing adding role based on stats', () => {
     const { app } = require('../../../index');
     before(async () => {
-      await removeAddedRoles({ serverId });
+      await removeRolesByNames(serverId, roleNames);
       await dropAllServerRolesConfig();
       await UserLink.remove({});
     });
@@ -57,9 +54,8 @@ describe('actions/roles.compute.js', () => {
           })
           .expect(200)
           .expect(({ body }) => {
-            expect(body).toHaveProperty('serverRolesConfig');
-            expect(body.serverRolesConfig).toHaveProperty('rolesRating');
-            const rolesRating = body.serverRolesConfig.rolesRating;
+            expect(body).toHaveProperty('rolesRating');
+            const rolesRating = body.rolesRating;
             expect(rolesRating.length).toBe(4);
             expect(rolesRating).toContainEqual(
               expect.objectContaining({
