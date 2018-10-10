@@ -7,7 +7,10 @@ const {
   getServerRolesConfig,
   updateServerRolesConfig
 } = require('../actions/roles/roles.edit');
-const { removeAddedRoles, removeRolesByNames } = require('../actions/roles/roles');
+const {
+  removeAddedRoles,
+  removeRolesByNames
+} = require('../actions/roles/roles');
 const {
   password,
   userDiscordId,
@@ -15,6 +18,7 @@ const {
   roleNames,
   serverId
 } = require('./seed/roles.seed');
+const { getRoles } = require('../api/discord-api');
 const clone = require('clone');
 
 describe.only(`server.routes.js`, () => {
@@ -159,6 +163,8 @@ describe.only(`server.routes.js`, () => {
         rolesRating.splice(3, 1);
         rolesRating[2].range.max = rolesRating[3].range.min - 1;
 
+        let latestRolesRating;
+        let latestRemovedRoles;
         await request(app)
           .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
           .send({
@@ -169,17 +175,31 @@ describe.only(`server.routes.js`, () => {
           .expect(response => {
             const body = response.body;
             const rolesRating = body.rolesRating;
-
+            const removedRoles = body.removedRoles;
             const x = rolesRating.find(role => {
-              role.name === 'TEST1'
+              role.name === 'TEST1';
             });
             expect(x).toBeUndefined();
-            expect(body.removedRoles[0].name).toBe('TEST1');
+            expect(removedRoles[0].name).toBe('TEST1');
 
-            // Expect the role to not be in the database
-            // Expect the role to no exist in the discord server
-
+            latestRolesRating = rolesRating;
+            latestRemovedRoles = removedRoles;
           });
+
+          // Expect the role to not be in the database
+          const latestServerRolesRating = await getServerRolesConfig(
+            serverId
+          );
+          expect(latestServerRolesRating.rolesRating).toMatchObject(
+            latestRolesRating
+          );
+
+          // Expect the role to no exist in the discord server
+          const currentServerRoles = await getRoles(serverId);
+          const isFound = currentServerRoles.find(role => {
+            role.id === latestRemovedRoles[0].id;
+          });
+          expect(isFound).toBeUndefined();
       });
 
       it(`should change the name of one of the roles`, async () => {});
