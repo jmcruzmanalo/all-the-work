@@ -6,9 +6,9 @@ const {
 } = require('../../database/models/serverRolesRatingConfig');
 const { getRoles } = require('../../api/discord-api');
 
-const syncRoles = async ({serverId, activeRoles}) => {
-  await addNeededRoles({serverId, activeRoles});
-}
+const syncRoles = async ({ serverId, activeRoles }) => {
+  await addNeededRoles({ serverId, activeRoles });
+};
 
 /**
  * Adds all the roles that are missing and required by the bot
@@ -17,6 +17,7 @@ const syncRoles = async ({serverId, activeRoles}) => {
  */
 const addNeededRoles = async ({ serverId, activeRoles }) => {
   try {
+    if (!serverId) throw new Error('serverId not provided');
     const serverRolesConfig = await ServerRolesConfig.findOne({ serverId });
 
     if (serverRolesConfig) {
@@ -167,6 +168,47 @@ const removeRole = async ({ serverId, roleId }) => {
   // true if response is a 204
 };
 
+const removeRolesByNames = async (serverId, roleNames) => {
+  try {
+    if (!serverId || !roleNames) throw new Error(`incomplete params`);
+    for (const roleName of roleNames) {
+      await removeRoleByName(serverId, roleName);
+    }
+  } catch (e) {
+    throw new Error(`roles.js:removeRolesByNames() - ${e}`);
+  }
+}
+
+/**
+ * Removes a role based on name. should also remove duplicates
+ */
+const removeRoleByName = async (serverId, roleName) => {
+  if (!roleName)
+    throw new Error(`Please provide a role Object`);
+
+  // get all the roles of a certain guild
+  const roles = await getRolesByName({ serverId, roleName });
+
+  // loop through all the roles and get the IDs of those that have the same name
+  const roleIds = roles.map(r => {
+    return r.id;
+  });
+
+  // Should return a 204
+  const deletePromises = roleIds.map(roleId => {
+    // TODO: check if this is the best way to run findOneAndRemove
+    return discordAPI.deleteRole(serverId, roleId);
+  });
+
+  try {
+    await Promise.all(deletePromises);
+    return true;
+  } catch (e) {
+    console.log(e);
+    throw new Error(`roles.js:removeRoleByName() - ${e}`);
+  }
+};
+
 /**
  * Returns an array of roles with the same name in a guild from the discord API.
  */
@@ -230,6 +272,7 @@ module.exports = {
   getRolesByName,
   addRole,
   removeRole,
+  removeRolesByNames,
   setUserRolesInGuild,
   getGuildRolesInDatabase,
   getServerRolesInDatabase

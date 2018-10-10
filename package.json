@@ -9,7 +9,7 @@
     "server-dev-bot": "cross-env NODE_ENV=DEVELOPMENT_WITH_BOT nodemon index.js",
     "bot": "node discord-bot/bot-run.js",
     "debug": "node discord-bot/bot.js",
-    "test": "mocha tests/**/*.test.js --timeout 5000 --bail",
+    "test": "cross-env MONGODB_URI=mongodb://localhost:27017/ATW_TEST mocha tests/**/*.test.js --timeout 5000 --bail",
     "test-watch": "nodemon --exec npm test"
   },
   "author": "",

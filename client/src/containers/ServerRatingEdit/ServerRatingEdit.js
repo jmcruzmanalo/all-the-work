@@ -285,7 +285,8 @@ class ServerRatingEdit extends Component {
                         value={this.props.password}
                         error={
                           this.props.password &&
-                          this.props.serverEditPasswordStatus !== 'VALID'
+                          (this.props.serverEditPasswordStatus !== 'VALID' &&
+                            this.props.serverEditPasswordStatus !== 'LOADING')
                         }
                       />
                     </Grid>

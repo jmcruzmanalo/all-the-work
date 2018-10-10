@@ -7,11 +7,12 @@ const {
   getServerRolesConfig,
   updateServerRolesConfig
 } = require('../actions/roles/roles.edit');
-const { removeAddedRoles } = require('../actions/roles/roles');
+const { removeAddedRoles, removeRolesByNames } = require('../actions/roles/roles');
 const {
   password,
   userDiscordId,
   rolesAsClientUIInput,
+  roleNames,
   serverId
 } = require('./seed/roles.seed');
 const clone = require('clone');
@@ -21,7 +22,7 @@ describe.only(`server.routes.js`, () => {
 
   describe(`Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword`, () => {
     before(async () => {
-      await removeAddedRoles({ serverId });
+      await removeRolesByNames(serverId, roleNames);
       await dropAllServerRolesConfig();
     });
     it(`should add a serverRolesConfig - same command used by the bot`, async () => {
@@ -63,7 +64,7 @@ describe.only(`server.routes.js`, () => {
 
   describe(`Saving serverRolesConfig - /api/servers/:serverId/requestUpdateRolesRating`, () => {
     before(async () => {
-      await removeAddedRoles({ serverId });
+      await removeRolesByNames(serverId, roleNames);
       await dropAllServerRolesConfig();
     });
 
@@ -87,7 +88,7 @@ describe.only(`server.routes.js`, () => {
           serverRatingEditValues: rolesAsClientUIInput
         })
         .expect(200)
-        .expect((response) => {
+        .expect(response => {
           const body = response.body;
           const rolesRating = body.rolesRating;
           for (let roleRating of rolesRating) {
@@ -103,6 +104,7 @@ describe.only(`server.routes.js`, () => {
       it(`should add a new role and add it to the discord server`, async () => {
         const serverRolesConfig = await getServerRolesConfig(serverId);
         const updateInput = clone(serverRolesConfig, false);
+        delete updateInput.serverId;
         updateInput.rolesRating.unshift({
           name: 'TEST4',
           range: {
@@ -112,12 +114,6 @@ describe.only(`server.routes.js`, () => {
           type: 'TRN Rating'
         });
         updateInput.rolesRating[1].range.min = 501;
-        await updateServerRolesConfig({
-          serverId,
-          password,
-          rolesRating: updateInput.rolesRating,
-          ratingType: 'TRN Rating'
-        });
 
         await request(app)
           .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
@@ -126,7 +122,7 @@ describe.only(`server.routes.js`, () => {
             serverRatingEditValues: updateInput
           })
           .expect(200)
-          .expect((response) => {
+          .expect(response => {
             const body = response.body;
             const rolesRating = body.rolesRating;
             for (let roleRating of rolesRating) {
@@ -144,10 +140,47 @@ describe.only(`server.routes.js`, () => {
           });
 
         const serverRolesConfigUpdated = await getServerRolesConfig(serverId);
-        expect(serverRolesConfigUpdated.rolesRating).toMatchObject(updateInput.rolesRating);
+        expect(serverRolesConfigUpdated.rolesRating).toMatchObject(
+          updateInput.rolesRating
+        );
       });
 
-      it(`should remove one of the roles`, async () => {});
+      it(`should remove one of the roles`, async () => {
+        const serverRolesConfigUpdated = clone(
+          await getServerRolesConfig(serverId),
+          false
+        );
+        const updateInput = {
+          rolesRating: serverRolesConfigUpdated.rolesRating,
+          ratingType: serverRolesConfigUpdated.ratingType
+        };
+        const { rolesRating } = updateInput;
+        // Splicing TEST1
+        rolesRating.splice(3, 1);
+        rolesRating[2].range.max = rolesRating[3].range.min - 1;
+
+        await request(app)
+          .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
+          .send({
+            password,
+            serverRatingEditValues: updateInput
+          })
+          .expect(200)
+          .expect(response => {
+            const body = response.body;
+            const rolesRating = body.rolesRating;
+
+            const x = rolesRating.find(role => {
+              role.name === 'TEST1'
+            });
+            expect(x).toBeUndefined();
+            expect(body.removedRoles[0].name).toBe('TEST1');
+
+            // Expect the role to not be in the database
+            // Expect the role to no exist in the discord server
+
+          });
+      });
 
       it(`should change the name of one of the roles`, async () => {});
     });

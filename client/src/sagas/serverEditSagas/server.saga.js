@@ -78,6 +78,13 @@ function* fetchServerDetails() {
 }
 
 function* submitServerRatingEdit() {
+
+  // Set the submit button to loading state
+  yield put({
+    type: SET_ACTIVE_SERVER_PASSWORD_STATUS,
+    payload: 'LOADING'
+  });
+
   // Get the form data first
   const serverRatingEditValues = yield select(getServerRatingEditValues);
   const serverId = yield select(getServerId);
@@ -98,8 +105,10 @@ function* submitServerRatingEdit() {
       })
     );
   }
-
-  console.log(data);
+  yield put({
+    type: SET_ACTIVE_SERVER_PASSWORD_STATUS,
+    payload: 'VALID'
+  });
 }
 
 function* checkServerRatingEditPassword(action) {

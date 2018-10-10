@@ -41,10 +41,16 @@ const rolesAsClientUIInput = {
   password: 'qwer1234'
 };
 
+// Just assume the values for now.
+const roleNames = rolesAsClientUIInput.rolesRating.map(roleInput => {
+  return roleInput.name
+});
+roleNames.push('TEST4');
 
 module.exports = {
   password,
   userDiscordId,
   serverId,
-  rolesAsClientUIInput
+  rolesAsClientUIInput,
+  roleNames
 };

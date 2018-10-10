@@ -1,7 +1,7 @@
 const {
   addNeededRoles,
   getGuildRolesInDatabase,
-  getServerRolesInDatabase
+  removeRole
 } = require('../actions/roles/roles');
 const { getLinkedServerMembers } = require('../actions/members');
 const {
@@ -28,10 +28,10 @@ module.exports = app => {
           response.ratingType = ratingType;
         } else {
           return res.status(404).send({
-            errorMessage: 'Could not find discord server. If you visited this link outside of the discord bot then this can happen.'
+            errorMessage:
+              'Could not find discord server. If you visited this link outside of the discord bot then this can happen.'
           });
         }
-        
       }
       if (getMembers) {
         response.members = await getLinkedServerMembers({ serverId });
@@ -65,25 +65,29 @@ module.exports = app => {
   app.post(
     `/api/servers/:serverId/requestUpdateRolesRating`,
     async (req, res) => {
-      const {
-        body,
-        params: { serverId }
-      } = req;
-
-      if (!body.hasOwnProperty('serverRatingEditValues')) {
-        res.status(400).send({
-          errorMessage: 'No serverRatingEditValues property in body'
-        });
-        return;
-      }
-
-      const {
-        password,
-        serverRatingEditValues: { ratingType, rolesRating }
-      } = body;
-
       try {
-        await updateServerRolesConfig({
+        const {
+          body,
+          params: { serverId }
+        } = req;
+
+        const paramsIsComplete =
+          body.hasOwnProperty('serverRatingEditValues') &&
+          body.hasOwnProperty('password');
+        if (!paramsIsComplete) {
+          res.status(400).send({
+            errorMessage:
+              'No serverRatingEditValues or password property in body'
+          });
+          return;
+        }
+
+        const {
+          password,
+          serverRatingEditValues: { ratingType, rolesRating }
+        } = body;
+
+        const removedRoles = await updateServerRolesConfig({
           serverId,
           password,
           rolesRating,
@@ -91,17 +95,23 @@ module.exports = app => {
           // Temporary hard-coded ID
           requesterDiscordId: '359314226214600704'
         });
+
+        for (const role of removedRoles) {
+          await removeRole({ serverId, roleId: role.discordRoleObject.id });
+        }
+
         // Call sync roles instead
         await addNeededRoles({ serverId });
         const latestServerRolesRating = await getServerRolesConfig(serverId);
         res.status(200).send({
-          ...latestServerRolesRating
+          ...latestServerRolesRating,
+          removedRoles
         });
       } catch (e) {
         res.status(401).send({
           message:
             'Probably a wrong password || no server id found. Should handle 500 here',
-          errorInfo: e
+          errorInfo: e.message
         });
       }
     }

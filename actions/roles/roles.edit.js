@@ -5,6 +5,7 @@ const passwordGen = require('generate-password');
 const {
   ServerRolesConfig
 } = require('../../database/models/serverRolesRatingConfig');
+const has = require('lodash/has');
 
 /**
  * Drop all server roles config in database
@@ -55,6 +56,9 @@ const getServerRolesConfigOrInsert = async ({
   }
 };
 
+/**
+ * Used to update the serverRolesConfig of a server. It will also return the deleted roles.
+ */
 const updateServerRolesConfig = async ({
   serverId,
   password,
@@ -62,18 +66,30 @@ const updateServerRolesConfig = async ({
   ratingType
 }) => {
   try {
-    if (!serverId || !password || !rolesRating)
+    if (!serverId || !password || !rolesRating || !ratingType)
       throw new Error(`Incomplete params`);
 
-    const serverRoleConfig = await ServerRolesConfig.findOne({
+    const serverRolesConfig = await ServerRolesConfig.findOne({
       serverId,
       password
     });
 
-    if (serverRoleConfig) {
-      serverRoleConfig.rolesRating = rolesRating;
-      serverRoleConfig.ratingType = ratingType;
-      await serverRoleConfig.save();
+    if (serverRolesConfig) {
+      const serverRolesConfigClone = serverRolesConfig.toObject();
+      const removedRoles = serverRolesConfigClone.rolesRating.filter(role => {
+        if (has(role, 'discordRoleObject.id')) {
+          const x = rolesRating.find(r => {
+            if (!has(r, 'discordRoleObject.id')) return false; 
+            return role.discordRoleObject.id === r.discordRoleObject.id;
+          });
+          return !x;
+        }
+      });
+
+      serverRolesConfig.rolesRating = rolesRating;
+      serverRolesConfig.ratingType = ratingType;
+      await serverRolesConfig.save();
+      return removedRoles;
     } else {
       throw new Error(`No matching serverId or password`);
     }
