@@ -1,6 +1,6 @@
 const { DEV_MODE } = require('../config');
 const { bot } = require('./bot-instance');
-const { addNeededRoles, sortNeededRoles } = require('../actions/roles/roles');
+const { addNeededRoles } = require('../actions/roles/roles');
 
 const onReady = async () => {
   console.log('Bot is ready, running needed checks.');

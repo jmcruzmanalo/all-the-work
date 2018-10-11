@@ -6,7 +6,7 @@ const request = require('request');
 const instance = axios.create({
   baseURL: 'https://discordapp.com/api',
   headers: {
-    Authorization: `Bot ${BotToken}`,
+    Authorization: `Bot ${BotToken}`
     // 'User-Agent': 'DiscordBot'
   }
 });
@@ -127,7 +127,8 @@ const removeUserRole = async (guildID, roleID, userID) => {
 // Not actually needed since Discord.js supports this.
 const deleteMessage = async (channelId, messageId) => {
   try {
-    if (!channelId || !messageId) throw new Error(`missing channelId or messageId`);
+    if (!channelId || !messageId)
+      throw new Error(`missing channelId or messageId`);
     const url = `/channels/${channelId}/messages/${messageId}`;
     const res = await instance.delete(url);
     if (res.status === 204) return true;
@@ -136,7 +137,17 @@ const deleteMessage = async (channelId, messageId) => {
     console.log(e);
     throw new Error(`discord-api.js:deleteMessage() - ${e}`);
   }
-}
+};
+
+const getServerMembers = async (serverId, limit = 1000) => {
+  try {
+    if (!serverId) throw new Error(`missing serverId parameter`);
+    const url = `/guilds/{{serverId}}/members?limit=${limit}`;
+    const res = await instance.get(url);
+  } catch (e) {
+
+  }
+};
 
 /**
  * Applies the array to the guild's roles. Accepts an array of object with the roleID as id and position as a number.
@@ -172,6 +183,7 @@ module.exports = {
   deleteRole,
   setUserRole,
   getUserRoles,
+  getServerMembers,
   applyGuildPositions,
   removeUserRole,
   deleteMessage

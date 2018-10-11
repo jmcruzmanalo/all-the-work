@@ -1,5 +1,4 @@
 const { Command } = require('discord.js-commando');
-const { UserLink } = require('../../../database/models/userLink');
 const { doesUserExist } = require('../../../api/fortnite-api');
 const { linkServerMemberToEpicIGN } = require('../../../actions/members');
 
@@ -9,12 +8,12 @@ class LinkCommand extends Command {
       name: 'link',
       memberName: 'link',
       group: 'users',
-      description: 'Links a fortnite IGN to the Discord User. 1-1 relation.',
+      description: 'Links a fortnite IGN to your Discord account. 1-1 relation.',
       examples: ['`!atw link {ign}`']
     });
   }
 
-  async run(message, argsString, formPattern) {
+  async run(message, argsString) {
     message.channel.startTyping();
     const args = argsString.split(' ');
     const serverId = message.guild.id;
@@ -23,7 +22,7 @@ class LinkCommand extends Command {
 
     try {
       if (!epicIGN) {
-        message.reply(
+        await message.reply(
           `yafuq, provide your Epic IGN. \`!atw link your-ign-here\``
         );
         return;

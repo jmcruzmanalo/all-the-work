@@ -1,5 +1,4 @@
 const path = require('path');
-const Discord = require('discord.js');
 const { Client } = require('discord.js-commando');
 const { mongoose } = require('../database/mongoose');
 
