@@ -30,7 +30,7 @@ class LinkCommand extends Command {
 
       if (await doesUserExist({ ign: epicIGN })) {
         await linkServerMemberToEpicIGN({ serverId, userDiscordId, epicIGN });
-        message.reply(
+        await message.reply(
           `Successfully linked your ign (${epicIGN}) to your discord account.`
         );
       } else {
