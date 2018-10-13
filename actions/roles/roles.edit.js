@@ -101,7 +101,7 @@ const updateServerRolesConfig = async ({
 const getServerRolesConfig = async serverId => {
   try {
     if (!serverId) throw new Error(`Missing serverId param`);
-    const rolesRating = await ServerRolesConfig.findOne({
+    const serverRolesConfig = await ServerRolesConfig.findOne({
       serverId
     }).select({
       _id: 0,
@@ -110,8 +110,8 @@ const getServerRolesConfig = async serverId => {
       lastUpdatedBy: 0,
       'rolesRating._id': 0
     });
-    if (rolesRating) {
-      return rolesRating.toObject();
+    if (serverRolesConfig) {
+      return serverRolesConfig.toObject();
     }
     return false;
   } catch (e) {
