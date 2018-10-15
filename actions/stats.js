@@ -3,7 +3,7 @@ const { getStats } = require('../api/fortnite-api');
 const {
   getRolesByName,
   getGuildRolesInDatabase
-} = require('../actions/roles/roles');
+} = require('./roles/roles');
 const { GuildRole } = require('../database/models/guildRoles');
 const { updateServerMemberStats } = require('./members');
 
@@ -58,7 +58,7 @@ const getKDs = async ign => {
 const getTRN = async ({ epicIGN }) => {
   if (!epicIGN) throw new Error(`no epicIGN provided`);
   try {
-    const { stats } = await getStats({ ign: epicIGN });
+    const stats = await getStats({ ign: epicIGN });
     return stats[CONST_PROPS.C_SQUADS].trnRating.valueInt;
   } catch (e) {
     throw new Error(`kd.js:getTRN() - ${e}`);

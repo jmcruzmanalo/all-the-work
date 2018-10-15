@@ -35,7 +35,8 @@ class ForceLinkCommand extends Command {
           `\` to \` did not split the IGNs. Probably cause it wasn't placed between two.`
         );
         return;
-      } else if (args.length > 2) {
+      }
+      if (args.length > 2) {
         await message.reply(
           `Multiple \` to \`s found. Unless this is part of your ign? If so, this bot can't force link it yet. The user will have to do it himself. (for now)`
         );

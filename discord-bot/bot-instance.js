@@ -11,7 +11,7 @@ const bot = new Client({
 bot.registry
   .registerDefaultTypes()
   .registerGroups([
-    ['kd', 'K/D Commands'],
+    ['stats', 'Stat Commands'],
     ['users', 'User Commands'],
     ['roles', 'Roles Commands']
   ])

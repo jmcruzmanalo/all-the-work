@@ -34,6 +34,7 @@ const getStats = async ({ ign, platform = 'pc' }) => {
   try {
     let response = await instance.get(url);
     // TODO: Add unit test for this
+    console.log(response);
     if (response.hasOwnProperty('error')) {
       return false;
     }

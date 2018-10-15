@@ -17,7 +17,6 @@ class DeservedRoleCommand extends Command {
       message.channel.startTyping();
       const serverId = message.guild.id;
       const serverRolesConfig = await getServerRolesConfig(serverId);
-      console.log(serverRolesConfig);
       const rolesRating = serverRolesConfig.rolesRating;
       rolesRating.reverse();
 

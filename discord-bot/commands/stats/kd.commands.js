@@ -1,14 +1,14 @@
 const { Command } = require('discord.js-commando');
-const { getKDs } = require('../../../actions/kd');
+const { getKDs } = require('../../../actions/stats');
 const { getEpicIgnWithDiscordId } = require('../../../actions/members');
 const { doesUserExist } = require('../../../api/fortnite-api');
 
-class KDCommands extends Command {
+class KDCommand extends Command {
   constructor(client) {
     super(client, {
       name: 'kd',
-      group: 'kd',
-      memberName: 'test',
+      group: 'stats',
+      memberName: 'kd',
       description: `Gets the KD of the linked account or specified epic IGN. It will delete the command sent by the user and also send a self destructing message.`,
       examples: ['`!atw kd`', '`!atw kd ATW_Seensei`']
     });
@@ -44,7 +44,6 @@ class KDCommands extends Command {
       : await getEpicIgnWithDiscordId(userDiscordId);
     message.delete();
 
-    console.log(epicIgn);
     if (epicIgn && (await doesUserExist({ ign: epicIgn }))) {
       const kds = await getKDs(epicIgn);
       const sentMessage = await message.channel.send(
@@ -71,4 +70,4 @@ class KDCommands extends Command {
   }
 }
 
-module.exports = KDCommands;
+module.exports = KDCommand;

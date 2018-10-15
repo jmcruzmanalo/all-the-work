@@ -8,7 +8,8 @@ class LinkCommand extends Command {
       name: 'link',
       memberName: 'link',
       group: 'users',
-      description: 'Links a fortnite IGN to your Discord account. 1-1 relation.',
+      description:
+        'Links a fortnite IGN to your Discord account. 1-1 relation.',
       examples: ['`!atw link {ign}`']
     });
   }
@@ -18,7 +19,7 @@ class LinkCommand extends Command {
     const args = argsString.split(' ');
     const serverId = message.guild.id;
     const userDiscordId = message.author.id;
-    let epicIGN = args.join(' ');
+    const epicIGN = args.join(' ');
 
     try {
       if (!epicIGN) {
@@ -40,7 +41,6 @@ class LinkCommand extends Command {
         return;
       }
     } catch (e) {
-      console.log(e);
       message.reply(
         `There was an error processing your request, let the DooDoo owner know. he fuq`
       );

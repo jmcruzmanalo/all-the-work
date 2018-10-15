@@ -1,11 +1,11 @@
 /**
  * This file will handle the requesting of discord role changes VIA the GUI AND mainly the serverRolesConfig
  */
+const has = require('lodash/has');
 const passwordGen = require('generate-password');
 const {
   ServerRolesConfig
 } = require('../../database/models/serverRolesRatingConfig');
-const has = require('lodash/has');
 
 /**
  * Drop all server roles config in database
@@ -26,8 +26,9 @@ const getServerRolesConfigOrInsert = async ({
     if (!serverId || !latestRequesterDiscordId)
       throw new Error(`No serverId or latestRequesterDiscordId passed`);
 
-    if (!password) {
-      password = passwordGen.generate({
+    let p = password;
+    if (!p) {
+      p = passwordGen.generate({
         length: 16,
         numbers: true,
         symbols: true
@@ -40,14 +41,15 @@ const getServerRolesConfigOrInsert = async ({
       const r = serverRolesConfig.toObject();
       r.newlyInserted = false;
       return r;
-    } else {
-      serverRolesConfig = new ServerRolesConfig({
-        serverId,
-        password,
-        lastUpdatedBy: latestRequesterDiscordId
-      });
-      await serverRolesConfig.save();
     }
+
+    serverRolesConfig = new ServerRolesConfig({
+      serverId,
+      password: p,
+      lastUpdatedBy: latestRequesterDiscordId
+    });
+    await serverRolesConfig.save();
+
     const r = serverRolesConfig.toObject();
     r.newlyInserted = true; // Want to avoid conflict with mongoose
     return r;
@@ -79,7 +81,7 @@ const updateServerRolesConfig = async ({
       const removedRoles = serverRolesConfigClone.rolesRating.filter(role => {
         if (has(role, 'discordRoleObject.id')) {
           const x = rolesRating.find(r => {
-            if (!has(r, 'discordRoleObject.id')) return false; 
+            if (!has(r, 'discordRoleObject.id')) return false;
             return role.discordRoleObject.id === r.discordRoleObject.id;
           });
           return !x;
@@ -90,9 +92,8 @@ const updateServerRolesConfig = async ({
       serverRolesConfig.ratingType = ratingType;
       await serverRolesConfig.save();
       return removedRoles;
-    } else {
-      throw new Error(`No matching serverId or password`);
     }
+    throw new Error(`No matching serverId or password`);
   } catch (e) {
     throw new Error(`roles.edit.js:updateServerRolesConfig() - ${e}`);
   }
