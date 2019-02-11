@@ -1,16 +1,13 @@
 const expect = require('expect');
 const request = require('supertest');
-const mongoose = require('mongoose');
+require('mongoose');
+const clone = require('clone');
 const {
   dropAllServerRolesConfig,
   getServerRolesConfigOrInsert,
-  getServerRolesConfig,
-  updateServerRolesConfig
+  getServerRolesConfig
 } = require('../actions/roles/roles.edit');
-const {
-  removeAddedRoles,
-  removeRolesByNames
-} = require('../actions/roles/roles');
+const { removeRolesByNames } = require('../actions/roles/roles');
 const {
   password,
   userDiscordId,
@@ -19,17 +16,17 @@ const {
   serverId
 } = require('./seed/roles.seed');
 const { getRoles } = require('../api/discord-api');
-const clone = require('clone');
 
-describe(`server.routes.js`, () => {
+describe('server.routes.js', () => {
+  // eslint-disable-next-line global-require
   const { app } = require('..');
 
-  describe(`Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword`, () => {
+  describe('Verify password endpoint - /api/servers/:serverId/rolesRating/verifyPassword', () => {
     before(async () => {
       await removeRolesByNames(serverId, roleNames);
       await dropAllServerRolesConfig();
     });
-    it(`should add a serverRolesConfig - same command used by the bot`, async () => {
+    it('should add a serverRolesConfig - same command used by the bot', async () => {
       // Add a server roles config before checking
       const serverRolesConfig = await getServerRolesConfigOrInsert({
         serverId,
@@ -41,38 +38,39 @@ describe(`server.routes.js`, () => {
       expect(serverRolesConfig.password).toBe(password);
     });
 
-    it(`should make a request to verify the password successfully`, async () => {
+    it('should make a request to verify the password successfully', async () => {
       await request(app)
         .post(`/api/servers/${serverId}/rolesRating/verifyPassword`)
         .send({
           password
         })
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toMatchObject({ isValid: true });
         });
     });
 
-    it(`should make a request to verify an invalid password`, async () => {
+    it('should make a request to verify an invalid password', async () => {
       await request(app)
         .post(`/api/servers/${serverId}/rolesRating/verifyPassword`)
         .send({
           password: 'Random Password'
         })
-        .expect(200) // Using a 200 to prevent having to catch errors. Will use a 401 on submit instead
-        .expect(res => {
+        // Using a 200 to prevent having to catch errors. Will use a 401 on submit instead
+        .expect(200)
+        .expect((res) => {
           expect(res.body).toMatchObject({ isValid: false });
         });
     });
   });
 
-  describe(`Saving serverRolesConfig - /api/servers/:serverId/requestUpdateRolesRating`, () => {
+  describe('Saving serverRolesConfig - /api/servers/:serverId/requestUpdateRolesRating', () => {
     before(async () => {
       await removeRolesByNames(serverId, roleNames);
       await dropAllServerRolesConfig();
     });
 
-    it(`should add a serverRolesConfig - same command used by the bot`, async () => {
+    it('should add a serverRolesConfig - same command used by the bot', async () => {
       // Add a server roles config before checking
       const serverRolesConfig = await getServerRolesConfigOrInsert({
         serverId,
@@ -84,7 +82,7 @@ describe(`server.routes.js`, () => {
       expect(serverRolesConfig.password).toBe(password);
     });
 
-    it(`should update the server roles config with the received data from the client`, async () => {
+    it('should update the server roles config with the received data from the client', async () => {
       await request(app)
         .post(`/api/servers/${serverId}/requestUpdateRolesRating`)
         .send({
@@ -92,20 +90,21 @@ describe(`server.routes.js`, () => {
           serverRatingEditValues: rolesAsClientUIInput
         })
         .expect(200)
-        .expect(response => {
-          const body = response.body;
-          const rolesRating = body.rolesRating;
-          for (let roleRating of rolesRating) {
+        .expect((response) => {
+          const { body } = response;
+          const { rolesRating } = body;
+          const values = Object.values(rolesRating);
+          values.forEach((roleRating) => {
             expect(roleRating).toHaveProperty('discordRoleObject');
             expect(roleRating.discordRoleObject).toMatchObject({
               name: expect.anything()
             });
-          }
+          });
         });
     });
 
-    describe(`Using the current serverRolesConfig`, () => {
-      it(`should add a new role and add it to the discord server`, async () => {
+    describe('Using the current serverRolesConfig', () => {
+      it('should add a new role and add it to the discord server', async () => {
         const serverRolesConfig = await getServerRolesConfig(serverId);
         const updateInput = clone(serverRolesConfig, false);
         delete updateInput.serverId;
@@ -126,10 +125,10 @@ describe(`server.routes.js`, () => {
             serverRatingEditValues: updateInput
           })
           .expect(200)
-          .expect(response => {
+          .expect((response) => {
             const body = response.body;
             const rolesRating = body.rolesRating;
-            for (let roleRating of rolesRating) {
+            for (const roleRating of rolesRating) {
               expect(roleRating).toHaveProperty('discordRoleObject');
               expect(roleRating.discordRoleObject).toMatchObject({
                 name: expect.anything()
@@ -144,16 +143,11 @@ describe(`server.routes.js`, () => {
           });
 
         const serverRolesConfigUpdated = await getServerRolesConfig(serverId);
-        expect(serverRolesConfigUpdated.rolesRating).toMatchObject(
-          updateInput.rolesRating
-        );
+        expect(serverRolesConfigUpdated.rolesRating).toMatchObject(updateInput.rolesRating);
       });
 
-      it(`should remove one of the roles`, async () => {
-        const serverRolesConfigUpdated = clone(
-          await getServerRolesConfig(serverId),
-          false
-        );
+      it('should remove one of the roles', async () => {
+        const serverRolesConfigUpdated = clone(await getServerRolesConfig(serverId), false);
         const updateInput = {
           rolesRating: serverRolesConfigUpdated.rolesRating,
           ratingType: serverRolesConfigUpdated.ratingType
@@ -172,11 +166,11 @@ describe(`server.routes.js`, () => {
             serverRatingEditValues: updateInput
           })
           .expect(200)
-          .expect(response => {
+          .expect((response) => {
             const body = response.body;
             const rolesRating = body.rolesRating;
             const removedRoles = body.removedRoles;
-            const x = rolesRating.find(role => {
+            const x = rolesRating.find((role) => {
               role.name === 'TEST1';
             });
             expect(x).toBeUndefined();
@@ -186,23 +180,19 @@ describe(`server.routes.js`, () => {
             latestRemovedRoles = removedRoles;
           });
 
-          // Expect the role to not be in the database
-          const latestServerRolesRating = await getServerRolesConfig(
-            serverId
-          );
-          expect(latestServerRolesRating.rolesRating).toMatchObject(
-            latestRolesRating
-          );
+        // Expect the role to not be in the database
+        const latestServerRolesRating = await getServerRolesConfig(serverId);
+        expect(latestServerRolesRating.rolesRating).toMatchObject(latestRolesRating);
 
-          // Expect the role to no exist in the discord server
-          const currentServerRoles = await getRoles(serverId);
-          const isFound = currentServerRoles.find(role => {
-            role.id === latestRemovedRoles[0].id;
-          });
-          expect(isFound).toBeUndefined();
+        // Expect the role to no exist in the discord server
+        const currentServerRoles = await getRoles(serverId);
+        const isFound = currentServerRoles.find((role) => {
+          role.id === latestRemovedRoles[0].id;
+        });
+        expect(isFound).toBeUndefined();
       });
 
-      it(`should change the name of one of the roles`, async () => {});
+      it('should change the name of one of the roles', async () => {});
     });
   });
 });

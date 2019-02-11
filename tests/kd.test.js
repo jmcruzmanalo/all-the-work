@@ -1,12 +1,9 @@
 const expect = require('expect');
-const { ObjectID } = require('mongodb');
-const { getKDs, getTRN, getDeservedRole } = require('../actions/kd');
-const { setUserRole, removeUserRole } = require('../api/discord-api');
-const { DeveloperDiscordID, MainGuildID } = require('../config');
+const { getKDs } = require('../actions/stats');
 
-describe(`KD.js`, () => {
-  describe(`Getting the KD of ATW_Seensei`, () => {
-    it(`should get the KD of ATW_Seensei`, async () => {
+describe('KD.js', () => {
+  describe('Getting the KD of ATW_Seensei', () => {
+    it('should get the KD of ATW_Seensei', async () => {
       const kds = await getKDs('ATW_Seensei');
       // TODO: For now expect anything as long as it exists I guess.
       expect(kds).toMatchObject({

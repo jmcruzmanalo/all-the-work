@@ -21,8 +21,9 @@ const {
 } = require('../../../actions/roles/roles.compute');
 const { UserLink } = require('../../../database/models/userLink');
 
-describe.only('actions/roles.compute.js', () => {
+describe('actions/roles.compute.js', () => {
   describe('BDD - Testing adding role based on stats', () => {
+    // eslint-disable-next-line global-require
     const { app } = require('../../../index');
     before(async () => {
       await removeRolesByNames(serverId, roleNames);
@@ -37,8 +38,8 @@ describe.only('actions/roles.compute.js', () => {
       // await UserLink.remove({});
     });
 
-    describe(`Setup`, () => {
-      it(`should setup the data first`, async () => {
+    describe('Setup', () => {
+      it('should setup the data first', async () => {
         await getServerRolesConfigOrInsert({
           serverId,
           latestRequesterDiscordId: userDiscordId,
@@ -62,7 +63,7 @@ describe.only('actions/roles.compute.js', () => {
                 name: expect.anything()
               })
             );
-            for (let roleRating of rolesRating) {
+            for (const roleRating of rolesRating) {
               expect(roleRating).toHaveProperty('discordRoleObject');
               expect(roleRating.discordRoleObject.name).toBe(roleRating.name);
             }
@@ -78,11 +79,11 @@ describe.only('actions/roles.compute.js', () => {
       });
     });
 
-    describe(`Adding a role based on Player stats and serverRolesConfig`, () => {
-      describe(`Adding a role for the first time`, () => {
+    describe('Adding a role based on Player stats and serverRolesConfig', () => {
+      describe('Adding a role for the first time', () => {
         let deservedRoles = [];
         let invalidRoles = [];
-        it(`should check the deserved roles of a player based on a high TRN`, async () => {
+        it('should check the deserved roles of a player based on a high TRN', async () => {
           const roles = await getDeservedTRNRole({
             serverId,
             userDiscordId,
@@ -94,7 +95,7 @@ describe.only('actions/roles.compute.js', () => {
           invalidRoles = [...roles.invalidRoles];
         });
 
-        it(`should add the valid deserved roles to the user`, async () => {
+        it('should add the valid deserved roles to the user', async () => {
           // Should not throw an error
           const { addedRoles } = await applyRolesToUser({
             serverId,
@@ -109,10 +110,10 @@ describe.only('actions/roles.compute.js', () => {
         });
       });
 
-      describe(`Adding a new role and removing the old one due to trn change`, () => {
+      describe('Adding a new role and removing the old one due to trn change', () => {
         let deservedRoles = [];
         let invalidRoles = [];
-        it(`should check the deserved roles of a player based on a TRN that is level lower`, async () => {
+        it('should check the deserved roles of a player based on a TRN that is level lower', async () => {
           const roles = await getDeservedTRNRole({
             serverId,
             userDiscordId,
@@ -123,7 +124,7 @@ describe.only('actions/roles.compute.js', () => {
           deservedRoles = [...roles.deservedRoles];
           invalidRoles = [...roles.invalidRoles];
         });
-        it(`should add the valid deserved roles to the user`, async () => {
+        it('should add the valid deserved roles to the user', async () => {
           const { addedRoles, removedRoles } = await applyRolesToUser({
             serverId,
             userDiscordId,

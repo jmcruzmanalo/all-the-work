@@ -1,17 +1,16 @@
 const expect = require('expect');
-const api = require('../api/fortnite-api');
-const { getStats, doesUserExist } = require('../api/fortnite-api');
+const { doesUserExist } = require('../api/fortnite-api');
 
-const myIGN = `ATW_Seensei`;
+const myIGN = 'ATW_Seensei';
 
-describe(`Fortnite API JS`, () => {
-  describe(`check if a user exists or not`, () => {
-    it(`should return true`, async () => {
+describe.only('Fortnite API JS', () => {
+  describe('check if a user exists or not', () => {
+    it('should return true', async () => {
       const res = await doesUserExist({ ign: myIGN });
       expect(res).true;
     });
 
-    it(`should return false`, async () => {
+    it('should return false', async () => {
       const res = await doesUserExist({ ign: 'ATTW_Seense' });
       expect(res).false;
     });
